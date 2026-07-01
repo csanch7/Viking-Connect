@@ -27,20 +27,83 @@ function DashboardPage() {
   }
 
   return (
-    <>
-      <h1>Here are the mentors</h1>
-      {mentors.map((mentor: Mentor) => (
-        <div key={mentor.id}>
-          <Link to={`/user/${mentor.id}`}>{mentor.username}</Link>
-          <p>{mentor.email}</p>
-          <p>{mentor.linkedin}</p>
-          <p>{mentor.aoeList.join(', ')}</p>
+    <main className="dashboard-page">
+      <section className="dashboard-hero" aria-labelledby="dashboard-title">
+        <p className="dashboard-kicker">Mentor directory</p>
+        <h1 id="dashboard-title">Find alumni mentors</h1>
+        <p>
+          Browse approved mentors and open a profile to learn more about their
+          experience, contact details, and areas of expertise.
+        </p>
+      </section>
 
+      {mentors.length > 0 ? (
+        <section className="dashboard-grid" aria-label="Mentor list">
+          {mentors.map((mentor: Mentor) => (
+            <article className="dashboard-card" key={mentor.id}>
+              <div className="dashboard-card-header">
+                <div className="dashboard-avatar" aria-hidden="true">
+                  {mentor.username.slice(0, 1).toUpperCase()}
+                </div>
+                <div>
+                  <h2>
+                    <Link to={`/user/${mentor.id}`}>{mentor.username}</Link>
+                  </h2>
+                  <p>{mentor.email}</p>
+                </div>
+              </div>
+
+              <dl className="dashboard-details">
+                <div>
+                  <dt>LinkedIn</dt>
+                  <dd>
+                    {mentor.linkedin ? (
+                      <a
+                        href={mentor.linkedin}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        View profile <span aria-hidden="true">↗</span>
+                      </a>
+                    ) : (
+                      <span>Not added</span>
+                    )}
+                  </dd>
+                </div>
+                <div>
+                  <dt>Expertise</dt>
+                  <dd>
+                    {mentor.aoeList.length > 0
+                      ? mentor.aoeList.join(', ')
+                      : 'No areas listed yet'}
+                  </dd>
+                </div>
+              </dl>
+            </article>
+          ))}
+        </section>
+      ) : (
+        <section className="dashboard-empty" aria-live="polite">
+          <h2>No mentors found</h2>
+          <p>There are no mentors to show on this page yet.</p>
+        </section>
+      )}
+      <div className="dashboard-pagination">
+        <p>Page {page+1}</p>
+        <div className="dashboard-pagination-actions">
+          {page > 0 && (
+            <button onClick={() => {
+              setPage((prevPage) => prevPage - 1);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}>Previous page</button>
+          )}
+          {mentors.length === 10 && <button onClick={() => {
+              setPage((nextPage) => nextPage + 1);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+          }}>Next page</button>}
         </div>
-      ))}
-      <p>Page {page} </p>
-      <button onClick={()=> setPage(page+1)}>Next Page</button>
-    </>
+      </div>
+    </main>
   )
 }
 

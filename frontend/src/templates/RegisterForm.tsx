@@ -98,142 +98,250 @@ function RegisterForm() {
   }
 
   return (
-    <>
-      <h1>Register Form</h1>
-      <h3>{error}</h3>
-      <form onSubmit={(e) => handleSignUp(e)}>
-        <input
-          value={username}
-          onChange={(e) => handleUsername(e.target.value)}
-          placeholder="Username"
-          required
-        />
-        <br />
-        <input
-          value={password}
-          type="password"
-          onChange={(e) => handlePassword(e.target.value)}
-          placeholder="Password"
-          required
-        />
-        <br />
-        <input
-          type="password"
-          value={confirmPassword}
-          onChange={(e) => handleConfirmedPassword(e.target.value)}
-          placeholder="Confirm Password"
-          required
-        />
-        <br />
+    <main className="register-page">
+      <section className="register-hero" aria-labelledby="register-title">
+        <p className="register-kicker">STL Mentorship Program</p>
+        <h1 id="register-title">Create your member profile</h1>
+        <p className="register-intro">
+          Join as a mentor or mentee so the program team can review your
+          profile and connect you with the right alumni network.
+        </p>
+      </section>
 
-        <input
-          type="radio"
-          id="mentee"
-          name="typeSelect"
-          value="mentee"
-          onChange={(e) => handleType(e.target.value)}
-          required
-        />
-        <label htmlFor="mentee">Mentee</label>
-        <br />
-        <input
-          type="radio"
-          id="mentor"
-          name="typeSelect"
-          value="mentor"
-          onChange={(e) => handleType(e.target.value)}
-        />
-        <label htmlFor="mentor">Mentor</label>
-        <br />
+      <form className="register-card" onSubmit={(e) => handleSignUp(e)}>
+        {error && (
+          <div className="register-alert" role="alert">
+            {error}
+          </div>
+        )}
 
-        <br />
+        <section className="register-section" aria-labelledby="account-heading">
+          <div className="register-section-heading">
+            <span className="register-step">1</span>
+            <div>
+              <h2 id="account-heading">Account details</h2>
+              <p>Use the email and password you will sign in with.</p>
+            </div>
+          </div>
 
-        <input
-          value={email}
-          type="email"
-          onChange={(e) => handleEmail(e.target.value)}
-          placeholder="Email"
-          required
-        />
-        <br />
-        <input
-          value={linkedin}
-          type="url"
-          onChange={(e) => handleLinkedin(e.target.value)}
-          placeholder="LinkedIn URL"
-          required
-        />
+          <div className="register-grid">
+            <label className="register-field" htmlFor="username">
+              <span>Username</span>
+              <input
+                id="username"
+                value={username}
+                onChange={(e) => handleUsername(e.target.value)}
+                placeholder="Jane Mentor"
+                required
+              />
+            </label>
 
-        <br />
-        <label htmlFor="graduationYear">Graduation Year</label>
-        <br />
-        <input
-          id="graduationYear"
-          onChange={(e) => handleGradYear(e.target.value)}
-          placeholder="Graduation Year"
-          required
-        />
+            <label className="register-field" htmlFor="email">
+              <span>Email</span>
+              <input
+                id="email"
+                value={email}
+                type="email"
+                onChange={(e) => handleEmail(e.target.value)}
+                placeholder="jane@example.com"
+                required
+              />
+            </label>
 
-        <br />
+            <label className="register-field" htmlFor="password">
+              <span>Password</span>
+              <input
+                id="password"
+                value={password}
+                type="password"
+                onChange={(e) => handlePassword(e.target.value)}
+                placeholder="Create a password"
+                required
+              />
+            </label>
+
+            <label className="register-field" htmlFor="confirmPassword">
+              <span>Confirm password</span>
+              <input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => handleConfirmedPassword(e.target.value)}
+                placeholder="Re-enter your password"
+                required
+              />
+            </label>
+          </div>
+        </section>
+
+        <section className="register-section" aria-labelledby="profile-heading">
+          <div className="register-section-heading">
+            <span className="register-step">2</span>
+            <div>
+              <h2 id="profile-heading">Program profile</h2>
+              <p>Tell the program team how you want to participate.</p>
+            </div>
+          </div>
+
+          <fieldset className="register-role-group">
+            <legend>I am joining as a</legend>
+            <label className="register-role-option" htmlFor="mentee">
+              <input
+                type="radio"
+                id="mentee"
+                name="typeSelect"
+                value="mentee"
+                onChange={(e) => handleType(e.target.value)}
+                required
+              />
+              <span>
+                <strong>Mentee</strong>
+                <small>I want guidance from alumni mentors.</small>
+              </span>
+            </label>
+            <label className="register-role-option" htmlFor="mentor">
+              <input
+                type="radio"
+                id="mentor"
+                name="typeSelect"
+                value="mentor"
+                onChange={(e) => handleType(e.target.value)}
+              />
+              <span>
+                <strong>Mentor</strong>
+                <small>I want to support students or alumni.</small>
+              </span>
+            </label>
+          </fieldset>
+
+          <div className="register-grid">
+            <label className="register-field" htmlFor="linkedin">
+              <span>LinkedIn URL</span>
+              <input
+                id="linkedin"
+                value={linkedin}
+                type="url"
+                onChange={(e) => handleLinkedin(e.target.value)}
+                placeholder="https://www.linkedin.com/in/..."
+                required
+              />
+            </label>
+
+            <label className="register-field" htmlFor="graduationYear">
+              <span>Graduation year</span>
+              <input
+                id="graduationYear"
+                onChange={(e) => handleGradYear(e.target.value)}
+                placeholder="2027"
+                required
+              />
+            </label>
+          </div>
+        </section>
 
         {type === 'mentee' && (
-          <>
-            <textarea
-              value={helpText}
-              onChange={(e) => handleHelpText(e.target.value)}
-              placeholder="What help are you looking for?"
-              required
-            ></textarea>
-            <br />
-          </>
+          <section
+            className="register-section register-section--highlight"
+            aria-labelledby="mentee-heading"
+          >
+            <div className="register-section-heading">
+              <span className="register-step">3</span>
+              <div>
+                <h2 id="mentee-heading">Mentorship goals</h2>
+                <p>Share what kind of support would be most useful.</p>
+              </div>
+            </div>
+
+            <label className="register-field" htmlFor="helpText">
+              <span>What help are you looking for?</span>
+              <textarea
+                id="helpText"
+                value={helpText}
+                onChange={(e) => handleHelpText(e.target.value)}
+                placeholder="Career advice, interview prep, industry insight..."
+                required
+              ></textarea>
+            </label>
+          </section>
         )}
 
         {type === 'mentor' && (
-          <>
-            <label htmlFor="sltExpertise">Select Areas of Expertise: </label>
-
-            <select
-              id="sltExpertise"
-              name="sltExpertise"
-              value={expertise}
-              onChange={(e) => setExpertise(e.target.value)}
-            >
-              <option value="" disabled>
-                Select expertise
-              </option>
-              {areasOfExpertise.map((area) => (
-                <option key={area} value={area}>
-                  {area}
-                </option>
-              ))}
-            </select>
-
-            <button
-              type="button"
-              onClick={() => {
-                if (expertise && !aoeList.includes(expertise)) {
-                  setAoeList((previousList) => [...previousList, expertise])
-                }
-              }}
-            >
-              Add Expertise
-            </button>
-
-            {aoeList.map((area) => (
-              <div key={area}>
-                <span>{area}</span>
-                <button type="button" onClick={() => removeExpertise(area)}>
-                  Remove
-                </button>
+          <section
+            className="register-section register-section--highlight"
+            aria-labelledby="mentor-heading"
+          >
+            <div className="register-section-heading">
+              <span className="register-step">3</span>
+              <div>
+                <h2 id="mentor-heading">Areas of expertise</h2>
+                <p>Add at least one area where you can guide mentees.</p>
               </div>
-            ))}
-          </>
-        )}
-        <br />
+            </div>
 
-        <button type="submit">Submit</button>
+            <div className="register-expertise-row">
+              <label className="register-field" htmlFor="sltExpertise">
+                <span>Select an area</span>
+                <select
+                  id="sltExpertise"
+                  name="sltExpertise"
+                  value={expertise}
+                  onChange={(e) => setExpertise(e.target.value)}
+                >
+                  <option value="" disabled>
+                    Select expertise
+                  </option>
+                  {areasOfExpertise.map((area) => (
+                    <option key={area} value={area}>
+                      {area}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <button
+                className="register-secondary-button"
+                type="button"
+                onClick={() => {
+                  if (expertise && !aoeList.includes(expertise)) {
+                    setAoeList((previousList) => [...previousList, expertise])
+                  }
+                }}
+              >
+                Add expertise
+              </button>
+            </div>
+
+            {aoeList.length > 0 && (
+              <ul className="register-chip-list" aria-label="Selected expertise">
+                {aoeList.map((area) => (
+                  <li key={area}>
+                    <span>{area}</span>
+                    <button type="button" onClick={() => removeExpertise(area)}>
+                      Remove
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        )}
+
+        <div className="register-actions">
+          <button
+            className="register-back-link"
+            type="button"
+            onClick={() => navigate('/')}
+          >
+            <span aria-hidden="true">←</span>
+            Back to login
+          </button>
+
+          <button className="register-submit-button" type="submit">
+            Submit registration
+          </button>
+        </div>
       </form>
-    </>
+    </main>
   )
 }
 

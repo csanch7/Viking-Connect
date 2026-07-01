@@ -5,7 +5,7 @@ import loginService from '../services/loginService'
 import userService from '../services/userService'
 import LoadingPage from './LoadingPage'
 
-function HomePage() {
+function LoginPage() {
   const [loading, setLoading] = useState(true)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -57,36 +57,57 @@ function HomePage() {
   }
 
   return (
-    <>
-      <section id="center">
-        <div>
-          <h1>STL Mentorship Program</h1>
+    <main className="login-page">
+      <section className="login-panel" aria-labelledby="login-title">
+        <div className="login-brand">
+          <span className="login-brand-mark">STL</span>
+          <span>Mentorship Program</span>
+        </div>
+
+        <div className="login-heading">
+          <p className="login-kicker">Welcome back</p>
+          <h1 id="login-title">Sign in to your account</h1>
           <p>
-            Sign in as a mentor/mentee or register{' '}
-            <Link to="/register">here</Link>
+            Access your profile, mentorship dashboard, and program updates.
           </p>
-          <form onSubmit={(e) => handleSignIn(e)}>
+        </div>
+
+        <form className="login-form" onSubmit={(e) => handleSignIn(e)}>
+          <label className="login-field" htmlFor="login-email">
+            <span>Email</span>
             <input
+              id="login-email"
               value={email}
+              type="email"
               onChange={(e) => handleEmail(e.target.value)}
-              placeholder="Email"
+              placeholder="you@example.com"
               required
             />
-            <br />
+          </label>
+
+          <label className="login-field" htmlFor="login-password">
+            <span>Password</span>
             <input
+              id="login-password"
               type="password"
               value={password}
               onChange={(e) => handlePassword(e.target.value)}
-              placeholder="Password"
+              placeholder="Enter your password"
               required
             />
-            <br />
-            <button type="submit">Submit</button>
-          </form>
-        </div>
+          </label>
+
+          <button className="login-submit-button" type="submit">
+            Sign in
+          </button>
+        </form>
+
+        <p className="login-register-prompt">
+          New to the program? <Link to="/register">Create an account</Link>
+        </p>
       </section>
-    </>
+    </main>
   )
 }
 
-export default HomePage
+export default LoginPage

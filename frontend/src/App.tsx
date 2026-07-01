@@ -2,7 +2,7 @@ import { NavLink, Routes, Route, useLocation } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import RegisterForm from './templates/RegisterForm.tsx'
 import './App.css'
-import HomePage from './templates/HomePage.tsx'
+import HomePage from './templates/LoginPage.tsx'
 import VerificationPage from './templates/VerificationPage.tsx'
 import ProfilePage from './templates/ProfilePage.tsx'
 import AdminPage from './templates/AdminPage.tsx'
@@ -15,7 +15,11 @@ function AppNav({ isAdmin }: { isAdmin: boolean }) {
   return (
     <nav className="app-nav" aria-label="Main navigation">
       <NavLink to="/dashboard" className="app-nav-brand">
-        STL Mentorship
+        <img src="/favicon.svg" alt="" aria-hidden="true" />
+        <span>
+          <strong>STL</strong>
+          <small>Mentorship</small>
+        </span>
       </NavLink>
       <div className="app-nav-actions">
         <NavLink to="/dashboard" className="app-nav-button">

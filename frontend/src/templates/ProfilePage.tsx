@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import userService from '../services/userService'
+import LoadingPage from './LoadingPage'
 
 export interface ProfileUser {
   id: string
@@ -48,12 +49,12 @@ function ProfilePage() {
 
   if (error) {
     return (
-      <main >
-        <span >!</span>
+      <main className="profile-page profile-state">
+        <span className="profile-state-icon">!</span>
         <h1>Something went sideways</h1>
         <p>{error}</p>
         <button
-          
+          className="profile-primary-button"
           onClick={() => navigate('/')}
         >
           Back to sign in
@@ -63,25 +64,21 @@ function ProfilePage() {
   }
 
   if (!user) {
-    return (
-      <main >
-        <span  />
-        <p>Gathering your profile…</p>
-      </main>
-    )
+    return <LoadingPage />
   }
 
   const memberType = user.type === 'mentor' ? 'Mentor' : 'Mentee'
+  const profileInitial = user.username.slice(0, 1).toUpperCase()
 
   return (
-    <main >
-      <nav>
-        <button onClick={() => navigate('/')}>
-          <span >STL</span>
+    <main className="profile-page">
+      <nav className="profile-nav">
+        <button className="profile-brand" onClick={() => navigate('/')}>
+          <span className="profile-brand-mark">STL</span>
           <span>Mentorship</span>
         </button>
         <button
-          
+          className="profile-logout-button"
           onClick={handleLogout}
           disabled={isLoggingOut}
         >
@@ -89,14 +86,19 @@ function ProfilePage() {
         </button>
       </nav>
 
-      <section >
-        <div >
-          <div >
-            <span >
+      <section className="profile-hero">
+        <div className="profile-avatar" aria-hidden="true">
+          {profileInitial}
+        </div>
+        <div className="profile-heading">
+          <div className="profile-eyebrow">
+            <span
+              className={`profile-status profile-status--${user.status}`}
+            >
               {user.status}
             </span>
             {user.role === 'admin' && (
-              <span >Admin</span>
+              <span className="profile-role">Admin</span>
             )}
           </div>
           <h1>{user.username}</h1>
@@ -104,13 +106,13 @@ function ProfilePage() {
         </div>
       </section>
 
-      <div >
-        <section >
-          <div >
-            <span >The essentials</span>
+      <div className="profile-grid">
+        <section className="profile-card">
+          <div className="profile-card-heading">
+            <span className="profile-card-kicker">The essentials</span>
             <h2>About you</h2>
           </div>
-          <dl >
+          <dl className="profile-details">
             <div>
               <dt>Email</dt>
               <dd>
@@ -130,19 +132,19 @@ function ProfilePage() {
               <dd>
                 {user.linkedin ? (
                   <a href={user.linkedin} target="_blank" rel="noreferrer">
-                    View profile <span >↗</span>
+                    View profile <span aria-hidden="true">↗</span>
                   </a>
                 ) : (
-                  <span >Not added</span>
+                  <span className="profile-muted">Not added</span>
                 )}
               </dd>
             </div>
           </dl>
         </section>
 
-        <section >
-          <div >
-            <span >Your mentorship</span>
+        <section className="profile-card profile-card--accent">
+          <div className="profile-card-heading">
+            <span className="profile-card-kicker">Your mentorship</span>
             <h2>
               {user.type === 'mentor'
                 ? 'Areas of expertise'
@@ -152,16 +154,16 @@ function ProfilePage() {
 
           {user.type === 'mentor' ? (
             user.aoeList.length > 0 ? (
-              <ul>
+              <ul className="profile-chips">
                 {user.aoeList.map((area) => (
                   <li key={area}>{area}</li>
                 ))}
               </ul>
             ) : (
-              <p>No areas of expertise added yet.</p>
+              <p className="profile-empty">No areas of expertise added yet.</p>
             )
           ) : (
-            <p>
+            <p className="profile-help-text">
               {user.helpText ||
                 'You have not added what you would like help with yet.'}
             </p>
@@ -169,7 +171,7 @@ function ProfilePage() {
         </section>
       </div>
 
-      <footer>
+      <footer className="profile-footer">
         <p>Member #{user.id}</p>
         <p>STL Mentorship Program</p>
       </footer>
