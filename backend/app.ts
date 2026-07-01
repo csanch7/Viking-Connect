@@ -177,7 +177,7 @@ app.get("/api/auth/session", (req, res) => {
    });
 });
 
-app.get("/api/auth/me", requireAuth, async (req, res) => {
+app.get("/api/auth/me", async (req, res) => {
   const userId: string = req.session.userId ?? "";
 
   const user = await findUserById(userId);
