@@ -28,6 +28,8 @@ const sessionSecret =
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const distPath = path.join(__dirname, "dist");
 
+app.set("trust proxy", 1);
+
 if (!process.env.SESSION_SECRET) {
   console.warn("SESSION_SECRET is not set; using a development-only secret");
 }
@@ -177,7 +179,7 @@ app.get("/api/auth/session", (req, res) => {
    });
 });
 
-app.get("/api/auth/me", async (req, res) => {
+app.get("/api/auth/me", requireAuth, async (req, res) => {
   const userId: string = req.session.userId ?? "";
 
   const user = await findUserById(userId);
