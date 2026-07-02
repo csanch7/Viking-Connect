@@ -18,14 +18,15 @@ function AdminPage() {
 
           return
         }
+
+        setLoading(false)
       } catch {
-        // If the check fails, leave the visitor on the sign-in page.
+        setLoading(false)
       }
     }
 
     void checkSession()
-  })
-
+  }, [])
 
   if (loading) {
     return <LoadingPage />

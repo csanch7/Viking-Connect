@@ -19,6 +19,8 @@ import {
 import session from "express-session";
 import pgSession from "connect-pg-simple";
 import { requireAdmin, requireAuth } from "./middleware/auth";
+import { Resend } from 'resend';
+
 
 const app = express();
 const PgSession = pgSession(session);
@@ -27,6 +29,7 @@ const sessionSecret =
   process.env.SESSION_SECRET ?? "development-only-change-me";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const distPath = path.join(__dirname, "dist");
+const resend = new Resend(process.env.RESEND_API);
 
 app.set("trust proxy", 1);
 
@@ -92,6 +95,13 @@ app.post("/api/register", authLimiter, async (req: Request<{}, {}, User>, res: R
       role: "user",
       passwordHash,
     });
+
+    resend.emails.send({
+      from: 'onboarding@resend.dev',
+      to: 'chris.sanchez0505@gmail.com',
+      subject: 'STL Mentorship Program: New Registered User',
+      html: `<p>A new user has been registered to the website. Please check under /admin/pending-users to approve/deny the user</p>`
+    })
 
     res.status(201).json({
       message: "User created",
@@ -180,9 +190,19 @@ app.get("/api/auth/session", (req, res) => {
 });
 
 app.get("/api/auth/me", requireAuth, async (req, res) => {
-  const userId: string = req.session.userId ?? "";
+  const userId = req.session.userId;
+
+  if (!userId) {
+    res.status(401).json({ message: "Not authenticated" });
+    return;
+  }
 
   const user = await findUserById(userId);
+
+  if (!user) {
+    res.status(404).json({ message: "User not found" });
+    return;
+  }
 
   res.json({ user });
 });

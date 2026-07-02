@@ -72,11 +72,7 @@ function ProfilePage() {
 
   return (
     <main className="profile-page">
-      <nav className="profile-nav">
-        <button className="profile-brand" onClick={() => navigate('/')}>
-          <span className="profile-brand-mark">STL</span>
-          <span>Mentorship</span>
-        </button>
+      <div className="profile-toolbar">
         <button
           className="profile-logout-button"
           onClick={handleLogout}
@@ -84,7 +80,7 @@ function ProfilePage() {
         >
           {isLoggingOut ? 'Signing out…' : 'Sign out'}
         </button>
-      </nav>
+      </div>
 
       <section className="profile-hero">
         <div className="profile-avatar" aria-hidden="true">
@@ -92,11 +88,6 @@ function ProfilePage() {
         </div>
         <div className="profile-heading">
           <div className="profile-eyebrow">
-            <span
-              className={`profile-status profile-status--${user.status}`}
-            >
-              {user.status}
-            </span>
             {user.role === 'admin' && (
               <span className="profile-role">Admin</span>
             )}

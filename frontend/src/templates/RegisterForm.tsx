@@ -1,7 +1,12 @@
 import { useState } from 'react'
+import axios from 'axios'
 import registerService from '../services/registerService'
 import type { User } from '../interfaces/userInterface'
 import { useNavigate } from 'react-router-dom'
+
+interface ApiErrorResponse {
+  message?: string
+}
 
 function RegisterForm() {
   const [username, setUsername] = useState<string>('')
@@ -10,7 +15,7 @@ function RegisterForm() {
   const [linkedin, setLinkedin] = useState<string>('')
   const [confirmPassword, setConfirmPassword] = useState<string>('')
   const [type, setType] = useState<string>('')
-  const [error, setError] = useState<string>('')
+  const [error, setError] = useState<string | null>('')
   const [helpText, setHelpText] = useState<string>('')
   const [aoeList, setAoeList] = useState<string[]>([])
   const [expertise, setExpertise] = useState<string>('')
@@ -60,18 +65,26 @@ function RegisterForm() {
     setGradYear(year)
   }
 
+  function handleError(value: string) {
+    setError(value);
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    setTimeout(() => {
+      setError(null)
+    }, 3000);
+  }
+
   async function handleSignUp(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault()
     if (aoeList.length === 0 && type === 'mentor') {
-      setError('Choose at least one area of expertise!!')
+      handleError('Choose at least one area of expertise')
       return
     }
     if (gradYear < 1961) {
-      setError('Select a valid graduation year!!!')
+      handleError('Select a valid graduation year')
       return
     }
     if (password !== confirmPassword) {
-      setError('Make passwords match!!!')
+      handleError('Make sure passwords match')
       return
     }
 
@@ -86,10 +99,21 @@ function RegisterForm() {
       gradYear: gradYear,
     }
 
-    const response = await registerService.registerUser(user)
+    try {
+      const response = await registerService.registerUser(user)
 
-    if (response.message === 'User created') {
-      navigate('/verification')
+      if (response.message === 'User created') {
+        navigate('/verification')
+      }
+    } catch (error) {
+      if (axios.isAxiosError<ApiErrorResponse>(error)) {
+        handleError(
+          error.response?.data.message ?? 'Unable to create your account',
+        )
+        return
+      }
+
+      handleError('Unable to create your account')
     }
   }
 
