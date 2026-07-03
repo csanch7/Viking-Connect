@@ -18,9 +18,13 @@ const userService = {
     const response = await axios.get(endpoint)
     return response.data
   },
-  async getMentors(paginator: number) {
-    const endpoint: string = `${backend}/mentors/${paginator}`
-    const response = await axios.get(endpoint)
+  async getMentors(paginator: number, filter: string[] = []) {
+    const endpoint = `${backend}/mentors/${paginator}`
+    const params = new URLSearchParams()
+
+    filter.forEach((area) => params.append('filter', area))
+
+    const response = await axios.get(endpoint, { params })
     return response.data
   },
   async getUser(id: number) {

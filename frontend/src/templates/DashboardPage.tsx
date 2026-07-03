@@ -3,24 +3,39 @@ import userService from '../services/userService'
 import type { Mentor } from '../interfaces/mentorInterface'
 import { Link } from 'react-router-dom'
 import LoadingPage from './LoadingPage'
+import { areasOfExpertise } from '../interfaces/areasOfExpertise'
 
 function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState<number>(0)
+  const [filter, setFilter] = useState<string[]>([])
   const [mentors, setMentors] = useState<Mentor[]>([])
+
   useEffect(() => {
     async function getUsers() {
-      const response = await userService.getMentors(page)
-      console.log(response)
+      const response = await userService.getMentors(page, filter)
 
       if (response.message !== 'Forbidden') {
         setLoading(false)
         setMentors(response)
       }
     }
-
     void getUsers()
-  }, [page])
+  }, [page, filter])
+
+  async function handleFilter(e: React.SubmitEvent<HTMLFormElement>) {
+    e.preventDefault()
+    const formData = new FormData(e.currentTarget)
+    const selectedAreas = formData.getAll('expertise').map(String)
+
+    setFilter(selectedAreas)
+    setPage(0)
+  }
+
+  function clearFilter() {
+    setFilter([])
+    setPage(0)
+  }
 
   if (loading) {
     return <LoadingPage />
@@ -33,18 +48,51 @@ function DashboardPage() {
           <p className="dashboard-kicker">Directory</p>
           <h1 id="dashboard-title">Find alumni mentors</h1>
           <p>
-            Browse approved mentors and open a profile to learn more about their
+            Browse mentors and open a profile to learn more about their
             experience, contact details, and areas of expertise.
           </p>
         </section>
+
+        <form className="dashboard-filters" onSubmit={handleFilter}>
+          <div className="dashboard-filters-header">
+            <div>
+              <h2>Filter by expertise</h2>
+              <p>Choose one or more focus areas to narrow the mentor list.</p>
+            </div>
+            
+          </div>
+
+          <fieldset className="dashboard-filter-options">
+            <legend className="sr-only">Areas of expertise</legend>
+            {areasOfExpertise.map((area) => (
+              <label className="dashboard-filter-chip" key={area}>
+                <input type="checkbox" name="expertise" value={area} />
+                <span>{area}</span>
+              </label>
+            ))}
+          </fieldset>
+
+          <div className="dashboard-filter-actions">
+            <button className="dashboard-filter-submit" type="submit">
+              Apply filters
+            </button>
+            <button
+              className="dashboard-filter-clear"
+              type="reset"
+              onClick={clearFilter}
+              disabled={filter.length === 0}
+            >
+              Clear
+            </button>
+          </div>
+        </form>
 
         {mentors.length > 0 ? (
           <section className="dashboard-directory" aria-label="Mentor list">
             <div className="dashboard-directory-header">
               <div>
-                <h2>Approved mentors</h2>
+                <h2>Mentors</h2>
               </div>
-              <span className="dashboard-directory-badge">Page {page + 1}</span>
             </div>
 
             <div className="dashboard-list">

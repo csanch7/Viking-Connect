@@ -96,6 +96,18 @@
   outline-offset: 3px;
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  margin: -1px;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
 .counter {
   font-size: 16px;
   padding: 5px 10px;
@@ -633,6 +645,163 @@
   color: var(--dashboard-muted);
   font-size: 15px;
   line-height: 1.55;
+}
+
+.dashboard-filters {
+  display: grid;
+  gap: 18px;
+  margin-bottom: 22px;
+  padding: 20px;
+  border: 1px solid var(--dashboard-border);
+  border-radius: 8px;
+  background: var(--dashboard-card);
+  box-shadow: 0 10px 30px rgba(25, 25, 25, 0.045);
+}
+
+.dashboard-filters-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.dashboard-filters-header h2 {
+  margin: 0 0 4px;
+  color: var(--dashboard-ink);
+  font-size: 16px;
+  font-weight: 780;
+  letter-spacing: 0;
+}
+
+.dashboard-filters-header p {
+  color: var(--dashboard-muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.dashboard-filter-count {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border: 1px solid #eadcae;
+  border-radius: 999px;
+  color: #5c4700;
+  font-size: 12px;
+  font-weight: 760;
+  background: var(--dashboard-gold-soft);
+  white-space: nowrap;
+}
+
+.dashboard-filter-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  margin: 0;
+}
+
+.dashboard-filter-chip {
+  position: relative;
+  display: inline-flex;
+  min-width: 0;
+}
+
+.dashboard-filter-chip input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.dashboard-filter-chip span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid #d9d3c8;
+  border-radius: 6px;
+  color: #38342d;
+  font-size: 13px;
+  font-weight: 720;
+  line-height: 1.2;
+  background: #fffefa;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease,
+    color 160ms ease;
+}
+
+.dashboard-filter-chip:hover span {
+  border-color: #c7beb0;
+  background: #f7f3eb;
+}
+
+.dashboard-filter-chip input:checked + span {
+  border-color: #191919;
+  color: #191919;
+  background: var(--dashboard-gold);
+  box-shadow: inset 0 0 0 1px rgba(25, 25, 25, 0.12);
+}
+
+.dashboard-filter-chip input:focus-visible + span {
+  outline: 3px solid rgba(255, 199, 44, 0.5);
+  outline-offset: 3px;
+}
+
+.dashboard-filter-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.dashboard-filter-actions button {
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 760;
+  cursor: pointer;
+}
+
+.dashboard-filter-submit {
+  border: 1px solid #191919;
+  color: #fffefa;
+  background: #191919;
+}
+
+.dashboard-filter-submit:hover {
+  background: #2b2a27;
+}
+
+.dashboard-filter-clear {
+  border: 1px solid #d9d3c8;
+  color: #38342d;
+  background: #fffefa;
+}
+
+.dashboard-filter-clear:hover:not(:disabled) {
+  border-color: #c7beb0;
+  background: #f7f3eb;
+}
+
+.dashboard-filter-clear:disabled {
+  color: #9b958b;
+  cursor: not-allowed;
+  background: #f4f0e8;
+}
+
+.dashboard-filter-actions button:focus-visible {
+  outline: 3px solid rgba(255, 199, 44, 0.5);
+  outline-offset: 3px;
 }
 
 .dashboard-directory {
@@ -1939,6 +2108,7 @@
 .register-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
   gap: 16px;
 }
 
@@ -2057,10 +2227,26 @@
 }
 
 .register-expertise-row {
+  max-width: 640px;
+}
+
+.register-expertise-control {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  align-items: end;
-  gap: 12px;
+  align-items: center;
+  gap: 8px;
+}
+
+.register-expertise-control select,
+.register-expertise-control .register-secondary-button {
+  height: 44px;
+  min-height: 44px;
+  box-sizing: border-box;
+}
+
+.register-expertise-control .register-secondary-button {
+  padding: 0 16px;
+  line-height: 1;
 }
 
 .register-secondary-button,
@@ -2074,8 +2260,8 @@
 }
 
 .register-secondary-button {
-  min-height: 46px;
-  padding: 0 16px;
+  min-height: 40px;
+  padding: 0 14px;
   color: var(--register-ink);
   background: var(--register-gold);
 }
@@ -2104,7 +2290,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin: 0;
+  margin: -2px 0 0;
   padding: 0;
   list-style: none;
 }
@@ -2112,23 +2298,34 @@
 .register-chip-list li {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  min-height: 34px;
-  padding: 4px 5px 4px 12px;
-  border: 1px solid #ddc56f;
-  border-radius: 999px;
+  gap: 6px;
+  min-height: 30px;
+  padding: 3px 4px 3px 10px;
+  border: 1px solid #e1d8c7;
+  border-radius: 6px;
   color: var(--register-ink);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   background: #fff;
 }
 
 .register-chip-list button {
-  min-height: 26px;
-  padding: 0 10px;
-  color: white;
-  font-size: 12px;
-  background: var(--register-ink);
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  min-height: 22px;
+  padding: 0;
+  border-radius: 5px;
+  color: #514b42;
+  font-size: 15px;
+  line-height: 1;
+  background: #f1ece2;
+}
+
+.register-chip-list button:hover {
+  color: #191919;
+  background: #e6ddce;
 }
 
 .register-back-link {
@@ -2254,6 +2451,39 @@
 
   .dashboard-hero p {
     font-size: 15px;
+  }
+
+  .dashboard-filters {
+    gap: 16px;
+    padding: 16px;
+  }
+
+  .dashboard-filters-header {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .dashboard-filter-options {
+    gap: 8px;
+  }
+
+  .dashboard-filter-chip {
+    flex: 1 1 calc(50% - 8px);
+  }
+
+  .dashboard-filter-chip span {
+    width: 100%;
+    min-height: 40px;
+    padding: 0 10px;
+  }
+
+  .dashboard-filter-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .dashboard-filter-actions button {
+    width: 100%;
   }
 
   .dashboard-directory-header {
@@ -2462,6 +2692,10 @@
     grid-template-columns: 1fr;
   }
 
+  .register-expertise-control {
+    grid-template-columns: 1fr;
+  }
+
   .register-secondary-button,
   .register-submit-button {
     width: 100%;
@@ -2616,6 +2850,81 @@
 .register-field textarea:focus {
   border-color: #c8aa48;
   box-shadow: 0 0 0 3px rgba(255, 199, 44, 0.2);
+}
+
+.register-field small {
+  color: var(--surface-muted);
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+.register-password-rules {
+  display: grid;
+  gap: 6px;
+  margin: 2px 0 0;
+  padding: 10px 12px;
+  border: 1px solid var(--surface-border);
+  border-radius: 6px;
+  list-style: none;
+  background: #fffefa;
+}
+
+.register-password-rules li {
+  font-size: 12px;
+  font-weight: 620;
+  line-height: 1.35;
+}
+
+.register-password-rules li::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-right: 7px;
+  vertical-align: 1px;
+  background: currentColor;
+}
+
+.register-password-rule--invalid {
+  color: #7c7469;
+}
+
+.register-password-rule--valid {
+  color: #2f6f47;
+}
+
+.register-password-rule--invalid::before {
+  color: #c9623c;
+}
+
+.register-field--invalid input {
+  border-color: #c9623c;
+  background: #fff7f4;
+}
+
+.register-field--invalid small {
+  color: var(--surface-danger);
+}
+
+.register-field--invalid input:focus {
+  border-color: #a84624;
+  box-shadow: 0 0 0 3px rgba(201, 98, 60, 0.18);
+}
+
+.register-field--valid input {
+  border-color: #4f8d68;
+  background: #f5fbf6;
+}
+
+.register-field--valid small {
+  color: #2f6f47;
+}
+
+.register-field--valid input:focus {
+  border-color: #3d7654;
+  box-shadow: 0 0 0 3px rgba(79, 141, 104, 0.18);
 }
 
 .login-submit-button,
@@ -3058,8 +3367,8 @@
 }
 
 .register-section--highlight {
-  border-color: #ebe4d2;
-  background: var(--surface-gold-soft);
+  border-color: var(--surface-border);
+  background: var(--surface-card);
 }
 
 .register-step {
@@ -3102,9 +3411,9 @@
 .register-chip-list button {
   min-height: 22px;
   border-radius: 5px;
-  color: #fffefa;
+  color: #514b42;
   font-size: 11px;
-  background: #191919;
+  background: #f1ece2;
 }
 
 .register-actions {

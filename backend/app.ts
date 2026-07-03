@@ -228,10 +228,20 @@ app.post("/api/admin/deny-user/:userId", requireAdmin, async (req, res) => {
   
 });
 
-app.get("/api/mentors/:pagniator", requireAuth, async (req, res) => {
-  const { pagniator } = req.params;
-  let page : number = Number(pagniator);
-  const users = await getMentorsByPagination(page)
+app.get("/api/mentors/:paginator", requireAuth, async (req, res) => {
+  const { paginator } = req.params;
+
+  const page = Number(paginator);
+  const rawFilter = req.query.filter;
+
+  const filter =
+    typeof rawFilter === "string"
+      ? [rawFilter]
+      : Array.isArray(rawFilter)
+        ? rawFilter.map(String)
+        : [];
+
+  const users = await getMentorsByPagination(page, filter);
 
   res.json(users);
 });

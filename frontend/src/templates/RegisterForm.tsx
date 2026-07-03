@@ -3,14 +3,45 @@ import axios from 'axios'
 import registerService from '../services/registerService'
 import type { User } from '../interfaces/userInterface'
 import { useNavigate } from 'react-router-dom'
+import { areasOfExpertise } from '../interfaces/areasOfExpertise'
 
 interface ApiErrorResponse {
   message?: string
 }
 
+const passwordSpecialCharacters = '!@#$%^&*()_-+=[{]};:,.?'
+
+function getPasswordRules(value: string) {
+  return [
+    {
+      label: 'At least 12 characters',
+      valid: value.length >= 12,
+    },
+    {
+      label: 'One uppercase letter',
+      valid: /[A-Z]/.test(value),
+    },
+    {
+      label: 'One lowercase letter',
+      valid: /[a-z]/.test(value),
+    },
+    {
+      label: 'One number',
+      valid: /\d/.test(value),
+    },
+    {
+      label: 'One special character',
+      valid: [...value].some((character) =>
+        passwordSpecialCharacters.includes(character),
+      ),
+    },
+  ]
+}
+
 function RegisterForm() {
   const [username, setUsername] = useState<string>('')
   const [password, setPassword] = useState<string>('')
+  const [passwordFocused, setPasswordFocused] = useState<boolean>(false)
   const [email, setEmail] = useState<string>('')
   const [linkedin, setLinkedin] = useState<string>('')
   const [confirmPassword, setConfirmPassword] = useState<string>('')
@@ -22,16 +53,15 @@ function RegisterForm() {
   const [gradYear, setGradYear] = useState<number>(0)
 
   const navigate = useNavigate()
+  const passwordRules = getPasswordRules(password)
+  const passwordIsValid = passwordRules.every((rule) => rule.valid)
+  const passwordFieldState =
+    password.length === 0
+      ? 'register-field'
+      : passwordIsValid
+        ? 'register-field register-field--valid'
+        : 'register-field register-field--invalid'
 
-  const areasOfExpertise: string[] = [
-    'Finance',
-    'Accounting',
-    'Cybersecurity',
-    'Product Management',
-    'Growth',
-    'Programming',
-    'Databases',
-  ]
   function handleUsername(value: string) {
     setUsername(value)
   }
@@ -81,6 +111,10 @@ function RegisterForm() {
     }
     if (gradYear < 1961) {
       handleError('Select a valid graduation year')
+      return
+    }
+    if (!passwordIsValid) {
+      handleError('Password does not meet the requirements')
       return
     }
     if (password !== confirmPassword) {
@@ -150,7 +184,7 @@ function RegisterForm() {
 
           <div className="register-grid">
             <label className="register-field" htmlFor="username">
-              <span>Username</span>
+              <span>Name</span>
               <input
                 id="username"
                 value={username}
@@ -172,16 +206,41 @@ function RegisterForm() {
               />
             </label>
 
-            <label className="register-field" htmlFor="password">
+            <label className={passwordFieldState} htmlFor="password">
               <span>Password</span>
               <input
                 id="password"
                 value={password}
                 type="password"
                 onChange={(e) => handlePassword(e.target.value)}
+                onBlur={() => setPasswordFocused(false)}
+                onFocus={() => setPasswordFocused(true)}
                 placeholder="Create a password"
+                aria-describedby={
+                  passwordFocused ? 'password-requirements' : undefined
+                }
+                aria-invalid={password.length > 0 && !passwordIsValid}
                 required
               />
+              {passwordFocused && (
+                <ul
+                  className="register-password-rules"
+                  id="password-requirements"
+                >
+                  {passwordRules.map((rule) => (
+                    <li
+                      className={
+                        rule.valid
+                          ? 'register-password-rule--valid'
+                          : 'register-password-rule--invalid'
+                      }
+                      key={rule.label}
+                    >
+                      {rule.label}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </label>
 
             <label className="register-field" htmlFor="confirmPassword">
@@ -305,34 +364,39 @@ function RegisterForm() {
             <div className="register-expertise-row">
               <label className="register-field" htmlFor="sltExpertise">
                 <span>Select an area</span>
-                <select
-                  id="sltExpertise"
-                  name="sltExpertise"
-                  value={expertise}
-                  onChange={(e) => setExpertise(e.target.value)}
-                >
-                  <option value="" disabled>
-                    Select expertise
-                  </option>
-                  {areasOfExpertise.map((area) => (
-                    <option key={area} value={area}>
-                      {area}
+                <div className="register-expertise-control">
+                  <select
+                    id="sltExpertise"
+                    name="sltExpertise"
+                    value={expertise}
+                    onChange={(e) => setExpertise(e.target.value)}
+                  >
+                    <option value="" disabled>
+                      Choose expertise
                     </option>
-                  ))}
-                </select>
-              </label>
+                    {areasOfExpertise.map((area) => (
+                      <option key={area} value={area}>
+                        {area}
+                      </option>
+                    ))}
+                  </select>
 
-              <button
-                className="register-secondary-button"
-                type="button"
-                onClick={() => {
-                  if (expertise && !aoeList.includes(expertise)) {
-                    setAoeList((previousList) => [...previousList, expertise])
-                  }
-                }}
-              >
-                Add expertise
-              </button>
+                  <button
+                    className="register-secondary-button"
+                    type="button"
+                    onClick={() => {
+                      if (expertise && !aoeList.includes(expertise)) {
+                        setAoeList((previousList) => [
+                          ...previousList,
+                          expertise,
+                        ])
+                      }
+                    }}
+                  >
+                    Add
+                  </button>
+                </div>
+              </label>
             </div>
 
             {aoeList.length > 0 && (
@@ -340,8 +404,12 @@ function RegisterForm() {
                 {aoeList.map((area) => (
                   <li key={area}>
                     <span>{area}</span>
-                    <button type="button" onClick={() => removeExpertise(area)}>
-                      Remove
+                    <button
+                      type="button"
+                      onClick={() => removeExpertise(area)}
+                      aria-label={`Remove ${area}`}
+                    >
+                      <span aria-hidden="true">×</span>
                     </button>
                   </li>
                 ))}

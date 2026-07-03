@@ -110,21 +110,43 @@ export async function findUserByEmail(email: string): Promise<DatabaseUser | und
   return rows[0] as DatabaseUser | undefined;
 }
 
-export async function getMentorsByPagination(paginator: number): Promise<DatabaseUser[] | undefined> {
-  let batchSize : number = 10;
-  const rows = await sql`
-    SELECT
-      id::text,
-      username,
-      email,
-      linkedin,
-      aoe_list AS "aoeList"
-    FROM users
-    WHERE type = 'mentor'
-    LIMIT ${batchSize} OFFSET ${paginator * batchSize}
-  `;
+export async function getMentorsByPagination(
+  paginator: number,
+  filter: string[] = [],
+): Promise<DatabaseUser[]> {
+  const batchSize = 10;
+  const page = Math.max(0, Number.isFinite(paginator) ? paginator : 0);
 
-  return rows as DatabaseUser[] | undefined;
+  const rows = filter.length > 0
+    ? await sql`
+        SELECT
+          id::text,
+          username,
+          email,
+          linkedin,
+          aoe_list AS "aoeList"
+        FROM users
+        WHERE type = 'mentor'
+          AND status = 'approved'
+          AND aoe_list ?| ${filter}
+        ORDER BY username ASC, id ASC
+        LIMIT ${batchSize} OFFSET ${page * batchSize}
+      `
+    : await sql`
+        SELECT
+          id::text,
+          username,
+          email,
+          linkedin,
+          aoe_list AS "aoeList"
+        FROM users
+        WHERE type = 'mentor'
+          AND status = 'approved'
+        ORDER BY username ASC, id ASC
+        LIMIT ${batchSize} OFFSET ${page * batchSize}
+      `;
+
+  return rows as DatabaseUser[];
 }
 
 export async function findUserById(userId: string): Promise<DatabaseUser | undefined> {
