@@ -215,6 +215,19 @@ export async function approveUser(userId: string) {
   return rows[0] as { id: string } | undefined;
 }
 
+export async function updateHelpText(helpText: string, userId: string) {
+  const rows = await sql`
+    UPDATE
+      users
+    SET help_text = ${helpText}
+    WHERE id = ${userId}
+    RETURNING 
+      help_text AS "helpText"
+  `;
+
+  return rows[0] as {helpText: string} | undefined;
+}
+
 export function isUniqueViolation(error: unknown) {
   return typeof error === "object" && error !== null && "code" in error && error.code === "23505";
 }

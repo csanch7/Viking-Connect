@@ -32,6 +32,16 @@ const userService = {
     const response = await axios.get(endpoint)
     return response.data
   },
+  async updateHelpText(helpText: string, id: string) {
+    const endpoint: string = `${backend}/change-text/${id}`
+    const response = await axios.patch(
+      endpoint, 
+      {
+        "helpText": helpText
+      }
+    )
+    return response.data
+  }
 }
 
 export default userService

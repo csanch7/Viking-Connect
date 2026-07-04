@@ -19,6 +19,8 @@ export interface ProfileUser {
 function ProfilePage() {
   const [user, setUser] = useState<ProfileUser | null>(null)
   const [error, setError] = useState('')
+  const [editMode, setEditMode] = useState(false)
+  const [editText, setEditText] = useState<string>('')
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const navigate = useNavigate()
 
@@ -47,6 +49,94 @@ function ProfilePage() {
     }
   }
 
+  function startEditingHelpText() {
+    if (!user) {
+      return
+    }
+
+    setEditText(user.helpText)
+    setEditMode(true)
+  }
+
+  function cancelEditingHelpText() {
+    setEditMode(false)
+    setEditText('')
+  }
+
+  async function saveHelpText() {
+    if (!user) {
+      return
+    }
+
+    const response = await userService.updateHelpText(editText, user.id)
+
+    setUser({
+      ...user,
+      helpText: response.helpText,
+    })
+    setEditMode(false)
+  }
+
+  function renderMentorshipContent() {
+    if (!user) {
+      return null
+    }
+
+    if (user.type === 'mentor') {
+      return user.aoeList.length > 0 ? (
+        <ul className="profile-chips">
+          {user.aoeList.map((area) => (
+            <li key={area}>{area}</li>
+          ))}
+        </ul>
+      ) : (
+        <p className="profile-empty">No areas of expertise added yet.</p>
+      )
+    }
+
+    if (editMode) {
+      return (
+        <form
+          className="profile-help-form"
+          onSubmit={(event) => {
+            event.preventDefault()
+            void saveHelpText()
+          }}
+        >
+          <label htmlFor="editText">Help needed</label>
+          <textarea
+            id="editText"
+            value={editText}
+            onChange={(event) => setEditText(event.target.value)}
+            rows={5}
+            required
+          />
+          <div className="profile-help-actions">
+            <button
+              className="profile-secondary-button"
+              type="button"
+              onClick={cancelEditingHelpText}
+            >
+              Cancel
+            </button>
+            <button className="profile-primary-button" type="submit">
+              Save
+            </button>
+          </div>
+        </form>
+      )
+    }
+
+    return (
+      <div className="profile-help-summary">
+        <p className="profile-help-text">
+          {user.helpText ||
+            'You have not added what you would like help with yet.'}
+        </p>
+      </div>
+    )
+  }
+
   if (error) {
     return (
       <main className="profile-page profile-state">
@@ -72,100 +162,121 @@ function ProfilePage() {
 
   return (
     <main className="profile-page">
-      <div className="profile-toolbar">
-        <button
-          className="profile-logout-button"
-          onClick={handleLogout}
-          disabled={isLoggingOut}
-        >
-          {isLoggingOut ? 'Signing out…' : 'Sign out'}
-        </button>
-      </div>
-
-      <section className="profile-hero">
-        <div className="profile-avatar" aria-hidden="true">
-          {profileInitial}
-        </div>
-        <div className="profile-heading">
-          <div className="profile-eyebrow">
-            {user.role === 'admin' && (
-              <span className="profile-role">Admin</span>
-            )}
+      <section className="profile-hero profile-card">
+        <div className="profile-cover" aria-hidden="true" />
+        <div className="profile-identity">
+          <div className="profile-avatar" aria-hidden="true">
+            {profileInitial}
           </div>
-          <h1>{user.username}</h1>
-          <p>{memberType} in the STL Mentorship Program</p>
+          <div className="profile-heading">
+            <div className="profile-eyebrow">
+              {user.role === 'admin' && (
+                <span className="profile-role">Admin</span>
+              )}
+            </div>
+            <h1>{user.username}</h1>
+            <p>{memberType} in the STL Mentorship Program</p>
+          </div>
+          <div className="profile-actions">
+            {user.linkedin && (
+              <a
+                className="profile-secondary-link"
+                href={user.linkedin}
+                target="_blank"
+                rel="noreferrer"
+              >
+                LinkedIn <span aria-hidden="true">↗</span>
+              </a>
+            )}
+            <button
+              className="profile-logout-button"
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+            >
+              {isLoggingOut ? 'Signing out...' : 'Sign out'}
+            </button>
+          </div>
         </div>
       </section>
 
-      <div className="profile-grid">
-        <section className="profile-card">
-          <div className="profile-card-heading">
-            <span className="profile-card-kicker">The essentials</span>
-            <h2>About you</h2>
-          </div>
-          <dl className="profile-details">
-            <div>
-              <dt>Email</dt>
-              <dd>
-                <a href={`mailto:${user.email}`}>{user.email}</a>
-              </dd>
+      <div className="profile-layout">
+        <div className="profile-main-column">
+          <section className="profile-card profile-card--accent">
+            <div className="profile-card-heading profile-card-heading--with-action">
+              <div>
+                <span className="profile-card-kicker">Mentorship</span>
+                <h2>
+                  {user.type === 'mentor'
+                    ? 'Areas of expertise'
+                    : 'What you are looking for'}
+                </h2>
+              </div>
+              {user.type !== 'mentor' && !editMode && (
+                <button
+                  className="profile-edit-help-button"
+                  type="button"
+                  onClick={startEditingHelpText}
+                  aria-label="Edit help text"
+                >
+                  Edit
+                </button>
+              )}
             </div>
-            <div>
-              <dt>Graduation year</dt>
-              <dd>{user.gradYear}</dd>
-            </div>
-            <div>
-              <dt>Program role</dt>
-              <dd>{memberType}</dd>
-            </div>
-            <div>
-              <dt>LinkedIn</dt>
-              <dd>
-                {user.linkedin ? (
-                  <a href={user.linkedin} target="_blank" rel="noreferrer">
-                    View profile <span aria-hidden="true">↗</span>
-                  </a>
-                ) : (
-                  <span className="profile-muted">Not added</span>
-                )}
-              </dd>
-            </div>
-          </dl>
-        </section>
 
-        <section className="profile-card profile-card--accent">
-          <div className="profile-card-heading">
-            <span className="profile-card-kicker">Your mentorship</span>
-            <h2>
-              {user.type === 'mentor'
-                ? 'Areas of expertise'
-                : 'What you’re looking for'}
-            </h2>
-          </div>
+            {renderMentorshipContent()}
+          </section>
 
-          {user.type === 'mentor' ? (
-            user.aoeList.length > 0 ? (
-              <ul className="profile-chips">
-                {user.aoeList.map((area) => (
-                  <li key={area}>{area}</li>
-                ))}
-              </ul>
-            ) : (
-              <p className="profile-empty">No areas of expertise added yet.</p>
-            )
-          ) : (
-            <p className="profile-help-text">
-              {user.helpText ||
-                'You have not added what you would like help with yet.'}
-            </p>
-          )}
-        </section>
+          <section className="profile-card">
+            <div className="profile-card-heading">
+              <span className="profile-card-kicker">Contact</span>
+              <h2>About</h2>
+            </div>
+            <dl className="profile-details">
+              <div>
+                <dt>Email</dt>
+                <dd>
+                  <a href={`mailto:${user.email}`}>{user.email}</a>
+                </dd>
+              </div>
+              <div>
+                <dt>LinkedIn</dt>
+                <dd>
+                  {user.linkedin ? (
+                    <a href={user.linkedin} target="_blank" rel="noreferrer">
+                      View profile <span aria-hidden="true">↗</span>
+                    </a>
+                  ) : (
+                    <span className="profile-muted">Not added</span>
+                  )}
+                </dd>
+              </div>
+            </dl>
+          </section>
+        </div>
+
+        <aside className="profile-side-column" aria-label="Profile summary">
+          <section className="profile-card profile-summary-card">
+            <div className="profile-card-heading">
+              <span className="profile-card-kicker">Program</span>
+              <h2>Snapshot</h2>
+            </div>
+            <dl className="profile-summary-list">
+              <div>
+                <dt>Role</dt>
+                <dd>{memberType}</dd>
+              </div>
+              <div>
+                <dt>Graduation year</dt>
+                <dd>{user.gradYear}</dd>
+              </div>
+              <div>
+                <dt>Member</dt>
+                <dd>#{user.id}</dd>
+              </div>
+            </dl>
+          </section>
+        </aside>
       </div>
-
-      <footer className="profile-footer">
-        <p>Member #{user.id}</p>
-        <p>STL Mentorship Program</p>
-      </footer>
     </main>
   )
 }

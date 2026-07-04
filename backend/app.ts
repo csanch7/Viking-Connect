@@ -14,6 +14,7 @@ import {
   denyUser,
   approveUser,
   getMentorsByPagination,
+  updateHelpText
 } from "./database";
 
 import session from "express-session";
@@ -30,6 +31,124 @@ const sessionSecret =
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const distPath = path.join(__dirname, "dist");
 const resend = new Resend(process.env.RESEND_API);
+const adminPendingUsersPath = "/admin/pending-users";
+const adminPendingUsersUrl = process.env.APP_URL
+  ? `${process.env.APP_URL.replace(/\/$/, "")}${adminPendingUsersPath}`
+  : adminPendingUsersPath;
+type RegistrationEmailUser = Omit<User, "password">;
+
+function escapeHtml(value: string | number | undefined) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function isHttpUrl(value: string) {
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+function renderAdminRegistrationEmail(user: RegistrationEmailUser) {
+  const areasOfExpertise = user.aoeList?.length
+    ? user.aoeList.map((area) => escapeHtml(area)).join(", ")
+    : "Not provided";
+
+  const linkedinValue = escapeHtml(user.linkedin);
+  const linkedinContent = isHttpUrl(user.linkedin)
+    ? `<a href="${linkedinValue}" style="color: #090909; text-decoration: underline; text-decoration-color: #ffc72c;">${linkedinValue}</a>`
+    : linkedinValue;
+
+  const linkedinRow = user.linkedin
+    ? `
+      <tr>
+        <td style="padding: 12px 0; color: #676767; font-size: 14px; vertical-align: top;">LinkedIn</td>
+        <td style="padding: 12px 0; color: #090909; font-size: 14px; font-weight: 600; text-align: right;">
+          ${linkedinContent}
+        </td>
+      </tr>
+    `
+    : "";
+
+  return `
+    <!doctype html>
+    <html lang="en">
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>New Registration Pending Review</title>
+      </head>
+      <body style="margin: 0; padding: 0; background: #f7f5ef; color: #090909; font-family: Arial, Helvetica, sans-serif;">
+        <div style="display: none; max-height: 0; overflow: hidden; opacity: 0;">
+          A new STL Mentor Program registration is waiting for admin approval.
+        </div>
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background: #f7f5ef; margin: 0; padding: 32px 16px;">
+          <tr>
+            <td align="center">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width: 600px; background: #ffffff; border: 1px solid #dedbd2; border-radius: 8px; overflow: hidden;">
+                <tr>
+                  <td style="background: #090909; padding: 28px 32px;">
+                    <p style="margin: 0 0 8px; color: #ffc72c; font-size: 12px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase;">STL Mentor Program</p>
+                    <h1 style="margin: 0; color: #ffffff; font-size: 26px; line-height: 1.25; font-weight: 800;">New registration pending review</h1>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 32px;">
+                    <p style="margin: 0 0 24px; color: #3b3b3b; font-size: 16px; line-height: 1.6;">
+                      A new user created an account and is waiting for an administrator to approve or deny access.
+                    </p>
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse: collapse; border-top: 1px solid #dedbd2; border-bottom: 1px solid #dedbd2;">
+                      <tr>
+                        <td style="padding: 12px 0; color: #676767; font-size: 14px;">Name</td>
+                        <td style="padding: 12px 0; color: #090909; font-size: 14px; font-weight: 600; text-align: right;">${escapeHtml(user.username)}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 12px 0; color: #676767; font-size: 14px;">Email</td>
+                        <td style="padding: 12px 0; color: #090909; font-size: 14px; font-weight: 600; text-align: right;">
+                          <a href="mailto:${escapeHtml(user.email)}" style="color: #090909; text-decoration: underline; text-decoration-color: #ffc72c;">${escapeHtml(user.email)}</a>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 12px 0; color: #676767; font-size: 14px;">Account type</td>
+                        <td style="padding: 12px 0; color: #090909; font-size: 14px; font-weight: 600; text-align: right;">${escapeHtml(user.type)}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 12px 0; color: #676767; font-size: 14px;">Graduation year</td>
+                        <td style="padding: 12px 0; color: #090909; font-size: 14px; font-weight: 600; text-align: right;">${escapeHtml(user.gradYear)}</td>
+                      </tr>
+                      ${linkedinRow}
+                      <tr>
+                        <td style="padding: 12px 0; color: #676767; font-size: 14px; vertical-align: top;">Areas of expertise</td>
+                        <td style="padding: 12px 0; color: #090909; font-size: 14px; font-weight: 600; line-height: 1.5; text-align: right;">${areasOfExpertise}</td>
+                      </tr>
+                    </table>
+                    <div style="margin: 24px 0; padding: 18px 20px; background: #fff5d2; border-left: 4px solid #ffc72c;">
+                      <p style="margin: 0; color: #090909; font-size: 14px; line-height: 1.6;">
+                        Review this registration in the admin pending users queue.
+                      </p>
+                    </div>
+                    <a href="${escapeHtml(adminPendingUsersUrl)}" style="display: inline-block; padding: 13px 18px; background: #ffc72c; border-radius: 6px; color: #090909; font-size: 14px; font-weight: 800; text-decoration: none;">
+                      Open pending users
+                    </a>
+                    <p style="margin: 18px 0 0; color: #676767; font-size: 13px; line-height: 1.5;">
+                      If the button does not open, visit ${escapeHtml(adminPendingUsersPath)} after signing in as an admin.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+    </html>
+  `;
+}
 
 app.set("trust proxy", 1);
 
@@ -100,7 +219,16 @@ app.post("/api/register", authLimiter, async (req: Request<{}, {}, User>, res: R
       from: 'onboarding@resend.dev',
       to: 'chris.sanchez0505@gmail.com',
       subject: 'STL Mentorship Program: New Registered User',
-      html: `<p>A new user has been registered to the website. Please check under /admin/pending-users to approve/deny the user</p>`
+      html: renderAdminRegistrationEmail(user),
+      text: `A new STL Mentor Program registration is waiting for review.
+
+Name: ${user.username}
+Email: ${user.email}
+Account type: ${user.type}
+Graduation year: ${user.gradYear}
+Areas of expertise: ${user.aoeList?.length ? user.aoeList.join(", ") : "Not provided"}
+
+Review the registration at ${adminPendingUsersPath}.`
     })
 
     res.status(201).json({
@@ -262,6 +390,33 @@ app.post("/api/admin/approve-user/:userId", requireAdmin, async (req, res) => {
   }
 
   res.json({ message: `${userId} has been approved` });
+
+  
+});
+
+app.patch("/api/change-text/:userId", requireAuth, authLimiter, async (req, res) => {
+  const { userId } = req.params;
+  const { helpText } = req.body;
+  if (userId !== req.session.userId) {
+    res.status(403).json({ message: "Unauthorized to change another's help text" });
+    return;
+  }
+
+  if (typeof helpText !== "string") {
+    res.status(400).json({ message: "Help text is required" });
+    return;
+  }
+
+  const updatedHelptext = await updateHelpText(helpText, userId as string)
+
+  if (!updatedHelptext) {
+    res.status(404).json({ message: "User not found" });
+    return;
+  }
+
+  res.json({ message: `Help text has been successfully updated`, 
+             helpText: updatedHelptext.helpText
+   });
 
   
 });
