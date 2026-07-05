@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { areasOfExpertise } from '../interfaces/areasOfExpertise'
 import userService from '../services/userService'
 import LoadingPage from './LoadingPage'
 
@@ -21,6 +22,8 @@ function ProfilePage() {
   const [error, setError] = useState('')
   const [editMode, setEditMode] = useState(false)
   const [editText, setEditText] = useState<string>('')
+  const [editAoeList, setEditAoeList] = useState<string[]>([])
+  const [editExpertise, setEditExpertise] = useState<string>('')
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const navigate = useNavigate()
 
@@ -55,12 +58,56 @@ function ProfilePage() {
     }
 
     setEditText(user.helpText)
+    setEditAoeList([])
+    setEditExpertise('')
     setEditMode(true)
   }
 
-  function cancelEditingHelpText() {
+  function startEditingAOEList() {
+    if (!user) {
+      return
+    }
+
+    setEditAoeList(user.aoeList)
+    setEditText('')
+    setEditExpertise('')
+    setEditMode(true)
+  }
+
+  function cancelEditing() {
     setEditMode(false)
     setEditText('')
+    setEditAoeList([])
+    setEditExpertise('')
+  }
+
+  function removeExpertise(area: string) {
+    setEditAoeList((previousList) =>
+      previousList.filter((item) => item !== area),
+    )
+  }
+
+  function addExpertise() {
+    if (!editExpertise || editAoeList.includes(editExpertise)) {
+      return
+    }
+
+    setEditAoeList((previousList) => [...previousList, editExpertise])
+    setEditExpertise('')
+  }
+
+  async function saveAoeList() {
+    if (!user) {
+      return
+    }
+
+    const response = await userService.updateAoeList(editAoeList, user.id)
+
+    setUser({
+      ...user,
+      aoeList: response.aoeList,
+    })
+    cancelEditing()
   }
 
   async function saveHelpText() {
@@ -80,6 +127,69 @@ function ProfilePage() {
   function renderMentorshipContent() {
     if (!user) {
       return null
+    }
+
+    if (user.type === 'mentor' && editMode) {
+      return (
+        <form
+          className="profile-help-form"
+          onSubmit={(event) => {
+            event.preventDefault()
+            saveAoeList()
+          }}
+        >
+          <label className="register-field" htmlFor="editExpertise">
+            <span>Select an area</span>
+            <div className="register-expertise-control">
+              <select
+                id="editExpertise"
+                value={editExpertise}
+                onChange={(event) => setEditExpertise(event.target.value)}
+              >
+                <option value="">Choose expertise</option>
+                {areasOfExpertise.map((area) => (
+                  <option key={area} value={area}>
+                    {area}
+                  </option>
+                ))}
+              </select>
+              <button
+                className="register-secondary-button"
+                type="button"
+                onClick={addExpertise}
+              >
+                Add
+              </button>
+            </div>
+          </label>
+          <ul className="register-chip-list" aria-label="Selected expertise">
+            {editAoeList.map((area) => (
+              <li key={area}>
+                <span>{area}</span>
+                <button
+                  type="button"
+                  onClick={() => removeExpertise(area)}
+                  aria-label={`Remove ${area}`}
+                >
+                  <span aria-hidden="true">×</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+          <div className="profile-help-actions">
+            <button
+              className="profile-secondary-button"
+              type="button"
+              onClick={cancelEditing}
+            >
+              Cancel
+            </button>
+            <button className="profile-primary-button" type="submit">
+              Save
+            </button>
+          </div>
+        </form>
+      )
     }
 
     if (user.type === 'mentor') {
@@ -115,7 +225,7 @@ function ProfilePage() {
             <button
               className="profile-secondary-button"
               type="button"
-              onClick={cancelEditingHelpText}
+              onClick={cancelEditing}
             >
               Cancel
             </button>
@@ -178,16 +288,6 @@ function ProfilePage() {
             <p>{memberType} in the STL Mentorship Program</p>
           </div>
           <div className="profile-actions">
-            {user.linkedin && (
-              <a
-                className="profile-secondary-link"
-                href={user.linkedin}
-                target="_blank"
-                rel="noreferrer"
-              >
-                LinkedIn <span aria-hidden="true">↗</span>
-              </a>
-            )}
             <button
               className="profile-logout-button"
               onClick={handleLogout}
@@ -211,12 +311,20 @@ function ProfilePage() {
                     : 'What you are looking for'}
                 </h2>
               </div>
-              {user.type !== 'mentor' && !editMode && (
+              {!editMode && (
                 <button
                   className="profile-edit-help-button"
                   type="button"
-                  onClick={startEditingHelpText}
-                  aria-label="Edit help text"
+                  onClick={
+                    user.type === 'mentor'
+                      ? startEditingAOEList
+                      : startEditingHelpText
+                  }
+                  aria-label={
+                    user.type === 'mentor'
+                      ? 'Edit areas of expertise'
+                      : 'Edit help text'
+                  }
                 >
                   Edit
                 </button>

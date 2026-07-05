@@ -14,7 +14,8 @@ import {
   denyUser,
   approveUser,
   getMentorsByPagination,
-  updateHelpText
+  updateHelpText,
+  updateAOEList
 } from "./database";
 
 import session from "express-session";
@@ -361,6 +362,8 @@ app.get("/api/mentors/:paginator", requireAuth, async (req, res) => {
 
   const page = Number(paginator);
   const rawFilter = req.query.filter;
+  const rawSearchText = req.query.searchText;
+  const searchText = typeof rawSearchText === "string" ? rawSearchText : undefined;
 
   const filter =
     typeof rawFilter === "string"
@@ -369,7 +372,8 @@ app.get("/api/mentors/:paginator", requireAuth, async (req, res) => {
         ? rawFilter.map(String)
         : [];
 
-  const users = await getMentorsByPagination(page, filter);
+  const users = await getMentorsByPagination(page, filter, req.session.userId as string, searchText);
+  
 
   res.json(users);
 });
@@ -421,12 +425,38 @@ app.patch("/api/change-text/:userId", requireAuth, authLimiter, async (req, res)
   
 });
 
+app.patch("/api/change-aoeList/:userId", requireAuth, authLimiter, async (req, res) => {
+  const { userId } = req.params;
+  const { aoe_list } = req.body;
+  if (userId !== req.session.userId) {
+    res.status(403).json({ message: "Unauthorized to change another's aoe list" });
+    return;
+  }
+
+  if (!Array.isArray(aoe_list) || !aoe_list.every((area) => typeof area === "string")) {
+    res.status(400).json({ message: "Area of expertise list is required" });
+    return;
+  }
+
+  const updateList = await updateAOEList(aoe_list, userId as string)
+
+  if (!updateList) {
+    res.status(404).json({ message: "User not found" });
+    return;
+  }
+
+  res.json({ message: `Areas of expertise have been successfully updated`, 
+             aoeList: updateList.aoeList
+   });
+
+  
+});
+
 app.use(express.static(distPath));
 
 app.get(/^(?!\/api).*/, (_req, res) => {
   res.sendFile(path.join(distPath, "index.html"));
 });
-
 
 const port = process.env.PORT ?? 3000;
 
