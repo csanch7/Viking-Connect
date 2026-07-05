@@ -57,9 +57,14 @@ function isHttpUrl(value: string) {
 }
 
 function renderAdminRegistrationEmail(user: RegistrationEmailUser) {
-  const areasOfExpertise = user.aoeList?.length
-    ? user.aoeList.map((area) => escapeHtml(area)).join(", ")
-    : "Not provided";
+  const mentorshipDetailLabel =
+    user.type === "mentor" ? "Areas of expertise" : "Help requested";
+  const mentorshipDetailValue =
+    user.type === "mentor"
+      ? user.aoeList?.length
+        ? user.aoeList.map((area) => escapeHtml(area)).join(", ")
+        : "Not provided"
+      : escapeHtml(user.helpText || "Not provided");
 
   const linkedinValue = escapeHtml(user.linkedin);
   const linkedinContent = isHttpUrl(user.linkedin)
@@ -125,8 +130,8 @@ function renderAdminRegistrationEmail(user: RegistrationEmailUser) {
                       </tr>
                       ${linkedinRow}
                       <tr>
-                        <td style="padding: 12px 0; color: #676767; font-size: 14px; vertical-align: top;">Areas of expertise</td>
-                        <td style="padding: 12px 0; color: #090909; font-size: 14px; font-weight: 600; line-height: 1.5; text-align: right;">${areasOfExpertise}</td>
+                        <td style="padding: 12px 0; color: #676767; font-size: 14px; vertical-align: top;">${mentorshipDetailLabel}</td>
+                        <td style="padding: 12px 0; color: #090909; font-size: 14px; font-weight: 600; line-height: 1.5; text-align: right;">${mentorshipDetailValue}</td>
                       </tr>
                     </table>
                     <div style="margin: 24px 0; padding: 18px 20px; background: #fff5d2; border-left: 4px solid #ffc72c;">
@@ -227,7 +232,13 @@ Name: ${user.username}
 Email: ${user.email}
 Account type: ${user.type}
 Graduation year: ${user.gradYear}
-Areas of expertise: ${user.aoeList?.length ? user.aoeList.join(", ") : "Not provided"}
+${user.type === "mentor" ? "Areas of expertise" : "Help requested"}: ${
+        user.type === "mentor"
+          ? user.aoeList?.length
+            ? user.aoeList.join(", ")
+            : "Not provided"
+          : user.helpText || "Not provided"
+      }
 
 Review the registration at ${adminPendingUsersPath}.`
     })
