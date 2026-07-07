@@ -2,7 +2,6 @@ import { NavLink, Routes, Route, useLocation } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import RegisterForm from './templates/RegisterForm.tsx'
 import './App.css'
-import HomePage from './templates/LoginPage.tsx'
 import VerificationPage from './templates/VerificationPage.tsx'
 import ProfilePage from './templates/ProfilePage.tsx'
 import AdminPage from './templates/AdminPage.tsx'
@@ -10,6 +9,8 @@ import PendingUsersPage from './templates/PendingUsersPage.tsx'
 import DashboardPage from './templates/DashboardPage.tsx'
 import MentorPage from './templates/MentorPage.tsx'
 import userService from './services/userService.ts'
+import LoginPage from './templates/LoginPage.tsx'
+import HomePage from './templates/HomePage.tsx'
 
 function AppNav({ isAdmin }: { isAdmin: boolean }) {
   return (
@@ -42,6 +43,12 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
   const location = useLocation()
+  const showAppNav =
+    location.pathname === '/dashboard' ||
+    location.pathname === '/profile' ||
+    location.pathname === '/admin' ||
+    location.pathname === '/admin/pending-users' ||
+    location.pathname.startsWith('/user/')
 
   useEffect(() => {
     async function checkSession() {
@@ -60,9 +67,17 @@ function App() {
 
   return (
     <>
-      {isAuthenticated && <AppNav isAdmin={isAdmin} />}
+      {isAuthenticated && showAppNav && <AppNav isAdmin={isAdmin} />}
       <Routes>
-        <Route path="*" element={<HomePage />} />
+        <Route
+          path="*"
+          element={<HomePage isAuthenticated={isAuthenticated} />}
+        />
+        <Route
+          path="/"
+          element={<HomePage isAuthenticated={isAuthenticated} />}
+        />
+        <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterForm />} />
         <Route path="/verification" element={<VerificationPage />} />
         <Route path="/profile" element={<ProfilePage />} />

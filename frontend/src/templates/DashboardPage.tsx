@@ -81,6 +81,27 @@ function DashboardPage() {
     setPage(0)
   }
 
+  function renderExpertiseChips(aoeList: string[]) {
+    const visibleExpertise = aoeList.slice(0, 2)
+    const hiddenExpertiseCount = aoeList.length - visibleExpertise.length
+
+    return (
+      <ul className="dashboard-chips">
+        {visibleExpertise.map((area) => (
+          <li key={area}>{area}</li>
+        ))}
+        {hiddenExpertiseCount > 0 && (
+          <li
+            className="dashboard-chip-count"
+            aria-label={`${hiddenExpertiseCount} more areas of expertise`}
+          >
+            +{hiddenExpertiseCount}
+          </li>
+        )}
+      </ul>
+    )
+  }
+
   if (loading) {
     return <LoadingPage />
   }
@@ -227,11 +248,7 @@ function DashboardPage() {
                       <dt>Expertise</dt>
                       <dd>
                         {mentor.aoeList.length > 0 ? (
-                          <ul className="dashboard-chips">
-                            {mentor.aoeList.map((area) => (
-                              <li key={area}>{area}</li>
-                            ))}
-                          </ul>
+                          renderExpertiseChips(mentor.aoeList)
                         ) : (
                           <span className="dashboard-muted">
                             No areas listed yet

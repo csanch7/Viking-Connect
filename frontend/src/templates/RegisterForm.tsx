@@ -10,6 +10,10 @@ interface ApiErrorResponse {
 }
 
 const passwordSpecialCharacters = '!@#$%^&*()_-+=[{]};:,.?'
+const linkedinProfileUrlRegex =
+  /^https:\/\/(www\.)?linkedin\.com\/in\/[A-Za-z0-9-]{3,100}\/?$/
+const linkedinProfileUrlPattern =
+  'https://(www\\.)?linkedin\\.com/in/[A-Za-z0-9-]{3,100}/?'
 
 function getPasswordRules(value: string) {
   return [
@@ -55,10 +59,18 @@ function RegisterForm() {
   const navigate = useNavigate()
   const passwordRules = getPasswordRules(password)
   const passwordIsValid = passwordRules.every((rule) => rule.valid)
+  const trimmedLinkedin = linkedin.trim()
+  const linkedinIsValid = linkedinProfileUrlRegex.test(trimmedLinkedin)
   const passwordFieldState =
     password.length === 0
       ? 'register-field'
       : passwordIsValid
+        ? 'register-field register-field--valid'
+        : 'register-field register-field--invalid'
+  const linkedinFieldState =
+    linkedin.length === 0
+      ? 'register-field'
+      : linkedinIsValid
         ? 'register-field register-field--valid'
         : 'register-field register-field--invalid'
 
@@ -121,12 +133,16 @@ function RegisterForm() {
       handleError('Make sure passwords match')
       return
     }
+    if (!linkedinIsValid) {
+      handleError('Enter a valid LinkedIn profile URL')
+      return
+    }
 
     const user: User = {
       username: username,
       password: password,
       email: email,
-      linkedin: linkedin,
+      linkedin: trimmedLinkedin,
       type: type,
       helpText: helpText,
       aoeList: aoeList,
@@ -298,7 +314,7 @@ function RegisterForm() {
           </fieldset>
 
           <div className="register-grid">
-            <label className="register-field" htmlFor="linkedin">
+            <label className={linkedinFieldState} htmlFor="linkedin">
               <span>LinkedIn URL</span>
               <input
                 id="linkedin"
@@ -306,6 +322,10 @@ function RegisterForm() {
                 type="url"
                 onChange={(e) => handleLinkedin(e.target.value)}
                 placeholder="https://www.linkedin.com/in/..."
+                pattern={linkedinProfileUrlPattern}
+                title="Use a LinkedIn profile URL like https://www.linkedin.com/in/your-name"
+                aria-describedby="linkedin-help"
+                aria-invalid={linkedin.length > 0 && !linkedinIsValid}
                 required
               />
             </label>

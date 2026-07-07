@@ -2,10 +2,13 @@ import { Link } from 'react-router-dom'
 import userService from '../services/userService'
 import { useEffect, useState } from 'react'
 import LoadingPage from './LoadingPage'
+import adminService from '../services/adminService'
 
 function AdminPage() {
   const [status, setStatus] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [mentorCount, setMentorCount] = useState<number>()
+  const [menteeCount, setMenteeCount] = useState<number>()
 
   useEffect(() => {
     async function checkSession() {
@@ -15,6 +18,9 @@ function AdminPage() {
         if (response.admin) {
           setLoading(false)
           setStatus(true)
+
+          setMentorCount(await adminService.mentorCount())
+          setMenteeCount(await adminService.menteeCount())
 
           return
         }
@@ -50,6 +56,25 @@ function AdminPage() {
           Review new member registrations and keep the mentorship directory
           focused on approved participants.
         </p>
+      </section>
+
+      <section className="admin-stats" aria-labelledby="admin-stats-title">
+        <div className="admin-stats-heading">
+          <span className="admin-card-kicker">Directory snapshot</span>
+          <h2 id="admin-stats-title">Approved members</h2>
+        </div>
+        <dl className="admin-stat-grid">
+          <div className="admin-stat-card">
+            <dt>Mentors</dt>
+            <dd className="admin-stat-value">{mentorCount ?? '...'}</dd>
+            <dd className="admin-stat-note">Available alumni guides</dd>
+          </div>
+          <div className="admin-stat-card">
+            <dt>Mentees</dt>
+            <dd className="admin-stat-value">{menteeCount ?? '...'}</dd>
+            <dd className="admin-stat-note">Students seeking support</dd>
+          </div>
+        </dl>
       </section>
 
       <section className="admin-card" aria-labelledby="pending-users-title">

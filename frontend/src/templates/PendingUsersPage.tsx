@@ -122,19 +122,11 @@ function PendingUsersPage() {
                   <dd>{user.gradYear}</dd>
                 </div>
                 <div>
-                  <dt>Account role</dt>
-                  <dd>{user.role}</dd>
-                </div>
-                <div>
                   <dt>LinkedIn</dt>
                   <dd>
-                    {user.linkedin ? (
-                      <a href={user.linkedin} target="_blank" rel="noreferrer">
-                        View profile <span aria-hidden="true">↗</span>
-                      </a>
-                    ) : (
-                      'Not added'
-                    )}
+                    <a href={user.linkedin} target="_blank" rel="noreferrer">
+                      {user.linkedin}
+                    </a>
                   </dd>
                 </div>
                 <div className="pending-user-detail-wide">

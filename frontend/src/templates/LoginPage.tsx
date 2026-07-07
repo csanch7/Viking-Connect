@@ -25,6 +25,7 @@ function LoginPage() {
         setLoading(false)
       } catch {
         // If the check fails, leave the visitor on the sign-in page.
+        setLoading(false)
       }
     }
 

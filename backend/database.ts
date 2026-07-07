@@ -250,6 +250,27 @@ export async function updateAOEList(aoeList: string[], userId: string) {
   return rows[0] as {aoeList: string[]} | undefined;
 }
 
+export async function getMentorCount() {
+  const rows = await sql`
+    SELECT COUNT(*) 
+    FROM users 
+    WHERE type = 'mentor';
+  `;
+
+  return rows[0];
+}
+
+export async function getMenteeCount() {
+  const rows = await sql`
+    SELECT COUNT(*) 
+    FROM users 
+    WHERE type = 'mentee';
+  `;
+
+  return rows[0];
+}
+
+
 export function isUniqueViolation(error: unknown) {
   return typeof error === "object" && error !== null && "code" in error && error.code === "23505";
 }

@@ -18,6 +18,16 @@ const adminService = {
     const response = await axios.post(endpoint)
     return response.data
   },
+  async mentorCount() {
+    const endpoint: string = `${backend}/admin/mentor-count`
+    const response = await axios.get(endpoint)
+    return response.data.count
+  },
+  async menteeCount() {
+    const endpoint: string = `${backend}/admin/mentee-count`
+    const response = await axios.get(endpoint)
+    return response.data.count
+  },
 }
 
 export default adminService

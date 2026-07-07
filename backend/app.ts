@@ -15,7 +15,9 @@ import {
   approveUser,
   getMentorsByPagination,
   updateHelpText,
-  updateAOEList
+  updateAOEList,
+  getMentorCount,
+  getMenteeCount
 } from "./database";
 
 import session from "express-session";
@@ -54,6 +56,12 @@ function isHttpUrl(value: string) {
   } catch {
     return false;
   }
+}
+
+function isLinkedinProfileUrl(value: string) {
+  return /^https:\/\/(www\.)?linkedin\.com\/in\/[A-Za-z0-9-]{3,100}\/?$/.test(
+    value,
+  );
 }
 
 function renderAdminRegistrationEmail(user: RegistrationEmailUser) {
@@ -207,16 +215,27 @@ app.get("/api/health", async (req: Request, res: Response) => {
 
 app.post("/api/register", authLimiter, async (req: Request<{}, {}, User>, res: Response) => {
   const { password, ...user } = req.body;
+  const normalizedUser = {
+    ...user,
+    linkedin: user.linkedin?.trim() ?? "",
+  };
 
   if (!user.username || !password || !user.email || !user.type) {
     res.status(400).json({ message: "Missing required registration fields" });
     return;
   }
 
+  if (!isLinkedinProfileUrl(normalizedUser.linkedin)) {
+    res.status(400).json({
+      message: "Enter a valid LinkedIn profile URL",
+    });
+    return;
+  }
+
   try {
     const passwordHash = await hashPassword(password);
     const createdUser = await createUser({
-      ...user,
+      ...normalizedUser,
       role: "user",
       passwordHash,
     });
@@ -225,19 +244,19 @@ app.post("/api/register", authLimiter, async (req: Request<{}, {}, User>, res: R
       from: 'onboarding@resend.dev',
       to: 'chris.sanchez0505@gmail.com',
       subject: 'STL Mentorship Program: New Registered User',
-      html: renderAdminRegistrationEmail(user),
+      html: renderAdminRegistrationEmail(normalizedUser),
       text: `A new STL Mentor Program registration is waiting for review.
 
-Name: ${user.username}
-Email: ${user.email}
-Account type: ${user.type}
-Graduation year: ${user.gradYear}
-${user.type === "mentor" ? "Areas of expertise" : "Help requested"}: ${
-        user.type === "mentor"
-          ? user.aoeList?.length
-            ? user.aoeList.join(", ")
+Name: ${normalizedUser.username}
+Email: ${normalizedUser.email}
+Account type: ${normalizedUser.type}
+Graduation year: ${normalizedUser.gradYear}
+${normalizedUser.type === "mentor" ? "Areas of expertise" : "Help requested"}: ${
+        normalizedUser.type === "mentor"
+          ? normalizedUser.aoeList?.length
+            ? normalizedUser.aoeList.join(", ")
             : "Not provided"
-          : user.helpText || "Not provided"
+          : normalizedUser.helpText || "Not provided"
       }
 
 Review the registration at ${adminPendingUsersPath}.`
@@ -393,6 +412,16 @@ app.get("/api/user/:id", requireAuth, async (req, res) => {
   const { id } = req.params;
   const mentor = await findUserById(id)
   res.json(mentor);
+});
+
+app.get("/api/admin/mentor-count", async (req, res) => {
+  const count = await getMentorCount()
+  res.json(count);
+});
+
+app.get("/api/admin/mentee-count", async (req, res) => {
+  const count = await getMenteeCount()
+  res.json(count);
 });
 
 app.post("/api/admin/approve-user/:userId", requireAdmin, async (req, res) => {
