@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-export interface loginUser {
+export interface LoginUser {
   email: string
   password: string
 }
@@ -8,7 +8,7 @@ export interface loginUser {
 const backend = '/api'
 
 const loginService = {
-  async loginUser(userData: loginUser) {
+  async login(userData: LoginUser) {
     const user = {
       email: userData.email,
       password: userData.password,

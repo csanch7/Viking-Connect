@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import userService from '../services/userService'
-import type { Mentor } from '../interfaces/mentorInterface'
-import { Link } from 'react-router-dom'
-import LoadingPage from './LoadingPage'
-import { areasOfExpertise } from '../interfaces/areasOfExpertise'
+import type { Mentor } from '../types/mentor'
+import LoadingPage from '../components/LoadingPage'
+import { areasOfExpertise } from '../constants/areasOfExpertise'
+import MentorDirectoryCard from '../components/mentor/MentorDirectoryCard'
 
 function DashboardPage() {
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   const [page, setPage] = useState<number>(0)
   const [filter, setFilter] = useState<string[]>([])
   const [draftFilter, setDraftFilter] = useState<string[]>([])
@@ -30,24 +31,35 @@ function DashboardPage() {
   useEffect(() => {
     let isCurrentRequest = true
 
-    async function getUsers() {
-      const response = await userService.getMentors(
-        page,
-        filter,
-        debouncedSearchText,
-      )
+    async function loadMentors() {
+      try {
+        const response = await userService.getMentors(
+          page,
+          filter,
+          debouncedSearchText,
+        )
 
-      if (!isCurrentRequest) {
-        return
-      }
+        if (!isCurrentRequest) {
+          return
+        }
 
-      if (response.message !== 'Forbidden') {
-        setLoading(false)
         setMentors(response)
+        setError('')
+      } catch {
+        if (!isCurrentRequest) {
+          return
+        }
+
+        setMentors([])
+        setError('We could not load mentors right now. Please try again.')
+      } finally {
+        if (isCurrentRequest) {
+          setLoading(false)
+        }
       }
     }
 
-    void getUsers()
+    void loadMentors()
 
     return () => {
       isCurrentRequest = false
@@ -79,27 +91,6 @@ function DashboardPage() {
     setDraftFilter([])
     setFilterSearchText('')
     setPage(0)
-  }
-
-  function renderExpertiseChips(aoeList: string[]) {
-    const visibleExpertise = aoeList.slice(0, 2)
-    const hiddenExpertiseCount = aoeList.length - visibleExpertise.length
-
-    return (
-      <ul className="dashboard-chips">
-        {visibleExpertise.map((area) => (
-          <li key={area}>{area}</li>
-        ))}
-        {hiddenExpertiseCount > 0 && (
-          <li
-            className="dashboard-chip-count"
-            aria-label={`${hiddenExpertiseCount} more areas of expertise`}
-          >
-            +{hiddenExpertiseCount}
-          </li>
-        )}
-      </ul>
-    )
   }
 
   if (loading) {
@@ -230,52 +221,14 @@ function DashboardPage() {
 
             <div className="dashboard-list">
               {mentors.map((mentor: Mentor) => (
-                <article className="dashboard-card" key={mentor.id}>
-                  <div className="dashboard-card-header">
-                    <div className="dashboard-avatar" aria-hidden="true">
-                      {mentor.username.slice(0, 1).toUpperCase()}
-                    </div>
-                    <div className="dashboard-card-heading">
-                      <h3>
-                        <Link to={`/user/${mentor.id}`}>{mentor.username}</Link>
-                      </h3>
-                      <p>{mentor.email}</p>
-                    </div>
-                  </div>
-
-                  <dl className="dashboard-details">
-                    <div>
-                      <dt>Expertise</dt>
-                      <dd>
-                        {mentor.aoeList.length > 0 ? (
-                          renderExpertiseChips(mentor.aoeList)
-                        ) : (
-                          <span className="dashboard-muted">
-                            No areas listed yet
-                          </span>
-                        )}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt>LinkedIn</dt>
-                      <dd>
-                        {mentor.linkedin ? (
-                          <a
-                            href={mentor.linkedin}
-                            target="_blank"
-                            rel="noreferrer"
-                          >
-                            View profile <span aria-hidden="true">↗</span>
-                          </a>
-                        ) : (
-                          <span className="dashboard-muted">Not added</span>
-                        )}
-                      </dd>
-                    </div>
-                  </dl>
-                </article>
+                <MentorDirectoryCard key={mentor.id} mentor={mentor} />
               ))}
             </div>
+          </section>
+        ) : error ? (
+          <section className="dashboard-empty" aria-live="polite">
+            <h2>Unable to load mentors</h2>
+            <p>{error}</p>
           </section>
         ) : (
           <section className="dashboard-empty" aria-live="polite">

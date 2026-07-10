@@ -1,12 +1,17 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import '../App.css'
 import loginService from '../services/loginService'
 import userService from '../services/userService'
-import LoadingPage from './LoadingPage'
+import LoadingPage from '../components/LoadingPage'
+import axios from 'axios'
+
+interface ApiErrorResponse {
+  message?: string
+}
 
 function LoginPage() {
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
@@ -34,22 +39,40 @@ function LoginPage() {
 
   function handleEmail(value: string) {
     setEmail(value)
+    setError('')
   }
 
   function handlePassword(value: string) {
     setPassword(value)
+    setError('')
+  }
+
+  function handleError(value: string) {
+    setError(value)
   }
 
   async function handleSignIn(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault()
-    const loginUser = {
-      email,
-      password,
-    }
-    const response = await loginService.loginUser(loginUser)
 
-    if (response.message === 'Logged in') {
-      navigate('/profile')
+    try {
+      const credentials = {
+        email,
+        password,
+      }
+      const response = await loginService.login(credentials)
+
+      if (response.message === 'Logged in') {
+        navigate('/profile')
+      }
+    } catch (error) {
+      if (axios.isAxiosError<ApiErrorResponse>(error)) {
+        handleError(
+          error.response?.data.message ?? 'Unable to sign in. Please try again.',
+        )
+        return
+      }
+
+      handleError('Unable to sign in. Please try again.')
     }
   }
 
@@ -64,6 +87,15 @@ function LoginPage() {
           <span className="login-brand-mark">STL</span>
           <span>Mentorship Program</span>
         </div>
+
+        {error && (
+          <div className="login-alert" id="login-error" role="alert">
+            <span className="login-alert-icon" aria-hidden="true">
+              !
+            </span>
+            <p>{error}</p>
+          </div>
+        )}
 
         <div className="login-heading">
           <p className="login-kicker">Welcome back</p>
@@ -82,6 +114,8 @@ function LoginPage() {
               type="email"
               onChange={(e) => handleEmail(e.target.value)}
               placeholder="you@example.com"
+              aria-invalid={Boolean(error)}
+              aria-describedby={error ? 'login-error' : undefined}
               required
             />
           </label>
@@ -94,6 +128,8 @@ function LoginPage() {
               value={password}
               onChange={(e) => handlePassword(e.target.value)}
               placeholder="Enter your password"
+              aria-invalid={Boolean(error)}
+              aria-describedby={error ? 'login-error' : undefined}
               required
             />
           </label>

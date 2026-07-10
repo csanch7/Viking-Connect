@@ -1,12 +1,13 @@
 import { Link } from 'react-router-dom'
 import userService from '../services/userService'
 import { useEffect, useState } from 'react'
-import LoadingPage from './LoadingPage'
+import LoadingPage from '../components/LoadingPage'
 import adminService from '../services/adminService'
 
 function AdminPage() {
-  const [status, setStatus] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   const [mentorCount, setMentorCount] = useState<number>()
   const [menteeCount, setMenteeCount] = useState<number>()
 
@@ -16,17 +17,20 @@ function AdminPage() {
         const response = await userService.checkSession()
 
         if (response.admin) {
-          setLoading(false)
-          setStatus(true)
+          setIsAdmin(true)
 
-          setMentorCount(await adminService.mentorCount())
-          setMenteeCount(await adminService.menteeCount())
+          const [mentorTotal, menteeTotal] = await Promise.all([
+            adminService.mentorCount(),
+            adminService.menteeCount(),
+          ])
 
+          setMentorCount(mentorTotal)
+          setMenteeCount(menteeTotal)
           return
         }
-
-        setLoading(false)
       } catch {
+        setError('We could not load the admin workspace. Please try again.')
+      } finally {
         setLoading(false)
       }
     }
@@ -37,12 +41,12 @@ function AdminPage() {
   if (loading) {
     return <LoadingPage />
   }
-  if (status === false) {
+  if (!isAdmin) {
     return (
       <main className="admin-page admin-state">
         <span className="admin-state-icon">!</span>
-        <h1>You are not allowed here</h1>
-        <p>This area is reserved for program administrators.</p>
+        <h1>{error ? 'Unable to load admin' : 'You are not allowed here'}</h1>
+        <p>{error || 'This area is reserved for program administrators.'}</p>
       </main>
     )
   }

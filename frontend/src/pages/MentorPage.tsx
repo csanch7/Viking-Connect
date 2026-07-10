@@ -1,26 +1,32 @@
 import { useEffect, useState } from 'react'
-import type { Mentor } from '../interfaces/mentorInterface'
+import type { Mentor } from '../types/mentor'
 import userService from '../services/userService'
 import { Link, useParams } from 'react-router-dom'
-import LoadingPage from './LoadingPage'
+import LoadingPage from '../components/LoadingPage'
+import ExpertiseChips from '../components/expertise/ExpertiseChips'
 
 function MentorPage() {
   const [mentor, setMentor] = useState<Mentor>()
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   const { id } = useParams()
 
   useEffect(() => {
-    async function getUsers() {
-      const response = await userService.getUser(Number(id))
-      console.log(response)
+    async function loadMentor() {
+      try {
+        const response = await userService.getMentor(Number(id))
 
-      if (response.message !== 'Forbidden') {
         setMentor(response)
+        setError('')
+      } catch {
+        setMentor(undefined)
+        setError('We could not load this mentor profile.')
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     }
 
-    void getUsers()
+    void loadMentor()
   }, [id])
 
   if (loading) {
@@ -32,7 +38,7 @@ function MentorPage() {
       <main className="mentor-page mentor-state">
         <span className="mentor-state-icon">!</span>
         <h1>Mentor not found</h1>
-        <p>We could not load this mentor profile.</p>
+        <p>{error || 'We could not load this mentor profile.'}</p>
         <Link className="mentor-primary-link" to="/dashboard">
           Back to directory
         </Link>
@@ -87,12 +93,11 @@ function MentorPage() {
               <h2 id="mentor-expertise-title">Areas of expertise</h2>
             </div>
 
-            {mentor.aoeList.length > 0 ? (
-              <ul className="mentor-chips">
-                {mentor.aoeList.map((area) => (
-                  <li key={area}>{area}</li>
-                ))}
-              </ul>
+            {mentor.areasOfExpertise.length > 0 ? (
+              <ExpertiseChips
+                areas={mentor.areasOfExpertise}
+                className="mentor-chips"
+              />
             ) : (
               <p className="mentor-empty">No areas of expertise listed yet.</p>
             )}

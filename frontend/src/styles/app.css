@@ -3442,6 +3442,40 @@
   font-weight: 780;
 }
 
+.login-alert {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  margin: -8px 0 20px;
+  padding: 12px;
+  border: 1px solid #edc4b1;
+  border-radius: 8px;
+  color: var(--surface-danger);
+  background: #fff2ec;
+}
+
+.login-alert-icon {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  color: #fffefa;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1;
+  background: var(--surface-danger);
+}
+
+.login-alert p {
+  margin: 0;
+  color: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
 .login-heading {
   margin-bottom: 22px;
 }

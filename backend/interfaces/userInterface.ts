@@ -5,6 +5,6 @@ export interface User {
   linkedin: string;
   type: string;
   helpText: string;
-  aoeList: Array<string>;
+  areasOfExpertise: string[];
   gradYear: number;
 }

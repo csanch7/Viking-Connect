@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { areasOfExpertise } from '../interfaces/areasOfExpertise'
 import userService from '../services/userService'
-import LoadingPage from './LoadingPage'
+import LoadingPage from '../components/LoadingPage'
+import ExpertiseChips from '../components/expertise/ExpertiseChips'
+import ExpertiseSelector from '../components/expertise/ExpertiseSelector'
 
 export interface ProfileUser {
   id: string
@@ -11,7 +12,7 @@ export interface ProfileUser {
   type: string
   linkedin: string
   helpText: string
-  aoeList: string[]
+  areasOfExpertise: string[]
   gradYear: number
   status: string
   role: 'admin' | 'user'
@@ -22,7 +23,7 @@ function ProfilePage() {
   const [error, setError] = useState('')
   const [editMode, setEditMode] = useState(false)
   const [editText, setEditText] = useState<string>('')
-  const [editAoeList, setEditAoeList] = useState<string[]>([])
+  const [editAreasOfExpertise, setEditAreasOfExpertise] = useState<string[]>([])
   const [editExpertise, setEditExpertise] = useState<string>('')
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const navigate = useNavigate()
@@ -58,17 +59,17 @@ function ProfilePage() {
     }
 
     setEditText(user.helpText)
-    setEditAoeList([])
+    setEditAreasOfExpertise([])
     setEditExpertise('')
     setEditMode(true)
   }
 
-  function startEditingAOEList() {
+  function startEditingAreasOfExpertise() {
     if (!user) {
       return
     }
 
-    setEditAoeList(user.aoeList)
+    setEditAreasOfExpertise(user.areasOfExpertise)
     setEditText('')
     setEditExpertise('')
     setEditMode(true)
@@ -77,35 +78,38 @@ function ProfilePage() {
   function cancelEditing() {
     setEditMode(false)
     setEditText('')
-    setEditAoeList([])
+    setEditAreasOfExpertise([])
     setEditExpertise('')
   }
 
   function removeExpertise(area: string) {
-    setEditAoeList((previousList) =>
+    setEditAreasOfExpertise((previousList) =>
       previousList.filter((item) => item !== area),
     )
   }
 
   function addExpertise() {
-    if (!editExpertise || editAoeList.includes(editExpertise)) {
+    if (!editExpertise || editAreasOfExpertise.includes(editExpertise)) {
       return
     }
 
-    setEditAoeList((previousList) => [...previousList, editExpertise])
+    setEditAreasOfExpertise((previousList) => [...previousList, editExpertise])
     setEditExpertise('')
   }
 
-  async function saveAoeList() {
+  async function saveAreasOfExpertise() {
     if (!user) {
       return
     }
 
-    const response = await userService.updateAoeList(editAoeList, user.id)
+    const response = await userService.updateAreasOfExpertise(
+      editAreasOfExpertise,
+      user.id,
+    )
 
     setUser({
       ...user,
-      aoeList: response.aoeList,
+      areasOfExpertise: response.areasOfExpertise,
     })
     cancelEditing()
   }
@@ -135,47 +139,17 @@ function ProfilePage() {
           className="profile-help-form"
           onSubmit={(event) => {
             event.preventDefault()
-            saveAoeList()
+            saveAreasOfExpertise()
           }}
         >
-          <label className="register-field" htmlFor="editExpertise">
-            <span>Select an area</span>
-            <div className="register-expertise-control">
-              <select
-                id="editExpertise"
-                value={editExpertise}
-                onChange={(event) => setEditExpertise(event.target.value)}
-              >
-                <option value="">Choose expertise</option>
-                {areasOfExpertise.map((area) => (
-                  <option key={area} value={area}>
-                    {area}
-                  </option>
-                ))}
-              </select>
-              <button
-                className="register-secondary-button"
-                type="button"
-                onClick={addExpertise}
-              >
-                Add
-              </button>
-            </div>
-          </label>
-          <ul className="register-chip-list" aria-label="Selected expertise">
-            {editAoeList.map((area) => (
-              <li key={area}>
-                <span>{area}</span>
-                <button
-                  type="button"
-                  onClick={() => removeExpertise(area)}
-                  aria-label={`Remove ${area}`}
-                >
-                  <span aria-hidden="true">×</span>
-                </button>
-              </li>
-            ))}
-          </ul>
+          <ExpertiseSelector
+            selectId="editExpertise"
+            selectedAreas={editAreasOfExpertise}
+            selectedArea={editExpertise}
+            onSelectedAreaChange={setEditExpertise}
+            onAddArea={addExpertise}
+            onRemoveArea={removeExpertise}
+          />
           <div className="profile-help-actions">
             <button
               className="profile-secondary-button"
@@ -193,12 +167,11 @@ function ProfilePage() {
     }
 
     if (user.type === 'mentor') {
-      return user.aoeList.length > 0 ? (
-        <ul className="profile-chips">
-          {user.aoeList.map((area) => (
-            <li key={area}>{area}</li>
-          ))}
-        </ul>
+      return user.areasOfExpertise.length > 0 ? (
+        <ExpertiseChips
+          areas={user.areasOfExpertise}
+          className="profile-chips"
+        />
       ) : (
         <p className="profile-empty">No areas of expertise added yet.</p>
       )
@@ -317,7 +290,7 @@ function ProfilePage() {
                   type="button"
                   onClick={
                     user.type === 'mentor'
-                      ? startEditingAOEList
+                      ? startEditingAreasOfExpertise
                       : startEditingHelpText
                   }
                   aria-label={

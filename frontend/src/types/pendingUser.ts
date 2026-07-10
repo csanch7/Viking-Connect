@@ -1,10 +1,11 @@
-export interface User {
+export interface PendingUser {
+  id: string
   username: string
-  password: string
   email: string
   linkedin: string
   type: string
   helpText: string
-  aoeList: Array<string>
+  areasOfExpertise: string[]
   gradYear: number
+  role: string
 }

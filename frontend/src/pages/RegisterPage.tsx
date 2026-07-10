@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import axios from 'axios'
 import registerService from '../services/registerService'
-import type { User } from '../interfaces/userInterface'
+import type { User } from '../types/user'
 import { useNavigate } from 'react-router-dom'
-import { areasOfExpertise } from '../interfaces/areasOfExpertise'
+import ExpertiseSelector from '../components/expertise/ExpertiseSelector'
 
 interface ApiErrorResponse {
   message?: string
@@ -42,7 +42,7 @@ function getPasswordRules(value: string) {
   ]
 }
 
-function RegisterForm() {
+function RegisterPage() {
   const [username, setUsername] = useState<string>('')
   const [password, setPassword] = useState<string>('')
   const [passwordFocused, setPasswordFocused] = useState<boolean>(false)
@@ -52,7 +52,9 @@ function RegisterForm() {
   const [type, setType] = useState<string>('')
   const [error, setError] = useState<string | null>('')
   const [helpText, setHelpText] = useState<string>('')
-  const [aoeList, setAoeList] = useState<string[]>([])
+  const [selectedAreasOfExpertise, setSelectedAreasOfExpertise] = useState<
+    string[]
+  >([])
   const [expertise, setExpertise] = useState<string>('')
   const [gradYear, setGradYear] = useState<number>(0)
 
@@ -117,7 +119,7 @@ function RegisterForm() {
 
   async function handleSignUp(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault()
-    if (aoeList.length === 0 && type === 'mentor') {
+    if (selectedAreasOfExpertise.length === 0 && type === 'mentor') {
       handleError('Choose at least one area of expertise')
       return
     }
@@ -145,7 +147,7 @@ function RegisterForm() {
       linkedin: trimmedLinkedin,
       type: type,
       helpText: helpText,
-      aoeList: aoeList,
+      areasOfExpertise: selectedAreasOfExpertise,
       gradYear: gradYear,
     }
 
@@ -168,7 +170,21 @@ function RegisterForm() {
   }
 
   function removeExpertise(area: string) {
-    setAoeList((previousList) => previousList.filter((item) => item !== area))
+    setSelectedAreasOfExpertise((previousList) =>
+      previousList.filter((item) => item !== area),
+    )
+  }
+
+  function addExpertise() {
+    if (
+      expertise &&
+      !selectedAreasOfExpertise.includes(expertise)
+    ) {
+      setSelectedAreasOfExpertise((previousList) => [
+        ...previousList,
+        expertise,
+      ])
+    }
   }
 
   return (
@@ -381,60 +397,14 @@ function RegisterForm() {
               </div>
             </div>
 
-            <div className="register-expertise-row">
-              <label className="register-field" htmlFor="sltExpertise">
-                <span>Select an area</span>
-                <div className="register-expertise-control">
-                  <select
-                    id="sltExpertise"
-                    name="sltExpertise"
-                    value={expertise}
-                    onChange={(e) => setExpertise(e.target.value)}
-                  >
-                    <option value="" disabled>
-                      Choose expertise
-                    </option>
-                    {areasOfExpertise.map((area) => (
-                      <option key={area} value={area}>
-                        {area}
-                      </option>
-                    ))}
-                  </select>
-
-                  <button
-                    className="register-secondary-button"
-                    type="button"
-                    onClick={() => {
-                      if (expertise && !aoeList.includes(expertise)) {
-                        setAoeList((previousList) => [
-                          ...previousList,
-                          expertise,
-                        ])
-                      }
-                    }}
-                  >
-                    Add
-                  </button>
-                </div>
-              </label>
-            </div>
-
-            {aoeList.length > 0 && (
-              <ul className="register-chip-list" aria-label="Selected expertise">
-                {aoeList.map((area) => (
-                  <li key={area}>
-                    <span>{area}</span>
-                    <button
-                      type="button"
-                      onClick={() => removeExpertise(area)}
-                      aria-label={`Remove ${area}`}
-                    >
-                      <span aria-hidden="true">×</span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
+            <ExpertiseSelector
+              selectId="expertiseSelect"
+              selectedAreas={selectedAreasOfExpertise}
+              selectedArea={expertise}
+              onSelectedAreaChange={setExpertise}
+              onAddArea={addExpertise}
+              onRemoveArea={removeExpertise}
+            />
           </section>
         )}
 
@@ -457,4 +427,4 @@ function RegisterForm() {
   )
 }
 
-export default RegisterForm
+export default RegisterPage
