@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "tsx --env-file=../.env app.ts",
     "start": "tsx app.ts",
+    "test": "tsx --test tests/*.test.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

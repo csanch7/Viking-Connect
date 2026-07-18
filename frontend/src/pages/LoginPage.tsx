@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import loginService from '../services/loginService'
 import userService from '../services/userService'
 import LoadingPage from '../components/LoadingPage'
@@ -14,8 +14,10 @@ function LoginPage() {
   const [error, setError] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const navigate = useNavigate()
+  const location = useLocation()
 
   useEffect(() => {
     async function checkSession() {
@@ -53,25 +55,37 @@ function LoginPage() {
 
   async function handleSignIn(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault()
+    if (isSubmitting) return
+
+    setIsSubmitting(true)
+    setError('')
 
     try {
       const credentials = {
         email,
         password,
       }
+
       const response = await loginService.login(credentials)
 
       if (response.message === 'Logged in') {
-        navigate('/profile')
+        const destination =
+          (location.state as { from?: { pathname?: string } } | null)?.from
+            ?.pathname ?? '/profile'
+        navigate(destination, { replace: true })
+      } else {
+        setError('Unable to sign in. Please try again.')
+        setIsSubmitting(false)
       }
     } catch (error) {
+      setIsSubmitting(false)
       if (axios.isAxiosError<ApiErrorResponse>(error)) {
         handleError(
-          error.response?.data.message ?? 'Unable to sign in. Please try again.',
+          error.response?.data.message ??
+            'Unable to sign in. Please try again.',
         )
         return
       }
-
       handleError('Unable to sign in. Please try again.')
     }
   }
@@ -100,9 +114,7 @@ function LoginPage() {
         <div className="login-heading">
           <p className="login-kicker">Welcome back</p>
           <h1 id="login-title">Sign in to your account</h1>
-          <p>
-            Access your profile, mentorship dashboard, and program updates.
-          </p>
+          <p>Access your profile, mentorship dashboard, and program updates.</p>
         </div>
 
         <form className="login-form" onSubmit={(e) => handleSignIn(e)}>
@@ -134,8 +146,12 @@ function LoginPage() {
             />
           </label>
 
-          <button className="login-submit-button" type="submit">
-            Sign in
+          <button
+            className="login-submit-button"
+            type="submit"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Signing in...' : 'Sign in'}
           </button>
         </form>
 

@@ -4,9 +4,15 @@ interface PendingUserCardProps {
   user: PendingUser
   onApprove: (userId: string) => void
   onDeny: (userId: string) => void
+  activeAction?: string
 }
 
-function PendingUserCard({ user, onApprove, onDeny }: PendingUserCardProps) {
+function PendingUserCard({
+  user,
+  onApprove,
+  onDeny,
+  activeAction,
+}: PendingUserCardProps) {
   return (
     <article className="pending-user-card">
       <div className="pending-user-header">
@@ -52,14 +58,19 @@ function PendingUserCard({ user, onApprove, onDeny }: PendingUserCardProps) {
       </dl>
 
       <div className="pending-user-actions">
-        <button className="pending-user-deny" onClick={() => onDeny(user.id)}>
-          Deny
+        <button
+          className="pending-user-deny"
+          onClick={() => onDeny(user.id)}
+          disabled={Boolean(activeAction)}
+        >
+          {activeAction ?? 'Deny'}
         </button>
         <button
           className="pending-user-approve"
           onClick={() => onApprove(user.id)}
+          disabled={Boolean(activeAction)}
         >
-          Approve
+          {activeAction ?? 'Approve'}
         </button>
       </div>
     </article>

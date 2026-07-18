@@ -4,6 +4,7 @@ import userService from '../services/userService'
 import LoadingPage from '../components/LoadingPage'
 import ExpertiseChips from '../components/expertise/ExpertiseChips'
 import ExpertiseSelector from '../components/expertise/ExpertiseSelector'
+import axios from 'axios'
 
 export interface ProfileUser {
   id: string
@@ -21,8 +22,10 @@ export interface ProfileUser {
 function ProfilePage() {
   const [user, setUser] = useState<ProfileUser | null>(null)
   const [error, setError] = useState('')
+  const [saveError, setSaveError] = useState('')
   const [editMode, setEditMode] = useState(false)
   const [editText, setEditText] = useState<string>('')
+  const [isSaving, setIsSaving] = useState(false)
   const [editAreasOfExpertise, setEditAreasOfExpertise] = useState<string[]>([])
   const [editExpertise, setEditExpertise] = useState<string>('')
   const [isLoggingOut, setIsLoggingOut] = useState(false)
@@ -40,6 +43,21 @@ function ProfilePage() {
 
     void loadUser()
   }, [])
+
+  function getSaveError(error: unknown) {
+    if (axios.isAxiosError<{ message?: string }>(error)) {
+      return error.response?.data.message ?? 'We could not save your changes.'
+    }
+
+    return 'We could not save your changes.'
+  }
+
+  function expertiseIsUnchanged(current: string[], edited: string[]) {
+    return (
+      current.length === edited.length &&
+      current.every((area) => edited.includes(area))
+    )
+  }
 
   async function handleLogout() {
     setIsLoggingOut(true)
@@ -61,6 +79,7 @@ function ProfilePage() {
     setEditText(user.helpText)
     setEditAreasOfExpertise([])
     setEditExpertise('')
+    setSaveError('')
     setEditMode(true)
   }
 
@@ -72,6 +91,7 @@ function ProfilePage() {
     setEditAreasOfExpertise(user.areasOfExpertise)
     setEditText('')
     setEditExpertise('')
+    setSaveError('')
     setEditMode(true)
   }
 
@@ -80,6 +100,7 @@ function ProfilePage() {
     setEditText('')
     setEditAreasOfExpertise([])
     setEditExpertise('')
+    setSaveError('')
   }
 
   function removeExpertise(area: string) {
@@ -102,16 +123,35 @@ function ProfilePage() {
       return
     }
 
-    const response = await userService.updateAreasOfExpertise(
-      editAreasOfExpertise,
-      user.id,
-    )
+    if (editAreasOfExpertise.length === 0) {
+      setSaveError('Choose at least one area of expertise.')
+      return
+    }
 
-    setUser({
-      ...user,
-      areasOfExpertise: response.areasOfExpertise,
-    })
-    cancelEditing()
+    if (expertiseIsUnchanged(user.areasOfExpertise, editAreasOfExpertise)) {
+      cancelEditing()
+      return
+    }
+
+    setIsSaving(true)
+    setSaveError('')
+
+    try {
+      const response = await userService.updateAreasOfExpertise(
+        editAreasOfExpertise,
+        user.id,
+      )
+
+      setUser({
+        ...user,
+        areasOfExpertise: response.areasOfExpertise,
+      })
+      cancelEditing()
+    } catch (error) {
+      setSaveError(getSaveError(error))
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   async function saveHelpText() {
@@ -119,13 +159,46 @@ function ProfilePage() {
       return
     }
 
-    const response = await userService.updateHelpText(editText, user.id)
+    const normalizedText = editText.trim()
 
-    setUser({
-      ...user,
-      helpText: response.helpText,
-    })
-    setEditMode(false)
+    if (!normalizedText) {
+      setSaveError('Help needed cannot be empty.')
+      return
+    }
+
+    if (normalizedText === user.helpText.trim()) {
+      cancelEditing()
+      return
+    }
+
+    setIsSaving(true)
+    setSaveError('')
+
+    try {
+      const response = await userService.updateHelpText(normalizedText, user.id)
+
+      setUser({
+        ...user,
+        helpText: response.helpText,
+      })
+      cancelEditing()
+    } catch (error) {
+      setSaveError(getSaveError(error))
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  function renderSubmitButton() {
+    return (
+      <button
+        className="profile-primary-button"
+        type="submit"
+        disabled={isSaving}
+      >
+        {isSaving ? 'Saving...' : 'Save'}
+      </button>
+    )
   }
 
   function renderMentorshipContent() {
@@ -139,9 +212,14 @@ function ProfilePage() {
           className="profile-help-form"
           onSubmit={(event) => {
             event.preventDefault()
-            saveAreasOfExpertise()
+            void saveAreasOfExpertise()
           }}
         >
+          {saveError && (
+            <p className="profile-inline-error" role="alert">
+              {saveError}
+            </p>
+          )}
           <ExpertiseSelector
             selectId="editExpertise"
             selectedAreas={editAreasOfExpertise}
@@ -158,9 +236,7 @@ function ProfilePage() {
             >
               Cancel
             </button>
-            <button className="profile-primary-button" type="submit">
-              Save
-            </button>
+            {renderSubmitButton()}
           </div>
         </form>
       )
@@ -186,6 +262,11 @@ function ProfilePage() {
             void saveHelpText()
           }}
         >
+          {saveError && (
+            <p className="profile-inline-error" role="alert">
+              {saveError}
+            </p>
+          )}
           <label htmlFor="editText">Help needed</label>
           <textarea
             id="editText"
@@ -202,9 +283,7 @@ function ProfilePage() {
             >
               Cancel
             </button>
-            <button className="profile-primary-button" type="submit">
-              Save
-            </button>
+            {renderSubmitButton()}
           </div>
         </form>
       )

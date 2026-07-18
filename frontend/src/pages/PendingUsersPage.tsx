@@ -12,6 +12,7 @@ function PendingUsersPage() {
   const [isUnauthorized, setIsUnauthorized] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
+  const [activeUserId, setActiveUserId] = useState<string | null>(null)
 
   const navigate = useNavigate()
 
@@ -37,6 +38,9 @@ function PendingUsersPage() {
   }, [])
 
   async function denyUser(userId: string) {
+    if (activeUserId) return
+
+    setActiveUserId(userId)
     try {
       await adminService.denyUser(userId)
       setUsers((currentUsers) =>
@@ -46,10 +50,15 @@ function PendingUsersPage() {
       setError('')
     } catch {
       setError('We could not deny this user. Please try again.')
+    } finally {
+      setActiveUserId(null)
     }
   }
 
   async function approveUser(userId: string) {
+    if (activeUserId) return
+
+    setActiveUserId(userId)
     try {
       await adminService.approveUser(userId)
       setUsers((currentUsers) =>
@@ -59,6 +68,8 @@ function PendingUsersPage() {
       setError('')
     } catch {
       setError('We could not approve this user. Please try again.')
+    } finally {
+      setActiveUserId(null)
     }
   }
 
@@ -116,15 +127,16 @@ function PendingUsersPage() {
               user={user}
               onApprove={approveUser}
               onDeny={denyUser}
+              activeAction={activeUserId === user.id ? '...' : undefined}
             />
           ))}
         </section>
-      ) : (
+      ) : !error ? (
         <section className="admin-empty" aria-live="polite">
           <h2>No pending users</h2>
           <p>Everyone in the registration queue has been reviewed.</p>
         </section>
-      )}
+      ) : null}
     </main>
   )
 }

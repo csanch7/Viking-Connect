@@ -51,6 +51,7 @@ function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState<string>('')
   const [type, setType] = useState<string>('')
   const [error, setError] = useState<string | null>('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [helpText, setHelpText] = useState<string>('')
   const [selectedAreasOfExpertise, setSelectedAreasOfExpertise] = useState<
     string[]
@@ -110,15 +111,17 @@ function RegisterPage() {
   }
 
   function handleError(value: string) {
-    setError(value);
+    setError(value)
     window.scrollTo({ top: 0, behavior: 'smooth' })
     setTimeout(() => {
       setError(null)
-    }, 3000);
+    }, 3000)
   }
 
   async function handleSignUp(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault()
+    if (isSubmitting) return
+
     if (selectedAreasOfExpertise.length === 0 && type === 'mentor') {
       handleError('Choose at least one area of expertise')
       return
@@ -152,12 +155,17 @@ function RegisterPage() {
     }
 
     try {
+      setIsSubmitting(true)
       const response = await registerService.registerUser(user)
 
       if (response.message === 'User created') {
         navigate('/verification')
+      } else {
+        handleError('Unable to create your account')
+        setIsSubmitting(false)
       }
     } catch (error) {
+      setIsSubmitting(false)
       if (axios.isAxiosError<ApiErrorResponse>(error)) {
         handleError(
           error.response?.data.message ?? 'Unable to create your account',
@@ -176,25 +184,21 @@ function RegisterPage() {
   }
 
   function addExpertise() {
-    if (
-      expertise &&
-      !selectedAreasOfExpertise.includes(expertise)
-    ) {
+    if (expertise && !selectedAreasOfExpertise.includes(expertise)) {
       setSelectedAreasOfExpertise((previousList) => [
         ...previousList,
         expertise,
       ])
     }
   }
-
   return (
     <main className="register-page">
       <section className="register-hero" aria-labelledby="register-title">
         <p className="register-kicker">STL Mentorship Program</p>
         <h1 id="register-title">Create your member profile</h1>
         <p className="register-intro">
-          Join as a mentor or mentee so the program team can review your
-          profile and connect you with the right alumni network.
+          Join as a mentor or mentee so the program team can review your profile
+          and connect you with the right alumni network.
         </p>
       </section>
 
@@ -418,8 +422,12 @@ function RegisterPage() {
             Back to login
           </button>
 
-          <button className="register-submit-button" type="submit">
-            Submit registration
+          <button
+            className="register-submit-button"
+            type="submit"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Submitting...' : 'Submit registration'}
           </button>
         </div>
       </form>
