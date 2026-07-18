@@ -13,62 +13,107 @@ import {
   normalizeIdParam,
 } from "../validation/routeValidation";
 
-export function createAdminRouter() {
+export interface AdminRouterDependencies {
+  approveUser: typeof approveUser;
+  denyUser: typeof denyUser;
+  getMenteeCount: typeof getMenteeCount;
+  getMentorCount: typeof getMentorCount;
+  getPendingUsers: typeof getPendingUsers;
+}
+
+const defaultDependencies: AdminRouterDependencies = {
+  approveUser,
+  denyUser,
+  getMenteeCount,
+  getMentorCount,
+  getPendingUsers,
+};
+
+export function createAdminRouter(
+  dependencies: AdminRouterDependencies = defaultDependencies,
+) {
   const router = Router();
+  const {
+    approveUser,
+    denyUser,
+    getMenteeCount,
+    getMentorCount,
+    getPendingUsers,
+  } = dependencies;
 
-  router.get("/pending-users", requireAdmin, asyncHandler(async (_req, res) => {
-    const users = await getPendingUsers();
+  router.get(
+    "/pending-users",
+    requireAdmin,
+    asyncHandler(async (_req, res) => {
+      const users = await getPendingUsers();
 
-    res.json({ users });
-  }));
+      res.json({ users });
+    }),
+  );
 
-  router.post("/deny-user/:userId", requireAdmin, asyncHandler(async (req, res) => {
-    const userId = normalizeIdParam(req.params.userId);
-    const validationError = getIdParamValidationError(userId);
+  router.post(
+    "/deny-user/:userId",
+    requireAdmin,
+    asyncHandler(async (req, res) => {
+      const userId = normalizeIdParam(req.params.userId);
+      const validationError = getIdParamValidationError(userId);
 
-    if (validationError) {
-      res.status(400).json({ message: validationError });
-      return;
-    }
+      if (validationError) {
+        res.status(400).json({ message: validationError });
+        return;
+      }
 
-    const deniedUser = await denyUser(userId);
+      const deniedUser = await denyUser(userId);
 
-    if (!deniedUser) {
-      res.status(404).json({ message: "Pending user not found" });
-      return;
-    }
+      if (!deniedUser) {
+        res.status(404).json({ message: "Pending user not found" });
+        return;
+      }
 
-    res.json({ message: `${userId} has been denied` });
-  }));
+      res.json({ message: `${userId} has been denied` });
+    }),
+  );
 
-  router.get("/mentor-count", requireAdmin, asyncHandler(async (_req, res) => {
-    const count = await getMentorCount();
-    res.json(count);
-  }));
+  router.get(
+    "/mentor-count",
+    requireAdmin,
+    asyncHandler(async (_req, res) => {
+      const count = await getMentorCount();
+      res.json(count);
+    }),
+  );
 
-  router.get("/mentee-count", requireAdmin, asyncHandler(async (_req, res) => {
-    const count = await getMenteeCount();
-    res.json(count);
-  }));
+  router.get(
+    "/mentee-count",
+    requireAdmin,
+    asyncHandler(async (_req, res) => {
+      const count = await getMenteeCount();
+      res.json(count);
+    }),
+  );
 
-  router.post("/approve-user/:userId", requireAdmin, asyncHandler(async (req, res) => {
-    const userId = normalizeIdParam(req.params.userId);
-    const validationError = getIdParamValidationError(userId);
+  router.post(
+    "/approve-user/:userId",
+    requireAdmin,
+    asyncHandler(async (req, res) => {
+      const userId = normalizeIdParam(req.params.userId);
+      const validationError = getIdParamValidationError(userId);
 
-    if (validationError) {
-      res.status(400).json({ message: validationError });
-      return;
-    }
+      if (validationError) {
+        res.status(400).json({ message: validationError });
+        return;
+      }
 
-    const approvedUser = await approveUser(userId);
+      const approvedUser = await approveUser(userId);
 
-    if (!approvedUser) {
-      res.status(404).json({ message: "Pending user not found" });
-      return;
-    }
+      if (!approvedUser) {
+        res.status(404).json({ message: "Pending user not found" });
+        return;
+      }
 
-    res.json({ message: `${userId} has been approved` });
-  }));
+      res.json({ message: `${userId} has been approved` });
+    }),
+  );
 
   return router;
 }

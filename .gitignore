@@ -3,6 +3,7 @@ node_modules
 .env
 .agents
 dist/
+backend/build/
 AGENTS.md
 DESIGN_GUIDE.md
 UI_UX_REVIEW_CHECKLIST.md

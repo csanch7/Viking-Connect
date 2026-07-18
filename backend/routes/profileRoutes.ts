@@ -16,8 +16,22 @@ import {
   normalizeIdParam,
 } from "../validation/routeValidation";
 
-export function createProfileRouter(authLimiter: RequestHandler) {
+export interface ProfileRouterDependencies {
+  updateAreasOfExpertise: typeof updateAreasOfExpertise;
+  updateHelpText: typeof updateHelpText;
+}
+
+const defaultDependencies: ProfileRouterDependencies = {
+  updateAreasOfExpertise,
+  updateHelpText,
+};
+
+export function createProfileRouter(
+  authLimiter: RequestHandler,
+  dependencies: ProfileRouterDependencies = defaultDependencies,
+) {
   const router = Router();
+  const { updateAreasOfExpertise, updateHelpText } = dependencies;
 
   router.patch(
     "/change-text/:userId",

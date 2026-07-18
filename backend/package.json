@@ -4,8 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "tsx --env-file=../.env app.ts",
-    "start": "tsx app.ts",
+    "build": "esbuild server.ts --bundle --platform=node --format=esm --target=node24 --packages=external --outfile=build/server.js",
+    "dev": "tsx --env-file=../.env server.ts",
+    "start": "node build/server.js",
     "test": "tsx --test tests/*.test.ts",
     "typecheck": "tsc --noEmit"
   },
@@ -24,6 +25,9 @@
     "@types/connect-pg-simple": "^7.0.3",
     "@types/express": "^5.0.6",
     "@types/express-session": "^1.19.0",
+    "@types/supertest": "^7.2.1",
+    "esbuild": "^0.28.1",
+    "supertest": "^7.2.2",
     "tsx": "^4.22.4",
     "typescript": "^6.0.3"
   }
