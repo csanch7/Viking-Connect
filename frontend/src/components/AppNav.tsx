@@ -7,7 +7,7 @@ interface AppNavProps {
 function AppNav({ isAdmin }: AppNavProps) {
   return (
     <nav className="app-nav" aria-label="Main navigation">
-      <NavLink to="/dashboard" className="app-nav-brand">
+      <NavLink to="/" className="app-nav-brand">
         <img src="/favicon.svg" alt="" aria-hidden="true" />
         <span>
           <strong>STL</strong>
