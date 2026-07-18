@@ -55,3 +55,40 @@ test('applies an expertise filter to the mentor request', async ({ page }) => {
 
   await filteredRequest
 })
+
+test('paginates a full mentor result page', async ({ page }) => {
+  await page.route('**/api/mentors/**', async (route) => {
+    const pageNumber = Number(
+      new URL(route.request().url()).pathname.split('/').pop(),
+    )
+    await fulfillJson(
+      route,
+      pageNumber === 0
+        ? Array.from({ length: 10 }, (_, index) => ({
+            ...mentors[0],
+            id: String(index + 1),
+            username: `Mentor ${index + 1}`,
+          }))
+        : [],
+    )
+  })
+  await page.goto('/dashboard')
+
+  await page.getByRole('button', { name: 'Next page' }).click()
+
+  await expect(page.getByText('Page 2')).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'No mentors found' }),
+  ).toBeVisible()
+})
+
+test('shows an error state when mentor loading fails', async ({ page }) => {
+  await page.route('**/api/mentors/**', async (route) => {
+    await fulfillJson(route, { message: 'Unavailable' }, 503)
+  })
+  await page.goto('/dashboard')
+
+  await expect(
+    page.getByRole('heading', { name: 'Unable to load mentors' }),
+  ).toBeVisible()
+})

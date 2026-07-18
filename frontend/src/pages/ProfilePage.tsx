@@ -4,32 +4,34 @@ import userService from '../services/userService'
 import LoadingPage from '../components/LoadingPage'
 import ExpertiseChips from '../components/expertise/ExpertiseChips'
 import ExpertiseSelector from '../components/expertise/ExpertiseSelector'
-import axios from 'axios'
-
-export interface ProfileUser {
-  id: string
-  username: string
-  email: string
-  type: string
-  linkedin: string
-  helpText: string
-  areasOfExpertise: string[]
-  gradYear: number
-  status: string
-  role: 'admin' | 'user'
-}
+import type { PublicUser } from '../../../shared/contracts'
+import { useAuth } from '../auth/useAuth'
+import { useProfileEditor } from '../hooks/useProfileEditor'
 
 function ProfilePage() {
-  const [user, setUser] = useState<ProfileUser | null>(null)
+  const [user, setUser] = useState<PublicUser | null>(null)
   const [error, setError] = useState('')
-  const [saveError, setSaveError] = useState('')
-  const [editMode, setEditMode] = useState(false)
-  const [editText, setEditText] = useState<string>('')
-  const [isSaving, setIsSaving] = useState(false)
-  const [editAreasOfExpertise, setEditAreasOfExpertise] = useState<string[]>([])
-  const [editExpertise, setEditExpertise] = useState<string>('')
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const navigate = useNavigate()
+  const { markSignedOut } = useAuth()
+  const editor = useProfileEditor(user, setUser)
+  const {
+    saveError,
+    editMode,
+    editText,
+    setEditText,
+    isSaving,
+    editAreasOfExpertise,
+    editExpertise,
+    setEditExpertise,
+    cancelEditing,
+    startEditingHelpText,
+    startEditingAreasOfExpertise,
+    removeExpertise,
+    addExpertise,
+    saveAreasOfExpertise,
+    saveHelpText,
+  } = editor
 
   useEffect(() => {
     async function loadUser() {
@@ -44,148 +46,16 @@ function ProfilePage() {
     void loadUser()
   }, [])
 
-  function getSaveError(error: unknown) {
-    if (axios.isAxiosError<{ message?: string }>(error)) {
-      return error.response?.data.message ?? 'We could not save your changes.'
-    }
-
-    return 'We could not save your changes.'
-  }
-
-  function expertiseIsUnchanged(current: string[], edited: string[]) {
-    return (
-      current.length === edited.length &&
-      current.every((area) => edited.includes(area))
-    )
-  }
-
   async function handleLogout() {
     setIsLoggingOut(true)
 
     try {
       await userService.logout()
-      navigate('/')
+      markSignedOut()
+      navigate('/login', { replace: true })
     } catch {
       setError('We could not sign you out. Please try again.')
       setIsLoggingOut(false)
-    }
-  }
-
-  function startEditingHelpText() {
-    if (!user) {
-      return
-    }
-
-    setEditText(user.helpText)
-    setEditAreasOfExpertise([])
-    setEditExpertise('')
-    setSaveError('')
-    setEditMode(true)
-  }
-
-  function startEditingAreasOfExpertise() {
-    if (!user) {
-      return
-    }
-
-    setEditAreasOfExpertise(user.areasOfExpertise)
-    setEditText('')
-    setEditExpertise('')
-    setSaveError('')
-    setEditMode(true)
-  }
-
-  function cancelEditing() {
-    setEditMode(false)
-    setEditText('')
-    setEditAreasOfExpertise([])
-    setEditExpertise('')
-    setSaveError('')
-  }
-
-  function removeExpertise(area: string) {
-    setEditAreasOfExpertise((previousList) =>
-      previousList.filter((item) => item !== area),
-    )
-  }
-
-  function addExpertise() {
-    if (!editExpertise || editAreasOfExpertise.includes(editExpertise)) {
-      return
-    }
-
-    setEditAreasOfExpertise((previousList) => [...previousList, editExpertise])
-    setEditExpertise('')
-  }
-
-  async function saveAreasOfExpertise() {
-    if (!user) {
-      return
-    }
-
-    if (editAreasOfExpertise.length === 0) {
-      setSaveError('Choose at least one area of expertise.')
-      return
-    }
-
-    if (expertiseIsUnchanged(user.areasOfExpertise, editAreasOfExpertise)) {
-      cancelEditing()
-      return
-    }
-
-    setIsSaving(true)
-    setSaveError('')
-
-    try {
-      const response = await userService.updateAreasOfExpertise(
-        editAreasOfExpertise,
-        user.id,
-      )
-
-      setUser({
-        ...user,
-        areasOfExpertise: response.areasOfExpertise,
-      })
-      cancelEditing()
-    } catch (error) {
-      setSaveError(getSaveError(error))
-    } finally {
-      setIsSaving(false)
-    }
-  }
-
-  async function saveHelpText() {
-    if (!user) {
-      return
-    }
-
-    const normalizedText = editText.trim()
-
-    if (!normalizedText) {
-      setSaveError('Help needed cannot be empty.')
-      return
-    }
-
-    if (normalizedText === user.helpText.trim()) {
-      cancelEditing()
-      return
-    }
-
-    setIsSaving(true)
-    setSaveError('')
-
-    try {
-      const response = await userService.updateHelpText(normalizedText, user.id)
-
-      setUser({
-        ...user,
-        helpText: response.helpText,
-      })
-      cancelEditing()
-    } catch (error) {
-      setSaveError(getSaveError(error))
-    } finally {
-      setIsSaving(false)
     }
   }
 

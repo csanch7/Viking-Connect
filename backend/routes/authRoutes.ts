@@ -68,6 +68,13 @@ export function createAuthRouter(
         return;
       }
 
+      await new Promise<void>((resolve, reject) => {
+        req.session.regenerate((error) => {
+          if (error) reject(error);
+          else resolve();
+        });
+      });
+
       req.session.userId = user.id;
       req.session.role = user.role;
       res.json({

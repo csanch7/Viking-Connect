@@ -1,6 +1,9 @@
-import { Navigate, Routes, Route, useLocation } from 'react-router-dom'
-import { useEffect, useState } from 'react'
-import './styles/app.css'
+import { Routes, Route, useLocation } from 'react-router-dom'
+import './styles/public.css'
+import './styles/directory.css'
+import './styles/member.css'
+import './styles/responsive.css'
+import './styles/refresh.css'
 import AppNav from './components/AppNav'
 import VerificationPage from './pages/VerificationPage'
 import ProfilePage from './pages/ProfilePage'
@@ -8,17 +11,15 @@ import AdminPage from './pages/AdminPage'
 import PendingUsersPage from './pages/PendingUsersPage'
 import DashboardPage from './pages/DashboardPage'
 import MentorPage from './pages/MentorPage'
-import userService from './services/userService'
 import LoginPage from './pages/LoginPage'
 import HomePage from './pages/HomePage'
 import RegisterPage from './pages/RegisterPage'
 import PageNotFound from './pages/PageNotFound'
-import LoadingPage from './components/LoadingPage'
+import ProtectedRoute from './components/auth/ProtectedRoute'
+import { useAuth } from './auth/useAuth'
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [isAdmin, setIsAdmin] = useState(false)
-  const [isCheckingSession, setIsCheckingSession] = useState(true)
+  const { authenticated, admin } = useAuth()
   const location = useLocation()
   const showAppNav =
     location.pathname === '/dashboard' ||
@@ -27,60 +28,58 @@ function App() {
     location.pathname === '/admin/pending-users' ||
     location.pathname.startsWith('/mentor/')
 
-  useEffect(() => {
-    async function checkSession() {
-      setIsCheckingSession(true)
-      try {
-        const response = await userService.checkSession()
-        setIsAuthenticated(Boolean(response.authenticated))
-        setIsAdmin(Boolean(response.admin))
-      } catch {
-        setIsAuthenticated(false)
-        setIsAdmin(false)
-      } finally {
-        setIsCheckingSession(false)
-      }
-    }
-
-    void checkSession()
-  }, [location.pathname])
-
-  function protectedPage(element: React.ReactNode, adminOnly = false) {
-    if (isCheckingSession) {
-      return <LoadingPage />
-    }
-
-    if (!isAuthenticated) {
-      return <Navigate to="/login" replace state={{ from: location }} />
-    }
-
-    if (adminOnly && !isAdmin) {
-      return <Navigate to="/dashboard" replace />
-    }
-
-    return element
-  }
-
   return (
     <>
-      {isAuthenticated && showAppNav && <AppNav isAdmin={isAdmin} />}
+      {authenticated && showAppNav && <AppNav isAdmin={admin} />}
       <Routes>
         <Route path="*" element={<PageNotFound />} />
         <Route
           path="/"
-          element={<HomePage isAuthenticated={isAuthenticated} />}
+          element={<HomePage isAuthenticated={authenticated} />}
         />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/verification" element={<VerificationPage />} />
-        <Route path="/profile" element={protectedPage(<ProfilePage />)} />
-        <Route path="/admin" element={protectedPage(<AdminPage />, true)} />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute adminOnly>
+              <AdminPage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/admin/pending-users"
-          element={protectedPage(<PendingUsersPage />, true)}
+          element={
+            <ProtectedRoute adminOnly>
+              <PendingUsersPage />
+            </ProtectedRoute>
+          }
         />
-        <Route path="/dashboard" element={protectedPage(<DashboardPage />)} />
-        <Route path="/mentor/:id" element={protectedPage(<MentorPage />)} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/mentor/:id"
+          element={
+            <ProtectedRoute>
+              <MentorPage />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </>
   )

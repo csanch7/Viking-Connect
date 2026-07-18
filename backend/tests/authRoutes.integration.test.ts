@@ -1,10 +1,12 @@
 import assert from "node:assert/strict";
 import { beforeEach, describe, it } from "node:test";
+import type { DatabaseUserWithPassword } from "../repositories/userRepository";
 
 process.env.DATABASE_URL =
   process.env.DATABASE_URL ?? "postgresql://test:test@localhost/test";
 process.env.SESSION_SECRET =
   process.env.SESSION_SECRET ?? "integration-test-secret";
+process.env.NODE_ENV = "test";
 
 const [{ createApp }, { default: session }, { default: request }] =
   await Promise.all([
@@ -13,7 +15,7 @@ const [{ createApp }, { default: session }, { default: request }] =
     import("supertest"),
   ]);
 
-const approvedUser = {
+const approvedUser: DatabaseUserWithPassword = {
   id: "7",
   username: "Jane Student",
   email: "jane@example.com",

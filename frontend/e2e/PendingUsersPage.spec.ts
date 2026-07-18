@@ -47,3 +47,19 @@ test('approves a pending user and removes them from the queue', async ({
     page.getByRole('heading', { name: 'No pending users' }),
   ).toBeVisible()
 })
+
+test('denies a pending user and removes them from the queue', async ({
+  page,
+}) => {
+  await page.route('**/api/admin/deny-user/19', async (route) => {
+    await fulfillJson(route, { message: '19 has been denied' })
+  })
+  await page.goto('/admin/pending-users')
+
+  await page.getByRole('button', { name: 'Deny' }).click()
+
+  await expect(page.getByRole('status')).toHaveText('User denied')
+  await expect(
+    page.getByRole('heading', { name: 'No pending users' }),
+  ).toBeVisible()
+})

@@ -1,17 +1,11 @@
 import { sql } from "../database";
+import type {
+  PublicUser,
+  UserRole,
+  UserType,
+} from "../../shared/contracts";
 
-export interface BaseUser {
-  id: string;
-  username: string;
-  email: string;
-  linkedin: string;
-  type: string;
-  helpText: string;
-  areasOfExpertise: string[];
-  gradYear: number;
-  status: string;
-  role: "admin" | "user";
-}
+export type BaseUser = PublicUser;
 
 export type DatabaseUser = BaseUser;
 
@@ -23,11 +17,11 @@ export async function createUser(input: {
   username: string;
   email: string;
   linkedin: string;
-  type: string;
+  type: UserType;
   helpText: string;
   areasOfExpertise: string[];
   gradYear: number;
-  role: "admin" | "user";
+  role: UserRole;
   passwordHash: string;
 }): Promise<DatabaseUserWithPassword> {
   const rows = await sql`

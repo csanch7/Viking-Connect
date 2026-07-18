@@ -59,3 +59,46 @@ test('edits and saves a mentee help request', async ({ page }) => {
     page.getByRole('button', { name: 'Edit help text' }),
   ).toBeVisible()
 })
+
+test('edits and saves mentor expertise', async ({ page }) => {
+  await page.route('**/api/auth/me', async (route) => {
+    await fulfillJson(route, {
+      user: {
+        ...mentee,
+        type: 'mentor',
+        helpText: '',
+        areasOfExpertise: ['Technology'],
+      },
+    })
+  })
+  await page.route('**/api/change-areas-of-expertise/7', async (route) => {
+    await fulfillJson(route, {
+      message: 'Areas of expertise have been successfully updated',
+      areasOfExpertise: ['Technology', 'Finance'],
+    })
+  })
+  await page.goto('/profile')
+
+  await page.getByRole('button', { name: 'Edit areas of expertise' }).click()
+  await page.getByLabel('Select an area').selectOption('Finance')
+  await page.getByRole('button', { name: 'Add' }).click()
+  await page.getByRole('button', { name: 'Save' }).click()
+
+  await expect(
+    page.getByRole('listitem').filter({ hasText: /^Finance$/ }),
+  ).toBeVisible()
+})
+
+test('signs out and returns to the sign-in page', async ({ page }) => {
+  await page.route('**/api/auth/logout', async (route) => {
+    await fulfillJson(route, { message: 'Logged out' })
+  })
+  await page.goto('/profile')
+
+  await page.getByRole('button', { name: 'Sign out' }).click()
+
+  await expect(page).toHaveURL('/login')
+  await expect(
+    page.getByRole('heading', { name: 'Sign in to your account' }),
+  ).toBeVisible()
+})

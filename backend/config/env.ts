@@ -1,3 +1,5 @@
+import { log } from "../services/logger";
+
 const isProduction = process.env.NODE_ENV === "production";
 
 function requireEnv(name: string) {
@@ -19,7 +21,7 @@ const sessionSecret = isProduction
   : (optionalEnv("SESSION_SECRET") ?? "development-only-change-me");
 
 if (!isProduction && !process.env.SESSION_SECRET) {
-  console.warn("SESSION_SECRET is not set; using a development-only secret");
+  log("warn", "config.development_session_secret");
 }
 
 export const env = {

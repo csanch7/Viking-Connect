@@ -7,6 +7,7 @@ import helmet from "helmet";
 import { env } from "./config/env";
 import { errorHandler } from "./middleware/errorHandler";
 import { createApiRouter, type ApiRouterOptions } from "./routes/apiRoutes";
+import { requestContext } from "./middleware/requestContext";
 
 const PgSession = pgSession(session);
 
@@ -32,6 +33,8 @@ export function createApp(options: AppOptions = {}) {
     });
 
   app.set("trust proxy", 1);
+  app.disable("x-powered-by");
+  app.use(requestContext);
 
   app.use(
     helmet({

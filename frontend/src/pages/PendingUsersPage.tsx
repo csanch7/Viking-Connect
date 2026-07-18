@@ -1,4 +1,3 @@
-import userService from '../services/userService'
 import { useEffect, useState } from 'react'
 import adminService from '../services/adminService'
 import LoadingPage from '../components/LoadingPage'
@@ -9,7 +8,6 @@ import type { PendingUser } from '../types/pendingUser'
 function PendingUsersPage() {
   const [users, setUsers] = useState<PendingUser[]>([])
   const [loading, setLoading] = useState(true)
-  const [isUnauthorized, setIsUnauthorized] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
   const [activeUserId, setActiveUserId] = useState<string | null>(null)
@@ -17,15 +15,8 @@ function PendingUsersPage() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    async function checkSession() {
+    async function loadUsers() {
       try {
-        const response = await userService.checkSession()
-
-        if (!response.admin) {
-          setIsUnauthorized(true)
-          return
-        }
-
         setUsers(await adminService.pendingUsers())
       } catch {
         setError('We could not load pending users. Please try again.')
@@ -34,7 +25,7 @@ function PendingUsersPage() {
       }
     }
 
-    void checkSession()
+    void loadUsers()
   }, [])
 
   async function denyUser(userId: string) {
@@ -75,16 +66,6 @@ function PendingUsersPage() {
 
   if (loading) {
     return <LoadingPage />
-  }
-
-  if (isUnauthorized) {
-    return (
-      <main className="admin-page admin-state">
-        <span className="admin-state-icon">!</span>
-        <h1>You are not allowed here</h1>
-        <p>This area is reserved for program administrators.</p>
-      </main>
-    )
   }
 
   return (

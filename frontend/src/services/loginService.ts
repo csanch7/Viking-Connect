@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { parseMessageResponse } from '../../../shared/contracts'
 
 export interface LoginUser {
   email: string
@@ -15,7 +16,7 @@ const loginService = {
     }
     const endpoint: string = `${backend}/auth/login`
     const response = await axios.post(endpoint, user)
-    return response.data
+    return parseMessageResponse(response.data)
   },
 }
 

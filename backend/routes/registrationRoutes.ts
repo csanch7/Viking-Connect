@@ -13,6 +13,7 @@ import {
   getRegistrationValidationError,
   normalizeRegistrationUser,
 } from "../validation/registrationValidation";
+import type { UserType } from "../../shared/contracts";
 
 export interface RegistrationRouterDependencies {
   createUser: typeof createUser;
@@ -60,6 +61,7 @@ export function createRegistrationRouter(
         const passwordHash = await hashPassword(password);
         const createdUser = await createUser({
           ...normalizedUser,
+          type: normalizedUser.type as UserType,
           role: "user",
           passwordHash,
         });

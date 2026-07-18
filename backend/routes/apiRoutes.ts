@@ -9,6 +9,7 @@ import type { AdminRouterDependencies } from "./adminRoutes";
 import type { MentorRouterDependencies } from "./mentorRoutes";
 import type { ProfileRouterDependencies } from "./profileRoutes";
 import type { RegistrationRouterDependencies } from "./registrationRoutes";
+import { checkDatabase } from "../database";
 
 export interface ApiRouterOptions {
   adminDependencies?: AdminRouterDependencies;
@@ -16,6 +17,7 @@ export interface ApiRouterOptions {
   mentorDependencies?: MentorRouterDependencies;
   profileDependencies?: ProfileRouterDependencies;
   registrationDependencies?: RegistrationRouterDependencies;
+  readinessCheck?: () => Promise<void>;
 }
 
 export function createApiRouter(
@@ -25,7 +27,16 @@ export function createApiRouter(
   const router = Router();
 
   router.get("/health", async (_req, res) => {
-    res.send("STL Mentor API");
+    res.json({ status: "ok" });
+  });
+
+  router.get("/ready", async (_req, res) => {
+    try {
+      await (options.readinessCheck ?? checkDatabase)();
+      res.json({ status: "ready" });
+    } catch {
+      res.status(503).json({ status: "unavailable" });
+    }
   });
 
   router.use("/auth", createAuthRouter(authLimiter, options.authDependencies));

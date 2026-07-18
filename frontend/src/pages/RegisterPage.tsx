@@ -1,196 +1,43 @@
-import { useState } from 'react'
-import axios from 'axios'
-import registerService from '../services/registerService'
-import type { User } from '../types/user'
-import { useNavigate } from 'react-router-dom'
 import ExpertiseSelector from '../components/expertise/ExpertiseSelector'
-
-interface ApiErrorResponse {
-  message?: string
-}
-
-const passwordSpecialCharacters = '!@#$%^&*()_-+=[{]};:,.?'
-const linkedinProfileUrlRegex =
-  /^https:\/\/(www\.)?linkedin\.com\/in\/[A-Za-z0-9-]{3,100}\/?$/
-const linkedinProfileUrlPattern =
-  'https://(www\\.)?linkedin\\.com/in/[A-Za-z0-9-]{3,100}/?'
-
-function getPasswordRules(value: string) {
-  return [
-    {
-      label: 'At least 12 characters',
-      valid: value.length >= 12,
-    },
-    {
-      label: 'One uppercase letter',
-      valid: /[A-Z]/.test(value),
-    },
-    {
-      label: 'One lowercase letter',
-      valid: /[a-z]/.test(value),
-    },
-    {
-      label: 'One number',
-      valid: /\d/.test(value),
-    },
-    {
-      label: 'One special character',
-      valid: [...value].some((character) =>
-        passwordSpecialCharacters.includes(character),
-      ),
-    },
-  ]
-}
+import {
+  linkedinProfileUrlPattern,
+  useRegistrationForm,
+} from '../hooks/useRegistrationForm'
 
 function RegisterPage() {
-  const [username, setUsername] = useState<string>('')
-  const [password, setPassword] = useState<string>('')
-  const [passwordFocused, setPasswordFocused] = useState<boolean>(false)
-  const [email, setEmail] = useState<string>('')
-  const [linkedin, setLinkedin] = useState<string>('')
-  const [confirmPassword, setConfirmPassword] = useState<string>('')
-  const [type, setType] = useState<string>('')
-  const [error, setError] = useState<string | null>('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [helpText, setHelpText] = useState<string>('')
-  const [selectedAreasOfExpertise, setSelectedAreasOfExpertise] = useState<
-    string[]
-  >([])
-  const [expertise, setExpertise] = useState<string>('')
-  const [gradYear, setGradYear] = useState<number>(0)
-
-  const navigate = useNavigate()
-  const passwordRules = getPasswordRules(password)
-  const passwordIsValid = passwordRules.every((rule) => rule.valid)
-  const trimmedLinkedin = linkedin.trim()
-  const linkedinIsValid = linkedinProfileUrlRegex.test(trimmedLinkedin)
-  const passwordFieldState =
-    password.length === 0
-      ? 'register-field'
-      : passwordIsValid
-        ? 'register-field register-field--valid'
-        : 'register-field register-field--invalid'
-  const linkedinFieldState =
-    linkedin.length === 0
-      ? 'register-field'
-      : linkedinIsValid
-        ? 'register-field register-field--valid'
-        : 'register-field register-field--invalid'
-
-  function handleUsername(value: string) {
-    setUsername(value)
-  }
-
-  function handlePassword(value: string) {
-    setPassword(value)
-  }
-
-  function handleConfirmedPassword(value: string) {
-    setConfirmPassword(value)
-  }
-
-  function handleType(value: string) {
-    setType(value)
-  }
-
-  function handleEmail(value: string) {
-    setEmail(value)
-  }
-
-  function handleLinkedin(value: string) {
-    setLinkedin(value)
-  }
-
-  function handleHelpText(value: string) {
-    setHelpText(value)
-  }
-
-  function handleGradYear(value: string) {
-    const year = Number(value)
-    setGradYear(year)
-  }
-
-  function handleError(value: string) {
-    setError(value)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-    setTimeout(() => {
-      setError(null)
-    }, 3000)
-  }
-
-  async function handleSignUp(e: React.SubmitEvent<HTMLFormElement>) {
-    e.preventDefault()
-    if (isSubmitting) return
-
-    if (selectedAreasOfExpertise.length === 0 && type === 'mentor') {
-      handleError('Choose at least one area of expertise')
-      return
-    }
-    if (gradYear < 1961) {
-      handleError('Select a valid graduation year')
-      return
-    }
-    if (!passwordIsValid) {
-      handleError('Password does not meet the requirements')
-      return
-    }
-    if (password !== confirmPassword) {
-      handleError('Make sure passwords match')
-      return
-    }
-    if (!linkedinIsValid) {
-      handleError('Enter a valid LinkedIn profile URL')
-      return
-    }
-
-    const user: User = {
-      username: username,
-      password: password,
-      email: email,
-      linkedin: trimmedLinkedin,
-      type: type,
-      helpText: helpText,
-      areasOfExpertise: selectedAreasOfExpertise,
-      gradYear: gradYear,
-    }
-
-    try {
-      setIsSubmitting(true)
-      const response = await registerService.registerUser(user)
-
-      if (response.message === 'User created') {
-        navigate('/verification')
-      } else {
-        handleError('Unable to create your account')
-        setIsSubmitting(false)
-      }
-    } catch (error) {
-      setIsSubmitting(false)
-      if (axios.isAxiosError<ApiErrorResponse>(error)) {
-        handleError(
-          error.response?.data.message ?? 'Unable to create your account',
-        )
-        return
-      }
-
-      handleError('Unable to create your account')
-    }
-  }
-
-  function removeExpertise(area: string) {
-    setSelectedAreasOfExpertise((previousList) =>
-      previousList.filter((item) => item !== area),
-    )
-  }
-
-  function addExpertise() {
-    if (expertise && !selectedAreasOfExpertise.includes(expertise)) {
-      setSelectedAreasOfExpertise((previousList) => [
-        ...previousList,
-        expertise,
-      ])
-    }
-  }
+  const {
+    username,
+    setUsername,
+    password,
+    setPassword,
+    passwordFocused,
+    setPasswordFocused,
+    email,
+    setEmail,
+    linkedin,
+    setLinkedin,
+    confirmPassword,
+    setConfirmPassword,
+    type,
+    setType,
+    error,
+    isSubmitting,
+    helpText,
+    setHelpText,
+    selectedAreasOfExpertise,
+    expertise,
+    setExpertise,
+    setGradYear,
+    passwordRules,
+    passwordIsValid,
+    linkedinIsValid,
+    passwordFieldState,
+    linkedinFieldState,
+    submit,
+    removeExpertise,
+    addExpertise,
+    navigate,
+  } = useRegistrationForm()
   return (
     <main className="register-page">
       <section className="register-hero" aria-labelledby="register-title">
@@ -202,7 +49,7 @@ function RegisterPage() {
         </p>
       </section>
 
-      <form className="register-card" onSubmit={(e) => handleSignUp(e)}>
+      <form className="register-card" onSubmit={submit}>
         {error && (
           <div className="register-alert" role="alert">
             {error}
@@ -224,7 +71,7 @@ function RegisterPage() {
               <input
                 id="username"
                 value={username}
-                onChange={(e) => handleUsername(e.target.value)}
+                onChange={(e) => setUsername(e.target.value)}
                 placeholder="Jane Mentor"
                 required
               />
@@ -236,7 +83,7 @@ function RegisterPage() {
                 id="email"
                 value={email}
                 type="email"
-                onChange={(e) => handleEmail(e.target.value)}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="jane@example.com"
                 required
               />
@@ -248,7 +95,7 @@ function RegisterPage() {
                 id="password"
                 value={password}
                 type="password"
-                onChange={(e) => handlePassword(e.target.value)}
+                onChange={(e) => setPassword(e.target.value)}
                 onBlur={() => setPasswordFocused(false)}
                 onFocus={() => setPasswordFocused(true)}
                 placeholder="Create a password"
@@ -285,7 +132,7 @@ function RegisterPage() {
                 id="confirmPassword"
                 type="password"
                 value={confirmPassword}
-                onChange={(e) => handleConfirmedPassword(e.target.value)}
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Re-enter your password"
                 required
               />
@@ -310,7 +157,7 @@ function RegisterPage() {
                 id="mentee"
                 name="typeSelect"
                 value="mentee"
-                onChange={(e) => handleType(e.target.value)}
+                onChange={(e) => setType(e.target.value)}
                 required
               />
               <span>
@@ -324,7 +171,7 @@ function RegisterPage() {
                 id="mentor"
                 name="typeSelect"
                 value="mentor"
-                onChange={(e) => handleType(e.target.value)}
+                onChange={(e) => setType(e.target.value)}
               />
               <span>
                 <strong>Mentor</strong>
@@ -340,7 +187,7 @@ function RegisterPage() {
                 id="linkedin"
                 value={linkedin}
                 type="url"
-                onChange={(e) => handleLinkedin(e.target.value)}
+                onChange={(e) => setLinkedin(e.target.value)}
                 placeholder="https://www.linkedin.com/in/..."
                 pattern={linkedinProfileUrlPattern}
                 title="Use a LinkedIn profile URL like https://www.linkedin.com/in/your-name"
@@ -354,7 +201,7 @@ function RegisterPage() {
               <span>Graduation year</span>
               <input
                 id="graduationYear"
-                onChange={(e) => handleGradYear(e.target.value)}
+                onChange={(e) => setGradYear(e.target.value)}
                 placeholder="2027"
                 required
               />
@@ -380,7 +227,7 @@ function RegisterPage() {
               <textarea
                 id="helpText"
                 value={helpText}
-                onChange={(e) => handleHelpText(e.target.value)}
+                onChange={(e) => setHelpText(e.target.value)}
                 placeholder="Career advice, interview prep, industry insight..."
                 required
               ></textarea>

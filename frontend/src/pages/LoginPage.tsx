@@ -1,16 +1,15 @@
-import { useEffect, useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useState } from 'react'
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import loginService from '../services/loginService'
-import userService from '../services/userService'
 import LoadingPage from '../components/LoadingPage'
 import axios from 'axios'
+import { useAuth } from '../auth/useAuth'
 
 interface ApiErrorResponse {
   message?: string
 }
 
 function LoginPage() {
-  const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -18,26 +17,7 @@ function LoginPage() {
 
   const navigate = useNavigate()
   const location = useLocation()
-
-  useEffect(() => {
-    async function checkSession() {
-      try {
-        const response = await userService.checkSession()
-
-        if (response.authenticated) {
-          navigate('/profile', { replace: true })
-          return
-        }
-
-        setLoading(false)
-      } catch {
-        // If the check fails, leave the visitor on the sign-in page.
-        setLoading(false)
-      }
-    }
-
-    void checkSession()
-  }, [navigate])
+  const { authenticated, isCheckingSession, refreshSession } = useAuth()
 
   function handleEmail(value: string) {
     setEmail(value)
@@ -69,6 +49,7 @@ function LoginPage() {
       const response = await loginService.login(credentials)
 
       if (response.message === 'Logged in') {
+        await refreshSession()
         const destination =
           (location.state as { from?: { pathname?: string } } | null)?.from
             ?.pathname ?? '/profile'
@@ -90,8 +71,12 @@ function LoginPage() {
     }
   }
 
-  if (loading) {
+  if (isCheckingSession) {
     return <LoadingPage />
+  }
+
+  if (authenticated) {
+    return <Navigate to="/profile" replace />
   }
 
   return (

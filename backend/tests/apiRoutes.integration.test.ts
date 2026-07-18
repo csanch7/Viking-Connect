@@ -5,6 +5,7 @@ process.env.DATABASE_URL =
   process.env.DATABASE_URL ?? "postgresql://test:test@localhost/test";
 process.env.SESSION_SECRET =
   process.env.SESSION_SECRET ?? "integration-test-secret";
+process.env.NODE_ENV = "test";
 
 const [{ createApp }, { default: session }, { default: request }] =
   await Promise.all([
@@ -18,11 +19,11 @@ const baseUser = {
   username: "Jane Student",
   email: "jane@example.com",
   linkedin: "https://www.linkedin.com/in/jane-student",
-  type: "mentee",
+  type: "mentee" as const,
   helpText: "Interview preparation",
   areasOfExpertise: [],
   gradYear: 2027,
-  status: "approved",
+  status: "approved" as const,
   role: "user" as "admin" | "user",
 };
 
@@ -42,6 +43,7 @@ function buildApiApp(role: "admin" | "user" = "user") {
     sessionSecret: "integration-test-secret",
     isProduction: false,
     apiDependencies: {
+      readinessCheck: async () => undefined,
       authDependencies: {
         findUserByEmail: async () => ({
           ...authenticatedUser,
@@ -124,7 +126,11 @@ describe("API routes", () => {
     const response = await request(buildApiApp()).get("/api/health");
 
     assert.equal(response.status, 200);
-    assert.equal(response.text, "STL Mentor API");
+    assert.deepEqual(response.body, { status: "ok" });
+
+    const readiness = await request(buildApiApp()).get("/api/ready");
+    assert.equal(readiness.status, 200);
+    assert.deepEqual(readiness.body, { status: "ready" });
   });
 
   it("registers a valid mentor through the HTTP API", async () => {
