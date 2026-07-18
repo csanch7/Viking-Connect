@@ -7,13 +7,13 @@ interface AppNavProps {
 function AppNav({ isAdmin }: AppNavProps) {
   return (
     <nav className="app-nav" aria-label="Main navigation">
-      <NavLink to="/" className="app-nav-brand">
+      <a href="/" className="app-nav-brand" aria-label="STL Mentorship home">
         <img src="/favicon.svg" alt="" aria-hidden="true" />
         <span>
           <strong>STL</strong>
           <small>Mentorship</small>
         </span>
-      </NavLink>
+      </a>
       <div className="app-nav-actions">
         <NavLink to="/dashboard" className="app-nav-button">
           Dashboard
