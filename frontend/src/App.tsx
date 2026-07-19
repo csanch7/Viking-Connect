@@ -22,15 +22,19 @@ function App() {
   const { authenticated, admin } = useAuth()
   const location = useLocation()
   const showAppNav =
-    location.pathname === '/dashboard' ||
-    location.pathname === '/profile' ||
-    location.pathname === '/admin' ||
-    location.pathname === '/admin/pending-users' ||
-    location.pathname.startsWith('/mentor/')
+    location.pathname === '/' ||
+    (authenticated &&
+      (location.pathname === '/dashboard' ||
+        location.pathname === '/profile' ||
+        location.pathname === '/admin' ||
+        location.pathname === '/admin/pending-users' ||
+        location.pathname.startsWith('/mentor/')))
 
   return (
     <>
-      {authenticated && showAppNav && <AppNav isAdmin={admin} />}
+      {showAppNav && (
+        <AppNav isAuthenticated={authenticated} isAdmin={admin} />
+      )}
       <Routes>
         <Route path="*" element={<PageNotFound />} />
         <Route

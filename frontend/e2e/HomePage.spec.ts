@@ -11,7 +11,7 @@ test('shows the public home page and opens registration', async ({ page }) => {
     }),
   ).toBeVisible()
   await expect(
-    page.getByRole('navigation', { name: 'Home navigation' }),
+    page.getByRole('navigation', { name: 'Main navigation' }),
   ).toBeVisible()
 
   await page.getByRole('link', { name: 'Join the network' }).click()

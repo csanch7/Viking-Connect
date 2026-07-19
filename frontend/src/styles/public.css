@@ -90,6 +90,19 @@
   background: #191919;
 }
 
+.app-nav-button--primary {
+  border-color: #191919;
+  color: #fffdfa;
+  background: #191919;
+  box-shadow: 0 1px 2px rgba(9, 9, 9, 0.08);
+}
+
+.app-nav-button--primary:hover {
+  border-color: #2a2926;
+  color: #fffdfa;
+  background: #2a2926;
+}
+
 .app-nav-brand:focus-visible,
 .app-nav-button:focus-visible {
   outline: 3px solid rgba(255, 199, 44, 0.55);
@@ -123,86 +136,11 @@
   background: var(--home-soft);
 }
 
-.home-nav {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  min-height: 68px;
-  padding: 0 32px;
-  border-bottom: 1px solid rgba(230, 225, 215, 0.88);
-  background: rgba(255, 253, 248, 0.94);
-  backdrop-filter: blur(14px);
-}
-
-.home-brand,
-.home-nav-link,
-.home-nav-button,
 .home-primary-link,
 .home-secondary-link {
   text-decoration: none;
 }
 
-.home-brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-  color: var(--home-ink);
-}
-
-.home-brand img {
-  width: 38px;
-  height: 42px;
-  object-fit: contain;
-}
-
-.home-brand span {
-  display: grid;
-  gap: 1px;
-  line-height: 1.1;
-}
-
-.home-brand strong {
-  font-size: 13px;
-  font-weight: 850;
-  letter-spacing: 0.08em;
-}
-
-.home-brand small {
-  color: #55514a;
-  font-size: 13px;
-  font-weight: 750;
-}
-
-.home-nav-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
-}
-
-.home-nav-link,
-.home-nav-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 38px;
-  padding: 0 14px;
-  border-radius: 6px;
-  color: var(--home-ink);
-  font-size: 13px;
-  font-weight: 760;
-}
-
-.home-nav-link:hover {
-  background: #f4f1ea;
-}
-
-.home-nav-button,
 .home-primary-link {
   border: 1px solid #191919;
   color: #fffefa;
@@ -210,7 +148,6 @@
   box-shadow: 0 1px 2px rgba(9, 9, 9, 0.08);
 }
 
-.home-nav-button:hover,
 .home-primary-link:hover {
   background: #2a2926;
 }
@@ -220,7 +157,7 @@
   isolation: isolate;
   display: grid;
   place-items: center;
-  min-height: calc(100svh - 68px);
+  min-height: calc(100svh - 64px);
   overflow: hidden;
   padding: 80px 28px 96px;
   color: #fffefa;
@@ -598,9 +535,6 @@
   background: var(--home-gold-soft);
 }
 
-.home-brand:focus-visible,
-.home-nav-link:focus-visible,
-.home-nav-button:focus-visible,
 .home-primary-link:focus-visible,
 .home-secondary-link:focus-visible {
   outline: 3px solid rgba(255, 199, 44, 0.55);
@@ -907,5 +841,4 @@
 .login-register-prompt a:hover {
   color: #8f6b00;
 }
-
 

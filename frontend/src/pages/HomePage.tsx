@@ -33,37 +33,6 @@ interface HomePageProps {
 function HomePage({ isAuthenticated = false }: HomePageProps) {
   return (
     <main className="home-page">
-      <nav className="home-nav" aria-label="Home navigation">
-        <Link className="home-brand" to="/">
-          <img src="/favicon.svg" alt="" aria-hidden="true" />
-          <span>
-            <strong>STL</strong>
-            <small>Mentorship</small>
-          </span>
-        </Link>
-        <div className="home-nav-actions">
-          {isAuthenticated ? (
-            <>
-              <Link className="home-nav-link" to="/profile">
-                Profile
-              </Link>
-              <Link className="home-nav-button" to="/dashboard">
-                Dashboard
-              </Link>
-            </>
-          ) : (
-            <>
-              <Link className="home-nav-link" to="/login">
-                Sign in
-              </Link>
-              <Link className="home-nav-button" to="/register">
-                Join the network
-              </Link>
-            </>
-          )}
-        </div>
-      </nav>
-
       <section className="home-hero" aria-labelledby="home-title">
         <div className="home-hero-art" aria-hidden="true">
           <div className="home-signal-card home-signal-card--primary">
