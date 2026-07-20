@@ -1,13 +1,16 @@
 import { useEffect, useState } from 'react'
 import userService from '../services/userService'
+import topicService from '../services/topicService'
 import type { Mentor } from '../types/mentor'
 import LoadingPage from '../components/LoadingPage'
-import { areasOfExpertise } from '../constants/areasOfExpertise'
 import MentorDirectoryCard from '../components/mentor/MentorDirectoryCard'
 
 function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [topics, setTopics] = useState<string[]>([])
+  const [topicsLoading, setTopicsLoading] = useState(true)
+  const [topicsError, setTopicsError] = useState('')
   const [page, setPage] = useState<number>(0)
   const [filter, setFilter] = useState<string[]>([])
   const [draftFilter, setDraftFilter] = useState<string[]>([])
@@ -16,9 +19,41 @@ function DashboardPage() {
   const [filterSearchText, setFilterSearchText] = useState<string>('')
   const [filterPanelOpen, setFilterPanelOpen] = useState(false)
   const [debouncedSearchText, setDebouncedSearchText] = useState<string>('')
-  const visibleExpertiseOptions = areasOfExpertise.filter((area) =>
+  const visibleExpertiseOptions = topics.filter((area) =>
     area.toLowerCase().includes(filterSearchText.trim().toLowerCase()),
   )
+
+  useEffect(() => {
+    let isCurrentRequest = true
+
+    async function loadTopics() {
+      try {
+        const response = await topicService.getTopics()
+
+        if (isCurrentRequest) {
+          setTopics(response)
+          setTopicsError('')
+        }
+      } catch {
+        if (isCurrentRequest) {
+          setTopics([])
+          setTopicsError(
+            'We could not load expertise filters. Please refresh and try again.',
+          )
+        }
+      } finally {
+        if (isCurrentRequest) {
+          setTopicsLoading(false)
+        }
+      }
+    }
+
+    void loadTopics()
+
+    return () => {
+      isCurrentRequest = false
+    }
+  }, [])
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -161,7 +196,15 @@ function DashboardPage() {
 
               <fieldset className="dashboard-filter-options">
                 <legend className="sr-only">Areas of expertise</legend>
-                {visibleExpertiseOptions.length > 0 ? (
+                {topicsLoading ? (
+                  <p className="dashboard-filter-empty" aria-live="polite">
+                    Loading expertise filters...
+                  </p>
+                ) : topicsError ? (
+                  <p className="dashboard-filter-empty" role="alert">
+                    {topicsError}
+                  </p>
+                ) : visibleExpertiseOptions.length > 0 ? (
                   visibleExpertiseOptions.map((area, index) => (
                     <label
                       className="dashboard-filter-chip"

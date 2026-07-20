@@ -1,5 +1,9 @@
 import { expect, test } from '@playwright/test'
-import { fulfillJson, mockAuthenticatedSession } from './support/mockApi'
+import {
+  fulfillJson,
+  mockAuthenticatedSession,
+  mockTopics,
+} from './support/mockApi'
 
 const mentors = [
   {
@@ -14,6 +18,7 @@ const mentors = [
 
 test.beforeEach(async ({ page }) => {
   await mockAuthenticatedSession(page)
+  await mockTopics(page, ['Career Planning', 'Data Ethics', 'Finance'])
   await page.route('**/api/mentors/**', async (route) => {
     await fulfillJson(route, mentors)
   })
@@ -42,13 +47,13 @@ test('applies an expertise filter to the mentor request', async ({ page }) => {
   ).toBeVisible()
 
   await page.getByRole('button', { name: /Filters/ }).click()
-  await page.getByRole('checkbox', { name: 'Finance', exact: true }).check()
+  await page.getByRole('checkbox', { name: 'Data Ethics', exact: true }).check()
 
   const filteredRequest = page.waitForRequest((request) => {
     const url = new URL(request.url())
     return (
       url.pathname === '/api/mentors/0' &&
-      url.searchParams.get('filter') === 'Finance'
+      url.searchParams.get('filter') === 'Data Ethics'
     )
   })
   await page.getByRole('button', { name: 'Apply filters' }).click()
