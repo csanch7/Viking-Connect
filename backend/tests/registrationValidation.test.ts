@@ -11,12 +11,12 @@ const validPassword = "StrongPass123!";
 
 function makeUser(overrides: Partial<User> = {}): User {
   return {
-    username: "Jane Mentor",
+    name: "Jane Mentor",
     password: validPassword,
     email: "jane@example.com",
     linkedin: "https://www.linkedin.com/in/jane-mentor",
     type: "mentor",
-    helpText: "",
+    bio: "I help students prepare for careers in technology.",
     areasOfExpertise: ["Software Engineering"],
     gradYear: 2020,
     ...overrides,
@@ -35,8 +35,8 @@ describe("registration validation", () => {
       validate(
         makeUser({
           type: "mentee",
-          areasOfExpertise: [],
-          helpText: "I would like interview preparation help.",
+          areasOfExpertise: ["Interview Preparation"],
+          bio: "I am looking for guidance with interview preparation.",
         }),
       ),
       null,
@@ -46,7 +46,7 @@ describe("registration validation", () => {
   it("normalizes strings, email casing, type, and expertise", () => {
     const normalized = normalizeRegistrationUser(
       makeUser({
-        username: "  Jane Mentor  ",
+        name: "  Jane Mentor  ",
         email: "  JANE@EXAMPLE.COM  ",
         type: " MENTOR ",
         areasOfExpertise: [
@@ -57,7 +57,7 @@ describe("registration validation", () => {
       }),
     );
 
-    assert.equal(normalized.username, "Jane Mentor");
+    assert.equal(normalized.name, "Jane Mentor");
     assert.equal(normalized.email, "jane@example.com");
     assert.equal(normalized.type, "mentor");
     assert.deepEqual(normalized.areasOfExpertise, ["Software Engineering"]);
@@ -106,9 +106,13 @@ describe("registration validation", () => {
     );
     assert.equal(
       validate(
-        makeUser({ type: "mentee", areasOfExpertise: [], helpText: "" }),
+        makeUser({ type: "mentee", areasOfExpertise: [], bio: "" }),
       ),
-      "Tell us what help you are looking for",
+      "Tell us about yourself",
+    );
+    assert.equal(
+      validate(makeUser({ type: "mentee", areasOfExpertise: [] })),
+      "Choose at least one area of interest",
     );
   });
 

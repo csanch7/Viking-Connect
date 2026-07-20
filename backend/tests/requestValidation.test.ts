@@ -6,9 +6,9 @@ import {
 } from "../validation/authValidation";
 import {
   getExpertiseListValidationError,
-  getHelpTextValidationError,
+  getBioValidationError,
   normalizeExpertiseList,
-  normalizeHelpText,
+  normalizeBio,
 } from "../validation/profileValidation";
 import {
   getFilterValidationError,
@@ -50,12 +50,12 @@ describe("login validation", () => {
 });
 
 describe("profile validation", () => {
-  it("trims help text and rejects empty or oversized text", () => {
-    assert.equal(normalizeHelpText("  Career guidance  "), "Career guidance");
-    assert.equal(getHelpTextValidationError(""), "Help text is required");
+  it("trims bios and rejects empty or oversized text", () => {
+    assert.equal(normalizeBio("  Career guidance  "), "Career guidance");
+    assert.equal(getBioValidationError(""), "Bio is required");
     assert.equal(
-      getHelpTextValidationError("x".repeat(1001)),
-      "Help text must be 1000 characters or fewer",
+      getBioValidationError("x".repeat(1001)),
+      "Bio must be 1000 characters or fewer",
     );
   });
 

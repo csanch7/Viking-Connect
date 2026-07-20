@@ -23,3 +23,12 @@ export async function mockSession(
 export async function mockAuthenticatedSession(page: Page, admin = false) {
   await mockSession(page, { authenticated: true, admin })
 }
+
+export async function mockTopics(
+  page: Page,
+  topics = ["Career Planning", "Finance", "Technology"],
+) {
+  await page.route('**/api/topics', async (route) => {
+    await fulfillJson(route, { topics })
+  })
+}

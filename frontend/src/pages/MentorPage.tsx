@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
-import type { Mentor } from '../types/mentor'
+import type { PublicUser } from '../../../shared/contracts'
 import userService from '../services/userService'
 import { Link, useParams } from 'react-router-dom'
 import LoadingPage from '../components/LoadingPage'
 import ExpertiseChips from '../components/expertise/ExpertiseChips'
 
 function MentorPage() {
-  const [mentor, setMentor] = useState<Mentor>()
+  const [mentor, setMentor] = useState<PublicUser>()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const { id } = useParams()
@@ -60,11 +60,11 @@ function MentorPage() {
         <div className="mentor-cover" aria-hidden="true" />
         <div className="mentor-identity">
           <div className="mentor-avatar" aria-hidden="true">
-            {mentor.username.slice(0, 1).toUpperCase()}
+            {mentor.name.slice(0, 1).toUpperCase()}
           </div>
           <div className="mentor-heading">
             <p className="mentor-kicker">Alumni mentor</p>
-            <h1 id="mentor-title">{mentor.username}</h1>
+            <h1 id="mentor-title">{mentor.name}</h1>
             <p>Mentor in the STL Mentorship Program</p>
           </div>
           <div className="mentor-actions">
@@ -84,6 +84,14 @@ function MentorPage() {
 
       <div className="mentor-layout">
         <div className="mentor-main-column">
+          <section className="mentor-card" aria-labelledby="mentor-bio-title">
+            <div className="mentor-card-heading">
+              <span>Profile</span>
+              <h2 id="mentor-bio-title">About me</h2>
+            </div>
+            <p>{mentor.bio || 'This mentor has not added a bio yet.'}</p>
+          </section>
+
           <section
             className="mentor-card mentor-card--accent"
             aria-labelledby="mentor-expertise-title"

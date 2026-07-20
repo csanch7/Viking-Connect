@@ -10,19 +10,22 @@ const adminPendingUsersUrl = env.appUrl
   : adminPendingUsersPath;
 
 function renderAdminRegistrationText(user: RegistrationEmailUser) {
+  const topicsLabel =
+    user.type === "mentor" ? "Areas of expertise" : "Areas of interest";
+  const topicsLine = `${topicsLabel}: ${
+    user.areasOfExpertise?.length
+      ? user.areasOfExpertise.join(", ")
+      : "Not provided"
+  }`;
+
   return `A new STL Mentor Program registration is waiting for review.
 
-    Name: ${user.username}
+    Name: ${user.name}
     Email: ${user.email}
     Account type: ${user.type}
     Graduation year: ${user.gradYear}
-    ${user.type === "mentor" ? "Areas of expertise" : "Help requested"}: ${
-      user.type === "mentor"
-        ? user.areasOfExpertise?.length
-          ? user.areasOfExpertise.join(", ")
-          : "Not provided"
-        : user.helpText || "Not provided"
-    }
+    Bio: ${user.bio || "Not provided"}
+    ${topicsLine}
 
     Review the registration at ${adminPendingUsersPath}.`;
 }

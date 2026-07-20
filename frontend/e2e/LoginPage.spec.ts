@@ -31,11 +31,11 @@ test('redirects an already authenticated visitor to their profile', async ({
     await fulfillJson(route, {
       user: {
         id: '7',
-        username: 'Jane Student',
+        name: 'Jane Student',
         email: 'jane@example.com',
         type: 'mentee',
         linkedin: 'https://www.linkedin.com/in/jane-student',
-        helpText: 'Interview preparation',
+        bio: 'I am preparing for internships and early-career interviews.',
         areasOfExpertise: [],
         gradYear: 2027,
         status: 'approved',

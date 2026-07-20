@@ -4,11 +4,11 @@ export type UserRole = "admin" | "user";
 
 export interface PublicUser {
   id: string;
-  username: string;
+  name: string;
   email: string;
   linkedin: string;
   type: UserType;
-  helpText: string;
+  bio: string;
   areasOfExpertise: string[];
   gradYear: number;
   status: UserStatus;
@@ -17,18 +17,18 @@ export interface PublicUser {
 
 export type MentorDirectoryUser = Pick<
   PublicUser,
-  "id" | "username" | "email" | "linkedin" | "areasOfExpertise"
+  "id" | "name" | "email" | "linkedin" | "areasOfExpertise"
 > & { gradYear?: number };
 
 export type PendingUser = Omit<PublicUser, "status">;
 
 export interface RegistrationRequest {
-  username: string;
+  name: string;
   password: string;
   email: string;
   linkedin: string;
   type: string;
-  helpText: string;
+  bio: string;
   areasOfExpertise: string[];
   gradYear: number;
 }
@@ -105,6 +105,14 @@ export function parseMessageResponse(value: unknown): MessageResponse {
   return { message: readString(value, "message") };
 }
 
+export function parseTopicsEnvelope(value: unknown) {
+  if (!isRecord(value)) {
+    return contractError("topics envelope");
+  }
+
+  return { topics: readStringArray(value, "topics") };
+}
+
 export function parsePublicUser(value: unknown): PublicUser {
   if (!isRecord(value)) {
     return contractError("user");
@@ -112,11 +120,11 @@ export function parsePublicUser(value: unknown): PublicUser {
 
   return {
     id: readString(value, "id"),
-    username: readString(value, "username"),
+    name: readString(value, "name"),
     email: readString(value, "email"),
     linkedin: readString(value, "linkedin"),
     type: parseUserType(value.type),
-    helpText: readString(value, "helpText"),
+    bio: readString(value, "bio"),
     areasOfExpertise: readStringArray(value, "areasOfExpertise"),
     gradYear: readNumber(value, "gradYear"),
     status: parseUserStatus(value.status),
@@ -139,7 +147,7 @@ export function parseMentor(value: unknown): MentorDirectoryUser {
 
   const parsed: MentorDirectoryUser = {
     id: readString(value, "id"),
-    username: readString(value, "username"),
+    name: readString(value, "name"),
     email: readString(value, "email"),
     linkedin: readString(value, "linkedin"),
     areasOfExpertise: readStringArray(value, "areasOfExpertise"),
@@ -172,11 +180,11 @@ export function parsePendingUsersEnvelope(value: unknown) {
 
     return {
       id: readString(user, "id"),
-      username: readString(user, "username"),
+      name: readString(user, "name"),
       email: readString(user, "email"),
       linkedin: readString(user, "linkedin"),
       type: parseUserType(user.type),
-      helpText: readString(user, "helpText"),
+      bio: readString(user, "bio"),
       areasOfExpertise: readStringArray(user, "areasOfExpertise"),
       gradYear: readNumber(user, "gradYear"),
       role: parseUserRole(user.role),

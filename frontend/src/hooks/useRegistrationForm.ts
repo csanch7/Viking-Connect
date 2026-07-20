@@ -30,7 +30,7 @@ function getPasswordRules(value: string) {
 }
 
 export function useRegistrationForm() {
-  const [username, setUsername] = useState('')
+  const [name, setName] = useState('')
   const [password, setPassword] = useState('')
   const [passwordFocused, setPasswordFocused] = useState(false)
   const [email, setEmail] = useState('')
@@ -39,7 +39,7 @@ export function useRegistrationForm() {
   const [type, setType] = useState('')
   const [error, setError] = useState<string | null>('')
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [helpText, setHelpText] = useState('')
+  const [bio, setBio] = useState('')
   const [selectedAreasOfExpertise, setSelectedAreasOfExpertise] = useState<
     string[]
   >([])
@@ -67,15 +67,18 @@ export function useRegistrationForm() {
   function showError(value: string) {
     setError(value)
     window.scrollTo({ top: 0, behavior: 'smooth' })
-    window.setTimeout(() => setError(null), 3000)
   }
 
   async function submit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
     if (isSubmitting) return
 
-    if (selectedAreasOfExpertise.length === 0 && type === 'mentor') {
-      showError('Choose at least one area of expertise')
+    if (selectedAreasOfExpertise.length === 0) {
+      showError(
+        type === 'mentor'
+          ? 'Choose at least one area of expertise'
+          : 'Choose at least one area of interest',
+      )
       return
     }
     if (gradYear < 1961) {
@@ -96,12 +99,12 @@ export function useRegistrationForm() {
     }
 
     const user: User = {
-      username,
+      name,
       password,
       email,
       linkedin: trimmedLinkedin,
       type,
-      helpText,
+      bio,
       areasOfExpertise: selectedAreasOfExpertise,
       gradYear,
     }
@@ -138,8 +141,8 @@ export function useRegistrationForm() {
   }
 
   return {
-    username,
-    setUsername,
+    name,
+    setName,
     password,
     setPassword,
     passwordFocused,
@@ -154,8 +157,8 @@ export function useRegistrationForm() {
     setType,
     error,
     isSubmitting,
-    helpText,
-    setHelpText,
+    bio,
+    setBio,
     selectedAreasOfExpertise,
     expertise,
     setExpertise,

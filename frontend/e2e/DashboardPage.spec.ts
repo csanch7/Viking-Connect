@@ -4,7 +4,7 @@ import { fulfillJson, mockAuthenticatedSession } from './support/mockApi'
 const mentors = [
   {
     id: '42',
-    username: 'Alex Mentor',
+    name: 'Alex Mentor',
     email: 'alex@example.com',
     linkedin: 'https://www.linkedin.com/in/alex-mentor',
     areasOfExpertise: ['Finance', 'Career Planning'],
@@ -42,7 +42,7 @@ test('applies an expertise filter to the mentor request', async ({ page }) => {
   ).toBeVisible()
 
   await page.getByRole('button', { name: /Filters/ }).click()
-  await page.getByRole('checkbox', { name: 'Finance' }).check()
+  await page.getByRole('checkbox', { name: 'Finance', exact: true }).check()
 
   const filteredRequest = page.waitForRequest((request) => {
     const url = new URL(request.url())
@@ -67,7 +67,7 @@ test('paginates a full mentor result page', async ({ page }) => {
         ? Array.from({ length: 10 }, (_, index) => ({
             ...mentors[0],
             id: String(index + 1),
-            username: `Mentor ${index + 1}`,
+            name: `Mentor ${index + 1}`,
           }))
         : [],
     )

@@ -1,15 +1,15 @@
 import { Router, type RequestHandler } from "express";
 import {
   updateAreasOfExpertise,
-  updateHelpText,
+  updateBio,
 } from "../repositories/userRepository";
 import { asyncHandler } from "../middleware/asyncHandler";
 import { requireAuth } from "../middleware/auth";
 import {
   getExpertiseListValidationError,
-  getHelpTextValidationError,
+  getBioValidationError,
   normalizeExpertiseList,
-  normalizeHelpText,
+  normalizeBio,
 } from "../validation/profileValidation";
 import {
   getIdParamValidationError,
@@ -18,12 +18,12 @@ import {
 
 export interface ProfileRouterDependencies {
   updateAreasOfExpertise: typeof updateAreasOfExpertise;
-  updateHelpText: typeof updateHelpText;
+  updateBio: typeof updateBio;
 }
 
 const defaultDependencies: ProfileRouterDependencies = {
   updateAreasOfExpertise,
-  updateHelpText,
+  updateBio,
 };
 
 export function createProfileRouter(
@@ -31,15 +31,15 @@ export function createProfileRouter(
   dependencies: ProfileRouterDependencies = defaultDependencies,
 ) {
   const router = Router();
-  const { updateAreasOfExpertise, updateHelpText } = dependencies;
+  const { updateAreasOfExpertise, updateBio } = dependencies;
 
   router.patch(
-    "/change-text/:userId",
+    "/change-bio/:userId",
     requireAuth,
     authLimiter,
     asyncHandler(async (req, res) => {
       const userId = normalizeIdParam(req.params.userId);
-      const helpText = normalizeHelpText(req.body.helpText);
+      const bio = normalizeBio(req.body.bio);
       const idValidationError = getIdParamValidationError(userId);
 
       if (idValidationError) {
@@ -50,27 +50,27 @@ export function createProfileRouter(
       if (userId !== req.session.userId) {
         res
           .status(403)
-          .json({ message: "Unauthorized to change another's help text" });
+          .json({ message: "Unauthorized to change another's bio" });
         return;
       }
 
-      const validationError = getHelpTextValidationError(helpText);
+      const validationError = getBioValidationError(bio);
 
       if (validationError) {
         res.status(400).json({ message: validationError });
         return;
       }
 
-      const updatedHelpText = await updateHelpText(helpText, userId as string);
+      const updatedBio = await updateBio(bio, userId as string);
 
-      if (!updatedHelpText) {
-        res.status(404).json({ message: "Mentee profile not found" });
+      if (!updatedBio) {
+        res.status(404).json({ message: "Profile not found" });
         return;
       }
 
       res.json({
-        message: "Help text has been successfully updated",
-        helpText: updatedHelpText.helpText,
+        message: "Bio has been successfully updated",
+        bio: updatedBio.bio,
       });
     }),
   );
@@ -111,7 +111,7 @@ export function createProfileRouter(
       );
 
       if (!updatedAreasOfExpertise) {
-        res.status(404).json({ message: "Mentor profile not found" });
+        res.status(404).json({ message: "Profile not found" });
         return;
       }
 

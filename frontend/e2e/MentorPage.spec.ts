@@ -9,17 +9,24 @@ test('shows a mentor profile returned by the API', async ({ page }) => {
   await page.route('**/api/mentor/42', async (route) => {
     await fulfillJson(route, {
       id: '42',
-      username: 'Alex Mentor',
+      name: 'Alex Mentor',
       email: 'alex@example.com',
       linkedin: 'https://www.linkedin.com/in/alex-mentor',
+      type: 'mentor',
+      bio: 'I help students prepare for careers in finance.',
       areasOfExpertise: ['Finance', 'Career Planning'],
       gradYear: 2012,
+      status: 'approved',
+      role: 'user',
     })
   })
   await page.goto('/mentor/42')
 
   await expect(page.getByRole('heading', { name: 'Alex Mentor' })).toBeVisible()
-  await expect(page.getByText('Finance')).toBeVisible()
+  await expect(page.getByText('Finance', { exact: true })).toBeVisible()
+  await expect(
+    page.getByText('I help students prepare for careers in finance.'),
+  ).toBeVisible()
   await expect(
     page.getByRole('link', { name: /View profile/ }),
   ).toHaveAttribute('href', 'https://www.linkedin.com/in/alex-mentor')

@@ -5,9 +5,9 @@ export type RegistrationEmailUser = Omit<User, "password">;
 const passwordSpecialCharacters = "!@#$%^&*()_-+=[{]};:,.?";
 const earliestGraduationYear = 1961;
 const latestGraduationYear = new Date().getFullYear() + 10;
-const maxUsernameLength = 100;
+const maxNameLength = 100;
 const maxEmailLength = 254;
-const maxHelpTextLength = 1000;
+const maxBioLength = 1000;
 const maxExpertiseLength = 80;
 const maxExpertiseCount = 15;
 const validUserTypes = new Set(["mentor", "mentee"]);
@@ -50,14 +50,11 @@ export function normalizeRegistrationUser(input: User): RegistrationEmailUser {
     typeof input.type === "string" ? input.type.trim().toLowerCase() : "";
 
   return {
-    username: typeof input.username === "string" ? input.username.trim() : "",
+    name: typeof input.name === "string" ? input.name.trim() : "",
     email: typeof input.email === "string" ? input.email.trim().toLowerCase() : "",
     linkedin: typeof input.linkedin === "string" ? input.linkedin.trim() : "",
     type,
-    helpText:
-      type === "mentee" && typeof input.helpText === "string"
-        ? input.helpText.trim()
-        : "",
+    bio: typeof input.bio === "string" ? input.bio.trim() : "",
     areasOfExpertise,
     gradYear: Number(input.gradYear),
   };
@@ -67,11 +64,11 @@ export function getRegistrationValidationError(
   user: RegistrationEmailUser,
   password: unknown,
 ) {
-  if (!user.username || !password || !user.email || !user.type) {
+  if (!user.name || !password || !user.email || !user.type) {
     return "Missing required registration fields";
   }
 
-  if (user.username.length > maxUsernameLength) {
+  if (user.name.length > maxNameLength) {
     return "Name must be 100 characters or fewer";
   }
 
@@ -87,6 +84,14 @@ export function getRegistrationValidationError(
     return "Choose mentor or mentee";
   }
 
+  if (!user.bio) {
+    return "Tell us about yourself";
+  }
+
+  if (user.bio.length > maxBioLength) {
+    return "Bio must be 1000 characters or fewer";
+  }
+
   if (
     !Number.isInteger(user.gradYear) ||
     user.gradYear < earliestGraduationYear ||
@@ -99,27 +104,17 @@ export function getRegistrationValidationError(
     return "Enter a valid LinkedIn profile URL";
   }
 
-  if (user.type === "mentor") {
-    if (user.areasOfExpertise.length === 0) {
-      return "Choose at least one area of expertise";
-    }
-
-    if (
-      user.areasOfExpertise.length > maxExpertiseCount ||
-      !user.areasOfExpertise.every((area) => area.length <= maxExpertiseLength)
-    ) {
-      return "Choose valid areas of expertise";
-    }
+  if (user.areasOfExpertise.length === 0) {
+    return user.type === "mentor"
+      ? "Choose at least one area of expertise"
+      : "Choose at least one area of interest";
   }
 
-  if (user.type === "mentee") {
-    if (!user.helpText) {
-      return "Tell us what help you are looking for";
-    }
-
-    if (user.helpText.length > maxHelpTextLength) {
-      return "Help text must be 1000 characters or fewer";
-    }
+  if (
+    user.areasOfExpertise.length > maxExpertiseCount ||
+    !user.areasOfExpertise.every((area) => area.length <= maxExpertiseLength)
+  ) {
+    return "Choose valid topics";
   }
 
   return null;

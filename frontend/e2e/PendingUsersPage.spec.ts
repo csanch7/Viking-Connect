@@ -3,11 +3,11 @@ import { fulfillJson, mockAuthenticatedSession } from './support/mockApi'
 
 const pendingUser = {
   id: '19',
-  username: 'Pat Mentor',
+  name: 'Pat Mentor',
   email: 'pat@example.com',
   linkedin: 'https://www.linkedin.com/in/pat-mentor',
   type: 'mentor',
-  helpText: '',
+  bio: 'I mentor students interested in technology careers.',
   areasOfExpertise: ['Technology', 'Leadership'],
   gradYear: 2008,
   role: 'user',

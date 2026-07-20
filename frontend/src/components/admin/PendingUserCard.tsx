@@ -17,11 +17,11 @@ function PendingUserCard({
     <article className="pending-user-card">
       <div className="pending-user-header">
         <div className="pending-user-avatar" aria-hidden="true">
-          {user.username.slice(0, 1).toUpperCase()}
+          {user.name.slice(0, 1).toUpperCase()}
         </div>
         <div>
           <span className="pending-user-status">Pending review</span>
-          <h2>{user.username}</h2>
+          <h2>{user.name}</h2>
           <p>{user.email}</p>
         </div>
       </div>
@@ -44,16 +44,14 @@ function PendingUserCard({
           </dd>
         </div>
         <div className="pending-user-detail-wide">
+          <dt>Bio</dt>
+          <dd>{user.bio || 'No bio provided'}</dd>
+        </div>
+        <div className="pending-user-detail-wide">
           <dt>
-            {user.type === 'mentor'
-              ? 'Areas of expertise'
-              : 'Requested support'}
+            Areas of {user.type === 'mentor' ? 'expertise' : 'interest'}
           </dt>
-          <dd>
-            {user.type === 'mentor'
-              ? user.areasOfExpertise.join(', ') || 'No areas listed'
-              : user.helpText || 'No details provided'}
-          </dd>
+          <dd>{user.areasOfExpertise.join(', ') || 'No areas listed'}</dd>
         </div>
       </dl>
 

@@ -21,6 +21,9 @@ describe("database migrations", () => {
     assert.deepEqual(await listMigrationFiles(migrationsDirectory), [
       "001_initial_schema.sql",
       "002_user_constraints.sql",
+      "003_rename_username_to_name.sql",
+      "004_rename_help_text_to_bio.sql",
+      "005_normalize_user_topics.sql",
     ]);
   });
 
@@ -39,5 +42,39 @@ describe("database migrations", () => {
     ]) {
       assert.match(sql, new RegExp(constraint));
     }
+  });
+
+  it("renames the user display name column without losing existing data", async () => {
+    const sql = await fs.readFile(
+      path.join(migrationsDirectory, "003_rename_username_to_name.sql"),
+      "utf8",
+    );
+
+    assert.match(sql, /RENAME COLUMN username TO name/);
+    assert.match(sql, /IF EXISTS/);
+    assert.match(sql, /RENAME CONSTRAINT users_username_key TO users_name_key/);
+    assert.match(sql, /RENAME TO users_type_status_name_id_idx/);
+  });
+
+  it("renames the profile text column to bio without losing existing data", async () => {
+    const sql = await fs.readFile(
+      path.join(migrationsDirectory, "004_rename_help_text_to_bio.sql"),
+      "utf8",
+    );
+
+    assert.match(sql, /RENAME COLUMN help_text TO bio/);
+  });
+
+  it("normalizes existing expertise into topics and user-topic relationships", async () => {
+    const sql = await fs.readFile(
+      path.join(migrationsDirectory, "005_normalize_user_topics.sql"),
+      "utf8",
+    );
+
+    assert.match(sql, /CREATE TABLE topics/);
+    assert.match(sql, /CREATE TABLE user_topics/);
+    assert.match(sql, /jsonb_array_elements_text\(users\.aoe_list\)/);
+    assert.match(sql, /INSERT INTO user_topics/);
+    assert.match(sql, /DROP COLUMN aoe_list/);
   });
 });

@@ -1,8 +1,8 @@
 import axios from 'axios'
 import {
-  parseMentor,
   parseMentorList,
   parseMessageResponse,
+  parsePublicUser,
   parseSessionResponse,
   parseUserEnvelope,
 } from '../../../shared/contracts'
@@ -74,16 +74,16 @@ const userService = {
   async getMentor(id: number) {
     const endpoint: string = `${backend}/mentor/${id}`
     const response = await axios.get(endpoint)
-    return parseMentor(response.data)
+    return parsePublicUser(response.data)
   },
-  async updateHelpText(helpText: string, id: string) {
-    const endpoint: string = `${backend}/change-text/${id}`
+  async updateBio(bio: string, id: string) {
+    const endpoint: string = `${backend}/change-bio/${id}`
     const response = await axios.patch(endpoint, {
-      helpText,
+      bio,
     })
     return {
       message: readStringField(response.data, 'message'),
-      helpText: readStringField(response.data, 'helpText'),
+      bio: readStringField(response.data, 'bio'),
     }
   },
   async updateAreasOfExpertise(areasOfExpertise: string[], id: string) {

@@ -16,11 +16,11 @@ const [{ createApp }, { default: session }, { default: request }] =
 
 const baseUser = {
   id: "7",
-  username: "Jane Student",
+  name: "Jane Student",
   email: "jane@example.com",
   linkedin: "https://www.linkedin.com/in/jane-student",
   type: "mentee" as const,
-  helpText: "Interview preparation",
+  bio: "I am preparing for internships and early-career interviews.",
   areasOfExpertise: [],
   gradYear: 2027,
   status: "approved" as const,
@@ -29,7 +29,7 @@ const baseUser = {
 
 const mentor = {
   id: "42",
-  username: "Alex Mentor",
+  name: "Alex Mentor",
   email: "alex@example.com",
   linkedin: "https://www.linkedin.com/in/alex-mentor",
   areasOfExpertise: ["Finance"],
@@ -44,6 +44,9 @@ function buildApiApp(role: "admin" | "user" = "user") {
     isProduction: false,
     apiDependencies: {
       readinessCheck: async () => undefined,
+      topicDependencies: {
+        getTopics: async () => ["Career Planning", "Finance", "Technology"],
+      },
       authDependencies: {
         findUserByEmail: async () => ({
           ...authenticatedUser,
@@ -55,11 +58,11 @@ function buildApiApp(role: "admin" | "user" = "user") {
       registrationDependencies: {
         createUser: async (input) => ({
           id: "88",
-          username: input.username,
+          name: input.name,
           email: input.email,
           linkedin: input.linkedin,
           type: input.type,
-          helpText: input.helpText,
+          bio: input.bio,
           areasOfExpertise: input.areasOfExpertise,
           gradYear: input.gradYear,
           status: "pending",
@@ -71,7 +74,7 @@ function buildApiApp(role: "admin" | "user" = "user") {
         sendAdminRegistrationNotification: async () => undefined,
       },
       profileDependencies: {
-        updateHelpText: async (helpText) => ({ helpText }),
+        updateBio: async (bio) => ({ bio }),
         updateAreasOfExpertise: async (areasOfExpertise) => ({
           areasOfExpertise,
         }),
@@ -92,11 +95,11 @@ function buildApiApp(role: "admin" | "user" = "user") {
         getPendingUsers: async () => [
           {
             id: "19",
-            username: "Pat Mentor",
+            name: "Pat Mentor",
             email: "pat@example.com",
             linkedin: "https://www.linkedin.com/in/pat-mentor",
             type: "mentor",
-            helpText: "",
+            bio: "I mentor students interested in technology careers.",
             areasOfExpertise: ["Technology"],
             gradYear: 2008,
             role: "user",
@@ -133,16 +136,25 @@ describe("API routes", () => {
     assert.deepEqual(readiness.body, { status: "ready" });
   });
 
+  it("serves topics for public registration forms", async () => {
+    const response = await request(buildApiApp()).get("/api/topics");
+
+    assert.equal(response.status, 200);
+    assert.deepEqual(response.body, {
+      topics: ["Career Planning", "Finance", "Technology"],
+    });
+  });
+
   it("registers a valid mentor through the HTTP API", async () => {
     const response = await request(buildApiApp())
       .post("/api/register")
       .send({
-        username: "Alex Mentor",
+        name: "Alex Mentor",
         password: "StrongPass123!",
         email: "alex@example.com",
         linkedin: "https://www.linkedin.com/in/alex-mentor",
         type: "mentor",
-        helpText: "",
+        bio: "I help students prepare for careers in finance.",
         areasOfExpertise: ["Finance"],
         gradYear: 2012,
       });
@@ -156,17 +168,17 @@ describe("API routes", () => {
   it("updates only the authenticated member's profile", async () => {
     const agent = await login(buildApiApp());
 
-    const update = await agent.patch("/api/change-text/7").send({
-      helpText: "Resume review and interview preparation",
+    const update = await agent.patch("/api/change-bio/7").send({
+      bio: "I am looking for resume review and interview preparation.",
     });
     assert.equal(update.status, 200);
     assert.equal(
-      update.body.helpText,
-      "Resume review and interview preparation",
+      update.body.bio,
+      "I am looking for resume review and interview preparation.",
     );
 
-    const forbidden = await agent.patch("/api/change-text/8").send({
-      helpText: "Attempted change",
+    const forbidden = await agent.patch("/api/change-bio/8").send({
+      bio: "Attempted change",
     });
     assert.equal(forbidden.status, 403);
   });
@@ -178,7 +190,7 @@ describe("API routes", () => {
       "/api/mentors/0?filter=Finance&searchText=Alex",
     );
     assert.equal(directory.status, 200);
-    assert.equal(directory.body[0].username, "Alex Mentor");
+    assert.equal(directory.body[0].name, "Alex Mentor");
 
     const profile = await agent.get("/api/mentor/42");
     assert.equal(profile.status, 200);
@@ -190,7 +202,7 @@ describe("API routes", () => {
 
     const pending = await agent.get("/api/admin/pending-users");
     assert.equal(pending.status, 200);
-    assert.equal(pending.body.users[0].username, "Pat Mentor");
+    assert.equal(pending.body.users[0].name, "Pat Mentor");
 
     const approval = await agent.post("/api/admin/approve-user/19");
     assert.equal(approval.status, 200);

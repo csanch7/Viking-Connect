@@ -17,11 +17,11 @@ const [{ createApp }, { default: session }, { default: request }] =
 
 const approvedUser: DatabaseUserWithPassword = {
   id: "7",
-  username: "Jane Student",
+  name: "Jane Student",
   email: "jane@example.com",
   linkedin: "https://www.linkedin.com/in/jane-student",
   type: "mentee",
-  helpText: "Interview preparation",
+  bio: "I am preparing for internships and early-career interviews.",
   areasOfExpertise: [],
   gradYear: 2027,
   status: "approved",

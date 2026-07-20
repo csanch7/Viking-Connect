@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
-import { mockSession } from './support/mockApi'
+import { mockSession, mockTopics } from './support/mockApi'
 
 const publicPages = [
   { path: '/', heading: 'Turn school pride into career momentum.' },
@@ -15,6 +15,7 @@ for (const publicPage of publicPages) {
     page,
   }) => {
     await mockSession(page)
+    await mockTopics(page)
     await page.goto(publicPage.path)
     await expect(
       page.getByRole('heading', { name: publicPage.heading }),

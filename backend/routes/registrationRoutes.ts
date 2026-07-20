@@ -72,11 +72,11 @@ export function createRegistrationRouter(
           message: "User created",
           user: {
             id: createdUser.id,
-            username: createdUser.username,
+            name: createdUser.name,
             email: createdUser.email,
             linkedin: createdUser.linkedin,
             type: createdUser.type,
-            helpText: createdUser.helpText,
+            bio: createdUser.bio,
             areasOfExpertise: createdUser.areasOfExpertise,
             gradYear: createdUser.gradYear,
             status: createdUser.status,
@@ -86,7 +86,7 @@ export function createRegistrationRouter(
       } catch (error) {
         if (isUniqueViolation(error)) {
           res.status(409).json({
-            message: "A user with that email or username already exists",
+            message: "A user with that email or name already exists",
           });
           return;
         }

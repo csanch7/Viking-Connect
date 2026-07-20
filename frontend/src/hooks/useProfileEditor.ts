@@ -9,8 +9,8 @@ export function useProfileEditor(
   setUser: Dispatch<SetStateAction<PublicUser | null>>,
 ) {
   const [saveError, setSaveError] = useState('')
-  const [editMode, setEditMode] = useState(false)
-  const [editText, setEditText] = useState('')
+  const [editMode, setEditMode] = useState<'bio' | 'expertise' | null>(null)
+  const [editBio, setEditBio] = useState('')
   const [isSaving, setIsSaving] = useState(false)
   const [editAreasOfExpertise, setEditAreasOfExpertise] = useState<string[]>([])
   const [editExpertise, setEditExpertise] = useState('')
@@ -23,29 +23,29 @@ export function useProfileEditor(
   }
 
   function cancelEditing() {
-    setEditMode(false)
-    setEditText('')
+    setEditMode(null)
+    setEditBio('')
     setEditAreasOfExpertise([])
     setEditExpertise('')
     setSaveError('')
   }
 
-  function startEditingHelpText() {
+  function startEditingBio() {
     if (!user) return
-    setEditText(user.helpText)
+    setEditBio(user.bio)
     setEditAreasOfExpertise([])
     setEditExpertise('')
     setSaveError('')
-    setEditMode(true)
+    setEditMode('bio')
   }
 
   function startEditingAreasOfExpertise() {
     if (!user) return
     setEditAreasOfExpertise(user.areasOfExpertise)
-    setEditText('')
+    setEditBio('')
     setEditExpertise('')
     setSaveError('')
-    setEditMode(true)
+    setEditMode('expertise')
   }
 
   function removeExpertise(area: string) {
@@ -61,7 +61,11 @@ export function useProfileEditor(
   async function saveAreasOfExpertise() {
     if (!user) return
     if (editAreasOfExpertise.length === 0) {
-      setSaveError('Choose at least one area of expertise.')
+      setSaveError(
+        user.type === 'mentor'
+          ? 'Choose at least one area of expertise.'
+          : 'Choose at least one area of interest.',
+      )
       return
     }
 
@@ -89,14 +93,14 @@ export function useProfileEditor(
     }
   }
 
-  async function saveHelpText() {
+  async function saveBio() {
     if (!user) return
-    const normalizedText = editText.trim()
-    if (!normalizedText) {
-      setSaveError('Help needed cannot be empty.')
+    const normalizedBio = editBio.trim()
+    if (!normalizedBio) {
+      setSaveError('Bio cannot be empty.')
       return
     }
-    if (normalizedText === user.helpText.trim()) {
+    if (normalizedBio === user.bio.trim()) {
       cancelEditing()
       return
     }
@@ -104,8 +108,8 @@ export function useProfileEditor(
     setIsSaving(true)
     setSaveError('')
     try {
-      const response = await userService.updateHelpText(normalizedText, user.id)
-      setUser({ ...user, helpText: response.helpText })
+      const response = await userService.updateBio(normalizedBio, user.id)
+      setUser({ ...user, bio: response.bio })
       cancelEditing()
     } catch (error) {
       setSaveError(getSaveError(error))
@@ -117,18 +121,18 @@ export function useProfileEditor(
   return {
     saveError,
     editMode,
-    editText,
-    setEditText,
+    editBio,
+    setEditBio,
     isSaving,
     editAreasOfExpertise,
     editExpertise,
     setEditExpertise,
     cancelEditing,
-    startEditingHelpText,
+    startEditingBio,
     startEditingAreasOfExpertise,
     removeExpertise,
     addExpertise,
     saveAreasOfExpertise,
-    saveHelpText,
+    saveBio,
   }
 }

@@ -81,7 +81,7 @@ export function createAuthRouter(
         message: "Logged in",
         user: {
           id: user.id,
-          username: user.username,
+          name: user.name,
           email: user.email,
           type: user.type,
         },

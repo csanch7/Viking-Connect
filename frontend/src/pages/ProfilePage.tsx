@@ -18,19 +18,19 @@ function ProfilePage() {
   const {
     saveError,
     editMode,
-    editText,
-    setEditText,
+    editBio,
+    setEditBio,
     isSaving,
     editAreasOfExpertise,
     editExpertise,
     setEditExpertise,
     cancelEditing,
-    startEditingHelpText,
+    startEditingBio,
     startEditingAreasOfExpertise,
     removeExpertise,
     addExpertise,
     saveAreasOfExpertise,
-    saveHelpText,
+    saveBio,
   } = editor
 
   useEffect(() => {
@@ -71,12 +71,62 @@ function ProfilePage() {
     )
   }
 
-  function renderMentorshipContent() {
+  function renderBioContent() {
     if (!user) {
       return null
     }
 
-    if (user.type === 'mentor' && editMode) {
+    if (editMode === 'bio') {
+      return (
+        <form
+          className="profile-help-form"
+          onSubmit={(event) => {
+            event.preventDefault()
+            void saveBio()
+          }}
+        >
+          {saveError && (
+            <p className="profile-inline-error" role="alert">
+              {saveError}
+            </p>
+          )}
+          <label htmlFor="editBio">Bio</label>
+          <textarea
+            id="editBio"
+            value={editBio}
+            onChange={(event) => setEditBio(event.target.value)}
+            rows={5}
+            required
+          />
+          <div className="profile-help-actions">
+            <button
+              className="profile-secondary-button"
+              type="button"
+              onClick={cancelEditing}
+            >
+              Cancel
+            </button>
+            {renderSubmitButton()}
+          </div>
+        </form>
+      )
+    }
+
+    return (
+      <div className="profile-help-summary">
+        <p className="profile-help-text">
+          {user.bio || 'You have not added a bio yet.'}
+        </p>
+      </div>
+    )
+  }
+
+  function renderExpertiseContent() {
+    if (!user) {
+      return null
+    }
+
+    if (editMode === 'expertise') {
       return (
         <form
           className="profile-help-form"
@@ -112,60 +162,16 @@ function ProfilePage() {
       )
     }
 
-    if (user.type === 'mentor') {
-      return user.areasOfExpertise.length > 0 ? (
-        <ExpertiseChips
-          areas={user.areasOfExpertise}
-          className="profile-chips"
-        />
-      ) : (
-        <p className="profile-empty">No areas of expertise added yet.</p>
-      )
-    }
-
-    if (editMode) {
-      return (
-        <form
-          className="profile-help-form"
-          onSubmit={(event) => {
-            event.preventDefault()
-            void saveHelpText()
-          }}
-        >
-          {saveError && (
-            <p className="profile-inline-error" role="alert">
-              {saveError}
-            </p>
-          )}
-          <label htmlFor="editText">Help needed</label>
-          <textarea
-            id="editText"
-            value={editText}
-            onChange={(event) => setEditText(event.target.value)}
-            rows={5}
-            required
-          />
-          <div className="profile-help-actions">
-            <button
-              className="profile-secondary-button"
-              type="button"
-              onClick={cancelEditing}
-            >
-              Cancel
-            </button>
-            {renderSubmitButton()}
-          </div>
-        </form>
-      )
-    }
-
-    return (
-      <div className="profile-help-summary">
-        <p className="profile-help-text">
-          {user.helpText ||
-            'You have not added what you would like help with yet.'}
-        </p>
-      </div>
+    return user.areasOfExpertise.length > 0 ? (
+      <ExpertiseChips
+        areas={user.areasOfExpertise}
+        className="profile-chips"
+      />
+    ) : (
+      <p className="profile-empty">
+        No areas of {user.type === 'mentor' ? 'expertise' : 'interest'} added
+        yet.
+      </p>
     )
   }
 
@@ -190,7 +196,7 @@ function ProfilePage() {
   }
 
   const memberType = user.type === 'mentor' ? 'Mentor' : 'Mentee'
-  const profileInitial = user.username.slice(0, 1).toUpperCase()
+  const profileInitial = user.name.slice(0, 1).toUpperCase()
 
   return (
     <main className="profile-page">
@@ -206,7 +212,7 @@ function ProfilePage() {
                 <span className="profile-role">Admin</span>
               )}
             </div>
-            <h1>{user.username}</h1>
+            <h1>{user.name}</h1>
             <p>{memberType} in the STL Mentorship Program</p>
           </div>
           <div className="profile-actions">
@@ -226,34 +232,47 @@ function ProfilePage() {
           <section className="profile-card profile-card--accent">
             <div className="profile-card-heading profile-card-heading--with-action">
               <div>
-                <span className="profile-card-kicker">Mentorship</span>
-                <h2>
-                  {user.type === 'mentor'
-                    ? 'Areas of expertise'
-                    : 'What you are looking for'}
-                </h2>
+                <span className="profile-card-kicker">Profile</span>
+                <h2>About me</h2>
               </div>
               {!editMode && (
                 <button
                   className="profile-edit-help-button"
                   type="button"
-                  onClick={
-                    user.type === 'mentor'
-                      ? startEditingAreasOfExpertise
-                      : startEditingHelpText
-                  }
-                  aria-label={
-                    user.type === 'mentor'
-                      ? 'Edit areas of expertise'
-                      : 'Edit help text'
-                  }
+                  onClick={startEditingBio}
+                  aria-label="Edit bio"
                 >
                   Edit
                 </button>
               )}
             </div>
 
-            {renderMentorshipContent()}
+            {renderBioContent()}
+          </section>
+
+          <section className="profile-card">
+            <div className="profile-card-heading profile-card-heading--with-action">
+              <div>
+                <span className="profile-card-kicker">Mentorship</span>
+                <h2>
+                  Areas of {user.type === 'mentor' ? 'expertise' : 'interest'}
+                </h2>
+              </div>
+              {!editMode && (
+                <button
+                  className="profile-edit-help-button"
+                  type="button"
+                  onClick={startEditingAreasOfExpertise}
+                  aria-label={`Edit areas of ${
+                    user.type === 'mentor' ? 'expertise' : 'interest'
+                  }`}
+                >
+                  Edit
+                </button>
+              )}
+            </div>
+
+            {renderExpertiseContent()}
           </section>
 
           <section className="profile-card">

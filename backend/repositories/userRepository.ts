@@ -14,43 +14,63 @@ export interface DatabaseUserWithPassword extends BaseUser {
 }
 
 export async function createUser(input: {
-  username: string;
+  name: string;
   email: string;
   linkedin: string;
   type: UserType;
-  helpText: string;
+  bio: string;
   areasOfExpertise: string[];
   gradYear: number;
   role: UserRole;
   passwordHash: string;
 }): Promise<DatabaseUserWithPassword> {
   const rows = await sql`
-    INSERT INTO users (
-      username, email, linkedin, type, help_text, aoe_list, grad_year, role, password_hash
+    WITH created_user AS (
+      INSERT INTO users (
+        name, email, linkedin, type, bio, grad_year, role, password_hash
+      )
+      VALUES (
+        ${input.name},
+        ${input.email.toLowerCase()},
+        ${input.linkedin},
+        ${input.type},
+        ${input.bio},
+        ${input.gradYear},
+        ${input.role},
+        ${input.passwordHash}
+      )
+      RETURNING *
+    ),
+    selected_topics AS (
+      SELECT id, name
+      FROM topics
+      WHERE name = ANY(${input.areasOfExpertise})
+    ),
+    created_links AS (
+      INSERT INTO user_topics (user_id, topic_id)
+      SELECT created_user.id, selected_topics.id
+      FROM created_user
+      CROSS JOIN selected_topics
+      ON CONFLICT (user_id, topic_id) DO NOTHING
+      RETURNING topic_id
     )
-    VALUES (
-      ${input.username},
-      ${input.email.toLowerCase()},
-      ${input.linkedin},
-      ${input.type},
-      ${input.helpText},
-      ${JSON.stringify(input.areasOfExpertise)}::jsonb,
-      ${input.gradYear},
-      ${input.role},
-      ${input.passwordHash}
-    )
-    RETURNING
-      id::text,
-      username,
-      email,
-      linkedin,
-      type,
-      help_text AS "helpText",
-      aoe_list AS "areasOfExpertise",
-      grad_year AS "gradYear",
-      role,
-      password_hash AS "passwordHash",
-      status
+    SELECT
+      created_user.id::text,
+      created_user.name,
+      created_user.email,
+      created_user.linkedin,
+      created_user.type,
+      created_user.bio,
+      COALESCE(
+        (SELECT ARRAY_AGG(selected_topics.name ORDER BY selected_topics.name)
+         FROM selected_topics),
+        ARRAY[]::text[]
+      ) AS "areasOfExpertise",
+      created_user.grad_year AS "gradYear",
+      created_user.role,
+      created_user.password_hash AS "passwordHash",
+      created_user.status
+    FROM created_user
   `;
 
   return rows[0] as DatabaseUserWithPassword;
@@ -62,12 +82,18 @@ export async function findUserByEmail(
   const rows = await sql`
     SELECT
       id::text,
-      username,
+      name,
       email,
       linkedin,
       type,
-      help_text AS "helpText",
-      aoe_list AS "areasOfExpertise",
+      bio,
+      COALESCE(
+        (SELECT ARRAY_AGG(topics.name ORDER BY topics.name)
+         FROM user_topics
+         JOIN topics ON topics.id = user_topics.topic_id
+         WHERE user_topics.user_id = users.id),
+        ARRAY[]::text[]
+      ) AS "areasOfExpertise",
       grad_year AS "gradYear",
       role,
       password_hash AS "passwordHash",
@@ -86,12 +112,18 @@ export async function findUserById(
   const rows = await sql`
     SELECT
       id::text,
-      username,
+      name,
       email,
       linkedin,
       type,
-      help_text AS "helpText",
-      aoe_list AS "areasOfExpertise",
+      bio,
+      COALESCE(
+        (SELECT ARRAY_AGG(topics.name ORDER BY topics.name)
+         FROM user_topics
+         JOIN topics ON topics.id = user_topics.topic_id
+         WHERE user_topics.user_id = users.id),
+        ARRAY[]::text[]
+      ) AS "areasOfExpertise",
       grad_year AS "gradYear",
       role,
       status
@@ -103,18 +135,17 @@ export async function findUserById(
   return rows[0] as DatabaseUser | undefined;
 }
 
-export async function updateHelpText(helpText: string, userId: string) {
+export async function updateBio(bio: string, userId: string) {
   const rows = await sql`
     UPDATE
       users
-    SET help_text = ${helpText}
+    SET bio = ${bio}
     WHERE id = ${userId}
-    AND type = 'mentee'
     RETURNING 
-      help_text AS "helpText"
+      bio
   `;
 
-  return rows[0] as { helpText: string } | undefined;
+  return rows[0] as { bio: string } | undefined;
 }
 
 export async function updateAreasOfExpertise(
@@ -122,13 +153,36 @@ export async function updateAreasOfExpertise(
   userId: string,
 ) {
   const rows = await sql`
-    UPDATE
-      users
-    SET aoe_list = ${JSON.stringify(areasOfExpertise)}::jsonb
-    WHERE id = ${userId}
-    AND type = 'mentor'
-    RETURNING 
-      aoe_list AS "areasOfExpertise"
+    WITH target_user AS (
+      SELECT id
+      FROM users
+      WHERE id = ${userId}
+    ),
+    selected_topics AS (
+      SELECT id, name
+      FROM topics
+      WHERE name = ANY(${areasOfExpertise})
+    ),
+    added_links AS (
+      INSERT INTO user_topics (user_id, topic_id)
+      SELECT target_user.id, selected_topics.id
+      FROM target_user
+      CROSS JOIN selected_topics
+      ON CONFLICT (user_id, topic_id) DO NOTHING
+      RETURNING topic_id
+    ),
+    removed_links AS (
+      DELETE FROM user_topics
+      WHERE user_id IN (SELECT id FROM target_user)
+        AND topic_id NOT IN (SELECT id FROM selected_topics)
+      RETURNING topic_id
+    )
+    SELECT COALESCE(
+      (SELECT ARRAY_AGG(selected_topics.name ORDER BY selected_topics.name)
+       FROM selected_topics),
+      ARRAY[]::text[]
+    ) AS "areasOfExpertise"
+    FROM target_user
   `;
 
   return rows[0] as { areasOfExpertise: string[] } | undefined;

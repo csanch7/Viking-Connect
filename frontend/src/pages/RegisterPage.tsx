@@ -6,8 +6,8 @@ import {
 
 function RegisterPage() {
   const {
-    username,
-    setUsername,
+    name,
+    setName,
     password,
     setPassword,
     passwordFocused,
@@ -22,8 +22,8 @@ function RegisterPage() {
     setType,
     error,
     isSubmitting,
-    helpText,
-    setHelpText,
+    bio,
+    setBio,
     selectedAreasOfExpertise,
     expertise,
     setExpertise,
@@ -66,12 +66,12 @@ function RegisterPage() {
           </div>
 
           <div className="register-grid">
-            <label className="register-field" htmlFor="username">
+            <label className="register-field" htmlFor="name">
               <span>Name</span>
               <input
-                id="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 placeholder="Jane Mentor"
                 required
               />
@@ -209,54 +209,70 @@ function RegisterPage() {
           </div>
         </section>
 
-        {type === 'mentee' && (
-          <section
-            className="register-section register-section--highlight"
-            aria-labelledby="mentee-heading"
-          >
-            <div className="register-section-heading">
-              <span className="register-step">3</span>
-              <div>
-                <h2 id="mentee-heading">Mentorship goals</h2>
-                <p>Share what kind of support would be most useful.</p>
+        {type && (
+          <>
+            <section
+              className="register-section register-section--highlight"
+              aria-labelledby="bio-heading"
+            >
+              <div className="register-section-heading">
+                <span className="register-step">3</span>
+                <div>
+                  <h2 id="bio-heading">About you</h2>
+                  <p>
+                    {type === 'mentor'
+                      ? 'Share your background, experience, and how you can help.'
+                      : 'Share your background, goals, and the guidance you are looking for.'}
+                  </p>
+                </div>
               </div>
-            </div>
 
-            <label className="register-field" htmlFor="helpText">
-              <span>What help are you looking for?</span>
-              <textarea
-                id="helpText"
-                value={helpText}
-                onChange={(e) => setHelpText(e.target.value)}
-                placeholder="Career advice, interview prep, industry insight..."
-                required
-              ></textarea>
-            </label>
-          </section>
-        )}
+              <label className="register-field" htmlFor="bio">
+                <span>Bio</span>
+                <textarea
+                  id="bio"
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  placeholder={
+                    type === 'mentor'
+                      ? 'Share your professional background and mentoring experience...'
+                      : 'Share your interests, goals, and what you hope to learn...'
+                  }
+                  required
+                ></textarea>
+              </label>
+            </section>
 
-        {type === 'mentor' && (
-          <section
-            className="register-section register-section--highlight"
-            aria-labelledby="mentor-heading"
-          >
-            <div className="register-section-heading">
-              <span className="register-step">3</span>
-              <div>
-                <h2 id="mentor-heading">Areas of expertise</h2>
-                <p>Add at least one area where you can guide mentees.</p>
+            <section
+              className="register-section register-section--highlight"
+              aria-labelledby="topics-heading"
+            >
+              <div className="register-section-heading">
+                <span className="register-step">4</span>
+                <div>
+                  <h2 id="topics-heading">
+                    {type === 'mentor'
+                      ? 'Areas of expertise'
+                      : 'Areas of interest'}
+                  </h2>
+                  <p>
+                    {type === 'mentor'
+                      ? 'Add at least one area where you can guide mentees.'
+                      : 'Add at least one area where you would like guidance.'}
+                  </p>
+                </div>
               </div>
-            </div>
 
-            <ExpertiseSelector
-              selectId="expertiseSelect"
-              selectedAreas={selectedAreasOfExpertise}
-              selectedArea={expertise}
-              onSelectedAreaChange={setExpertise}
-              onAddArea={addExpertise}
-              onRemoveArea={removeExpertise}
-            />
-          </section>
+              <ExpertiseSelector
+                selectId="expertiseSelect"
+                selectedAreas={selectedAreasOfExpertise}
+                selectedArea={expertise}
+                onSelectedAreaChange={setExpertise}
+                onAddArea={addExpertise}
+                onRemoveArea={removeExpertise}
+              />
+            </section>
+          </>
         )}
 
         <div className="register-actions">

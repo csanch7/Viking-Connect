@@ -4,11 +4,13 @@ import { createAuthRouter } from "./authRoutes";
 import { createMentorRouter } from "./mentorRoutes";
 import { createProfileRouter } from "./profileRoutes";
 import { createRegistrationRouter } from "./registrationRoutes";
+import { createTopicRouter } from "./topicRoutes";
 import type { AuthRouterDependencies } from "./authRoutes";
 import type { AdminRouterDependencies } from "./adminRoutes";
 import type { MentorRouterDependencies } from "./mentorRoutes";
 import type { ProfileRouterDependencies } from "./profileRoutes";
 import type { RegistrationRouterDependencies } from "./registrationRoutes";
+import type { TopicRouterDependencies } from "./topicRoutes";
 import { checkDatabase } from "../database";
 
 export interface ApiRouterOptions {
@@ -17,6 +19,7 @@ export interface ApiRouterOptions {
   mentorDependencies?: MentorRouterDependencies;
   profileDependencies?: ProfileRouterDependencies;
   registrationDependencies?: RegistrationRouterDependencies;
+  topicDependencies?: TopicRouterDependencies;
   readinessCheck?: () => Promise<void>;
 }
 
@@ -44,6 +47,7 @@ export function createApiRouter(
     "/register",
     createRegistrationRouter(authLimiter, options.registrationDependencies),
   );
+  router.use(createTopicRouter(options.topicDependencies));
   router.use("/admin", createAdminRouter(options.adminDependencies));
   router.use(createMentorRouter(options.mentorDependencies));
   router.use(createProfileRouter(authLimiter, options.profileDependencies));

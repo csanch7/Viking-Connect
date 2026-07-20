@@ -4,6 +4,7 @@ import {
   parseMentorList,
   parsePublicUser,
   parseSessionResponse,
+  parseTopicsEnvelope,
 } from "../../shared/contracts";
 
 describe("shared API contracts", () => {
@@ -16,7 +17,7 @@ describe("shared API contracts", () => {
       parseMentorList([
         {
           id: "42",
-          username: "Alex Mentor",
+          name: "Alex Mentor",
           email: "alex@example.com",
           linkedin: "https://www.linkedin.com/in/alex-mentor",
           areasOfExpertise: ["Finance"],
@@ -24,6 +25,9 @@ describe("shared API contracts", () => {
       ])[0].id,
       "42",
     );
+    assert.deepEqual(parseTopicsEnvelope({ topics: ["Finance"] }), {
+      topics: ["Finance"],
+    });
   });
 
   it("rejects contract drift at runtime", () => {
@@ -35,7 +39,7 @@ describe("shared API contracts", () => {
       () =>
         parsePublicUser({
           id: "7",
-          username: "Jane",
+          name: "Jane",
           email: "jane@example.com",
         }),
       /Invalid API response/,

@@ -1,18 +1,18 @@
-const maxHelpTextLength = 1000;
+const maxBioLength = 1000;
 const maxExpertiseLength = 80;
 const maxExpertiseCount = 15;
 
-export function normalizeHelpText(value: unknown) {
+export function normalizeBio(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
 }
 
-export function getHelpTextValidationError(helpText: string) {
-  if (!helpText) {
-    return "Help text is required";
+export function getBioValidationError(bio: string) {
+  if (!bio) {
+    return "Bio is required";
   }
 
-  if (helpText.length > maxHelpTextLength) {
-    return "Help text must be 1000 characters or fewer";
+  if (bio.length > maxBioLength) {
+    return "Bio must be 1000 characters or fewer";
   }
 
   return null;

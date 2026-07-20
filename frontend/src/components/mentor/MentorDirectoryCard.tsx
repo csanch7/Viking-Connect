@@ -11,11 +11,11 @@ function MentorDirectoryCard({ mentor }: MentorDirectoryCardProps) {
     <article className="dashboard-card">
       <div className="dashboard-card-header">
         <div className="dashboard-avatar" aria-hidden="true">
-          {mentor.username.slice(0, 1).toUpperCase()}
+          {mentor.name.slice(0, 1).toUpperCase()}
         </div>
         <div className="dashboard-card-heading">
           <h3>
-            <Link to={`/mentor/${mentor.id}`}>{mentor.username}</Link>
+            <Link to={`/mentor/${mentor.id}`}>{mentor.name}</Link>
           </h3>
           <p>{mentor.email}</p>
         </div>

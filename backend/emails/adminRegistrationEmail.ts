@@ -23,14 +23,11 @@ export function renderAdminRegistrationEmail(
   adminPendingUsersUrl: string,
   adminPendingUsersPath: string,
 ) {
-  const mentorshipDetailLabel =
-    user.type === "mentor" ? "Areas of expertise" : "Help requested";
-  const mentorshipDetailValue =
-    user.type === "mentor"
-      ? user.areasOfExpertise?.length
-        ? user.areasOfExpertise.map((area) => escapeHtml(area)).join(", ")
-        : "Not provided"
-      : escapeHtml(user.helpText || "Not provided");
+  const expertiseValue = user.areasOfExpertise?.length
+    ? user.areasOfExpertise.map((area) => escapeHtml(area)).join(", ")
+    : "Not provided";
+  const topicsLabel =
+    user.type === "mentor" ? "Areas of expertise" : "Areas of interest";
 
   const linkedinValue = escapeHtml(user.linkedin);
   const linkedinContent = isHttpUrl(user.linkedin)
@@ -78,7 +75,7 @@ export function renderAdminRegistrationEmail(
                     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse: collapse; border-top: 1px solid #dedbd2; border-bottom: 1px solid #dedbd2;">
                       <tr>
                         <td style="padding: 12px 0; color: #676767; font-size: 14px;">Name</td>
-                        <td style="padding: 12px 0; color: #090909; font-size: 14px; font-weight: 600; text-align: right;">${escapeHtml(user.username)}</td>
+                        <td style="padding: 12px 0; color: #090909; font-size: 14px; font-weight: 600; text-align: right;">${escapeHtml(user.name)}</td>
                       </tr>
                       <tr>
                         <td style="padding: 12px 0; color: #676767; font-size: 14px;">Email</td>
@@ -96,8 +93,12 @@ export function renderAdminRegistrationEmail(
                       </tr>
                       ${linkedinRow}
                       <tr>
-                        <td style="padding: 12px 0; color: #676767; font-size: 14px; vertical-align: top;">${mentorshipDetailLabel}</td>
-                        <td style="padding: 12px 0; color: #090909; font-size: 14px; font-weight: 600; line-height: 1.5; text-align: right;">${mentorshipDetailValue}</td>
+                        <td style="padding: 12px 0; color: #676767; font-size: 14px; vertical-align: top;">Bio</td>
+                        <td style="padding: 12px 0; color: #090909; font-size: 14px; font-weight: 600; line-height: 1.5; text-align: right;">${escapeHtml(user.bio || "Not provided")}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 12px 0; color: #676767; font-size: 14px; vertical-align: top;">${topicsLabel}</td>
+                        <td style="padding: 12px 0; color: #090909; font-size: 14px; font-weight: 600; line-height: 1.5; text-align: right;">${expertiseValue}</td>
                       </tr>
                     </table>
                     <div style="margin: 24px 0; padding: 18px 20px; background: #fff5d2; border-left: 4px solid #ffc72c;">

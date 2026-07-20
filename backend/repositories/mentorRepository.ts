@@ -3,7 +3,7 @@ import type { BaseUser } from "./userRepository";
 
 export type MentorDirectoryUser = Pick<
   BaseUser,
-  "id" | "username" | "email" | "linkedin" | "areasOfExpertise"
+  "id" | "name" | "email" | "linkedin" | "areasOfExpertise"
 >;
 
 export type MentorProfileUser = BaseUser;
@@ -24,32 +24,50 @@ export async function getMentorsByPagination(
       ? await sql`
           SELECT
             id::text,
-            username,
+            name,
             email,
             linkedin,
-            aoe_list AS "areasOfExpertise"
+            COALESCE(
+              (SELECT ARRAY_AGG(topics.name ORDER BY topics.name)
+               FROM user_topics
+               JOIN topics ON topics.id = user_topics.topic_id
+               WHERE user_topics.user_id = users.id),
+              ARRAY[]::text[]
+            ) AS "areasOfExpertise"
           FROM users
           WHERE type = 'mentor'
             AND status = 'approved'
             AND id::text != ${userId}
-            AND aoe_list ?| ${filter}
-            AND (${trimmedSearchText === ""} OR username ILIKE ${searchPattern})
-          ORDER BY username ASC, id ASC
+            AND EXISTS (
+              SELECT 1
+              FROM user_topics
+              JOIN topics ON topics.id = user_topics.topic_id
+              WHERE user_topics.user_id = users.id
+                AND topics.name = ANY(${filter})
+            )
+            AND (${trimmedSearchText === ""} OR name ILIKE ${searchPattern})
+          ORDER BY name ASC, id ASC
           LIMIT ${batchSize} OFFSET ${page * batchSize}
         `
       : await sql`
           SELECT
             id::text,
-            username,
+            name,
             email,
             linkedin,
-            aoe_list AS "areasOfExpertise"
+            COALESCE(
+              (SELECT ARRAY_AGG(topics.name ORDER BY topics.name)
+               FROM user_topics
+               JOIN topics ON topics.id = user_topics.topic_id
+               WHERE user_topics.user_id = users.id),
+              ARRAY[]::text[]
+            ) AS "areasOfExpertise"
           FROM users
           WHERE type = 'mentor'
             AND status = 'approved'
             AND id::text != ${userId}
-            AND (${trimmedSearchText === ""} OR username ILIKE ${searchPattern})
-          ORDER BY username ASC, id ASC
+            AND (${trimmedSearchText === ""} OR name ILIKE ${searchPattern})
+          ORDER BY name ASC, id ASC
           LIMIT ${batchSize} OFFSET ${page * batchSize}
         `;
 
@@ -62,12 +80,18 @@ export async function findMentorById(
   const rows = await sql`
     SELECT
       id::text,
-      username,
+      name,
       email,
       linkedin,
       type,
-      help_text AS "helpText",
-      aoe_list AS "areasOfExpertise",
+      bio,
+      COALESCE(
+        (SELECT ARRAY_AGG(topics.name ORDER BY topics.name)
+         FROM user_topics
+         JOIN topics ON topics.id = user_topics.topic_id
+         WHERE user_topics.user_id = users.id),
+        ARRAY[]::text[]
+      ) AS "areasOfExpertise",
       grad_year AS "gradYear",
       role,
       status

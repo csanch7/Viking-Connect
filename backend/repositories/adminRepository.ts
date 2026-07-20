@@ -9,12 +9,18 @@ export async function getPendingUsers(): Promise<PendingUser[]> {
   const rows = await sql`
     SELECT
       id::text,
-      username,
+      name,
       email,
       linkedin,
       type,
-      help_text AS "helpText",
-      aoe_list AS "areasOfExpertise",
+      bio,
+      COALESCE(
+        (SELECT ARRAY_AGG(topics.name ORDER BY topics.name)
+         FROM user_topics
+         JOIN topics ON topics.id = user_topics.topic_id
+         WHERE user_topics.user_id = users.id),
+        ARRAY[]::text[]
+      ) AS "areasOfExpertise",
       grad_year AS "gradYear",
       role
     FROM users

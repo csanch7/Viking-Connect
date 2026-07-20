@@ -23,4 +23,6 @@ export const areasOfExpertise: string[] = [
   'Resume Review',
   'Sales',
   'Technology',
+  'Artificial Intelligence',
+  'Personal Finance'
 ]
