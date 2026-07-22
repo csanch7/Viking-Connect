@@ -15,6 +15,7 @@ export async function getMentorsByPagination(
   searchText?: string,
 ): Promise<MentorDirectoryUser[]> {
   const batchSize = 10;
+  const fetchSize = batchSize + 1;
   const page = Math.max(0, Number.isFinite(paginator) ? paginator : 0);
   const trimmedSearchText = searchText?.trim() ?? "";
   const searchPattern = `%${trimmedSearchText}%`;
@@ -47,7 +48,7 @@ export async function getMentorsByPagination(
             )
             AND (${trimmedSearchText === ""} OR name ILIKE ${searchPattern})
           ORDER BY name ASC, id ASC
-          LIMIT ${batchSize} OFFSET ${page * batchSize}
+          LIMIT ${fetchSize} OFFSET ${page * batchSize}
         `
       : await sql`
           SELECT
@@ -68,7 +69,7 @@ export async function getMentorsByPagination(
             AND id::text != ${userId}
             AND (${trimmedSearchText === ""} OR name ILIKE ${searchPattern})
           ORDER BY name ASC, id ASC
-          LIMIT ${batchSize} OFFSET ${page * batchSize}
+          LIMIT ${fetchSize} OFFSET ${page * batchSize}
         `;
 
   return rows as MentorDirectoryUser[];

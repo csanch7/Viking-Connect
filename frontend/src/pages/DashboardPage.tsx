@@ -5,6 +5,8 @@ import type { Mentor } from '../types/mentor'
 import LoadingPage from '../components/LoadingPage'
 import MentorDirectoryCard from '../components/mentor/MentorDirectoryCard'
 
+const pageSize = 10
+
 function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -15,6 +17,7 @@ function DashboardPage() {
   const [filter, setFilter] = useState<string[]>([])
   const [draftFilter, setDraftFilter] = useState<string[]>([])
   const [mentors, setMentors] = useState<Mentor[]>([])
+  const [hasNextPage, setHasNextPage] = useState(false)
   const [searchText, setSearchText] = useState<string>('')
   const [filterSearchText, setFilterSearchText] = useState<string>('')
   const [filterPanelOpen, setFilterPanelOpen] = useState(false)
@@ -78,7 +81,8 @@ function DashboardPage() {
           return
         }
 
-        setMentors(response)
+        setMentors(response.slice(0, pageSize))
+        setHasNextPage(response.length > pageSize)
         setError('')
       } catch {
         if (!isCurrentRequest) {
@@ -86,6 +90,7 @@ function DashboardPage() {
         }
 
         setMentors([])
+        setHasNextPage(false)
         setError('We could not load mentors right now. Please try again.')
       } finally {
         if (isCurrentRequest) {
@@ -292,7 +297,7 @@ function DashboardPage() {
                 Previous page
               </button>
             )}
-            {mentors.length === 10 && (
+            {hasNextPage && (
               <button
                 onClick={() => {
                   setPage((prevPage) => prevPage + 1)

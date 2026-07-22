@@ -61,7 +61,7 @@ test('applies an expertise filter to the mentor request', async ({ page }) => {
   await filteredRequest
 })
 
-test('paginates a full mentor result page', async ({ page }) => {
+test('paginates when another mentor result exists', async ({ page }) => {
   await page.route('**/api/mentors/**', async (route) => {
     const pageNumber = Number(
       new URL(route.request().url()).pathname.split('/').pop(),
@@ -69,12 +69,18 @@ test('paginates a full mentor result page', async ({ page }) => {
     await fulfillJson(
       route,
       pageNumber === 0
-        ? Array.from({ length: 10 }, (_, index) => ({
+        ? Array.from({ length: 11 }, (_, index) => ({
             ...mentors[0],
             id: String(index + 1),
             name: `Mentor ${index + 1}`,
           }))
-        : [],
+        : [
+            {
+              ...mentors[0],
+              id: '11',
+              name: 'Mentor 11',
+            },
+          ],
     )
   })
   await page.goto('/dashboard')
@@ -82,9 +88,29 @@ test('paginates a full mentor result page', async ({ page }) => {
   await page.getByRole('button', { name: 'Next page' }).click()
 
   await expect(page.getByText('Page 2')).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Mentor 11' })).toBeVisible()
   await expect(
-    page.getByRole('heading', { name: 'No mentors found' }),
-  ).toBeVisible()
+    page.getByRole('button', { name: 'Next page' }),
+  ).toBeHidden()
+})
+
+test('does not show a next page for exactly ten results', async ({ page }) => {
+  await page.route('**/api/mentors/**', async (route) => {
+    await fulfillJson(
+      route,
+      Array.from({ length: 10 }, (_, index) => ({
+        ...mentors[0],
+        id: String(index + 1),
+        name: `Mentor ${index + 1}`,
+      })),
+    )
+  })
+  await page.goto('/dashboard')
+
+  await expect(page.getByText('Page 1')).toBeVisible()
+  await expect(
+    page.getByRole('button', { name: 'Next page' }),
+  ).toBeHidden()
 })
 
 test('shows an error state when mentor loading fails', async ({ page }) => {
