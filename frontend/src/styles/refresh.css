@@ -77,8 +77,10 @@
 .login-brand-mark {
   width: 34px;
   height: 34px;
-  font-size: 11px;
-  font-weight: 780;
+  border: 0;
+  border-radius: 0;
+  object-fit: contain;
+  background: transparent;
 }
 
 .login-alert {
@@ -995,6 +997,31 @@
   background: #f7f3eb;
 }
 
+.pending-user-confirmation {
+  align-self: stretch;
+  max-width: 240px;
+  padding-left: 18px;
+  border-left: 1px solid var(--surface-border);
+}
+
+.pending-user-confirmation p {
+  margin: 0 0 10px;
+  color: var(--surface-muted);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.pending-user-confirmation .pending-user-actions {
+  min-width: 0;
+  padding: 0;
+  border: 0;
+}
+
+.pending-user-secondary {
+  color: var(--surface-ink);
+  background: var(--surface-card);
+}
+
 .pending-user-approve:hover {
   background: #2a2926;
 }
@@ -1227,6 +1254,14 @@
     justify-content: stretch;
   }
 
+  .pending-user-confirmation {
+    max-width: none;
+    padding-top: 16px;
+    padding-left: 0;
+    border-top: 1px solid var(--surface-border);
+    border-left: 0;
+  }
+
   .pending-user-actions button {
     flex: 1 1 0;
   }
@@ -1236,4 +1271,3 @@
     gap: 4px;
   }
 }
-

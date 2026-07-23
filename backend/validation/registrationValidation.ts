@@ -18,11 +18,11 @@ export function isLinkedinProfileUrl(value: string) {
   );
 }
 
-function isValidEmail(value: string) {
+export function isValidEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
-function isStrongPassword(value: string) {
+export function isStrongPassword(value: string) {
   return (
     value.length >= 12 &&
     /[A-Z]/.test(value) &&

@@ -4,13 +4,17 @@ interface PendingUserCardProps {
   user: PendingUser
   onApprove: (userId: string) => void
   onDeny: (userId: string) => void
-  activeAction?: string
+  onCancelDeny: () => void
+  confirmDeny: boolean
+  activeAction?: 'approve' | 'deny'
 }
 
 function PendingUserCard({
   user,
   onApprove,
   onDeny,
+  onCancelDeny,
+  confirmDeny,
   activeAction,
 }: PendingUserCardProps) {
   return (
@@ -39,7 +43,7 @@ function PendingUserCard({
           <dt>LinkedIn</dt>
           <dd>
             <a href={user.linkedin} target="_blank" rel="noreferrer">
-              {user.linkedin}
+              View LinkedIn profile <span aria-hidden="true">↗</span>
             </a>
           </dd>
         </div>
@@ -55,22 +59,52 @@ function PendingUserCard({
         </div>
       </dl>
 
-      <div className="pending-user-actions">
+      {confirmDeny ? (
+        <div
+          className="pending-user-confirmation"
+          role="group"
+          aria-label={`Confirm denial for ${user.name}`}
+        >
+          <p>This removes the registration from the review queue. Continue?</p>
+          <div className="pending-user-actions">
+            <button
+              className="pending-user-secondary"
+              type="button"
+              onClick={onCancelDeny}
+              disabled={Boolean(activeAction)}
+            >
+              Cancel
+            </button>
+            <button
+              className="pending-user-deny"
+              type="button"
+              onClick={() => onDeny(user.id)}
+              disabled={Boolean(activeAction)}
+            >
+              {activeAction === 'deny' ? 'Denying...' : 'Confirm denial'}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="pending-user-actions">
         <button
           className="pending-user-deny"
+          type="button"
           onClick={() => onDeny(user.id)}
           disabled={Boolean(activeAction)}
         >
-          {activeAction ?? 'Deny'}
+          Deny
         </button>
         <button
           className="pending-user-approve"
+          type="button"
           onClick={() => onApprove(user.id)}
           disabled={Boolean(activeAction)}
         >
-          {activeAction ?? 'Approve'}
+          {activeAction === 'approve' ? 'Approving...' : 'Approve'}
         </button>
-      </div>
+        </div>
+      )}
     </article>
   )
 }

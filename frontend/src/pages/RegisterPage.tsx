@@ -5,6 +5,7 @@ import {
 } from '../hooks/useRegistrationForm'
 
 function RegisterPage() {
+  const latestGraduationYear = new Date().getFullYear() + 10
   const {
     name,
     setName,
@@ -75,6 +76,10 @@ function RegisterPage() {
                 placeholder="Jane Mentor"
                 required
               />
+              <small id="linkedin-help">
+                Use your personal LinkedIn profile URL. This is shown only to
+                approved program members.
+              </small>
             </label>
 
             <label className="register-field" htmlFor="email">
@@ -201,6 +206,10 @@ function RegisterPage() {
               <span>Graduation year</span>
               <input
                 id="graduationYear"
+                type="number"
+                inputMode="numeric"
+                min="1961"
+                max={latestGraduationYear}
                 onChange={(e) => setGradYear(e.target.value)}
                 placeholder="2027"
                 required
@@ -279,7 +288,7 @@ function RegisterPage() {
           <button
             className="register-back-link"
             type="button"
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/login')}
           >
             <span aria-hidden="true">←</span>
             Back to login

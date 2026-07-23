@@ -14,7 +14,7 @@ const outcomes = [
   {
     label: 'Warm access',
     title: 'Connections that feel earned, not transactional',
-    text: 'The St. Laurence connection creates trust quickly, giving students a stronger path into conversations, referrals, and opportunity.',
+    text: 'The St. Laurence connection creates trust quickly, helping students begin thoughtful conversations with alumni.',
   },
 ]
 
@@ -23,7 +23,7 @@ const mentorSignals = [
   'LinkedIn profile review',
   'Networking strategy',
   'Salary negotiation',
-  'Industry introductions',
+  'Industry perspective',
 ]
 
 interface HomePageProps {
@@ -36,14 +36,14 @@ function HomePage({ isAuthenticated = false }: HomePageProps) {
       <section className="home-hero" aria-labelledby="home-title">
         <div className="home-hero-art" aria-hidden="true">
           <div className="home-signal-card home-signal-card--primary">
-            <span>Mentor match</span>
-            <strong>Alumni in finance</strong>
-            <p>Interview prep, first role strategy, referral readiness</p>
+            <span>Mentor directory</span>
+            <strong>Explore alumni in finance</strong>
+            <p>Interview preparation, first-role strategy, career perspective</p>
           </div>
           <div className="home-signal-card home-signal-card--secondary">
             <span>Student goal</span>
             <strong>Land a summer internship</strong>
-            <p>Resume story, LinkedIn polish, warm introductions</p>
+            <p>Resume story, LinkedIn polish, questions for alumni</p>
           </div>
           <div className="home-signal-line" />
         </div>
@@ -150,10 +150,10 @@ function HomePage({ isAuthenticated = false }: HomePageProps) {
       <section className="home-network">
         <div>
           <p className="home-kicker">Built for action</p>
-          <h2>From first message to meaningful referral.</h2>
+          <h2>From mentor discovery to a useful conversation.</h2>
           <p>
-            The program gives students a trusted place to ask direct questions
-            and gives mentors a clear way to offer practical help.
+            The directory helps students find relevant alumni, review their
+            experience, and contact them through approved program details.
           </p>
         </div>
         <ul aria-label="Mentorship support areas">

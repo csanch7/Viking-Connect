@@ -1,4 +1,4 @@
-import { Router, type RequestHandler } from "express";
+import { Router } from "express";
 import {
   updateAreasOfExpertise,
   updateBio,
@@ -15,28 +15,29 @@ import {
   getIdParamValidationError,
   normalizeIdParam,
 } from "../validation/routeValidation";
+import { getTopics } from "../repositories/topicRepository";
 
 export interface ProfileRouterDependencies {
   updateAreasOfExpertise: typeof updateAreasOfExpertise;
   updateBio: typeof updateBio;
+  getTopics: typeof getTopics;
 }
 
 const defaultDependencies: ProfileRouterDependencies = {
   updateAreasOfExpertise,
   updateBio,
+  getTopics,
 };
 
 export function createProfileRouter(
-  authLimiter: RequestHandler,
   dependencies: ProfileRouterDependencies = defaultDependencies,
 ) {
   const router = Router();
-  const { updateAreasOfExpertise, updateBio } = dependencies;
+  const { updateAreasOfExpertise, updateBio, getTopics } = dependencies;
 
   router.patch(
     "/change-bio/:userId",
     requireAuth,
-    authLimiter,
     asyncHandler(async (req, res) => {
       const userId = normalizeIdParam(req.params.userId);
       const bio = normalizeBio(req.body.bio);
@@ -78,7 +79,6 @@ export function createProfileRouter(
   router.patch(
     "/change-areas-of-expertise/:userId",
     requireAuth,
-    authLimiter,
     asyncHandler(async (req, res) => {
       const userId = normalizeIdParam(req.params.userId);
       const areasOfExpertise = normalizeExpertiseList(
@@ -102,6 +102,12 @@ export function createProfileRouter(
 
       if (validationError) {
         res.status(400).json({ message: validationError });
+        return;
+      }
+
+      const allowedTopics = new Set(await getTopics());
+      if (!areasOfExpertise.every((topic) => allowedTopics.has(topic))) {
+        res.status(400).json({ message: "Choose valid areas of expertise" });
         return;
       }
 

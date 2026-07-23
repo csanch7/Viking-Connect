@@ -58,6 +58,8 @@ test('denies a pending user and removes them from the queue', async ({
 
   await page.getByRole('button', { name: 'Deny' }).click()
 
+  await page.getByRole('button', { name: 'Confirm denial' }).click()
+
   await expect(page.getByRole('status')).toHaveText('User denied')
   await expect(
     page.getByRole('heading', { name: 'No pending users' }),

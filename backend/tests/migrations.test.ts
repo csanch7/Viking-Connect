@@ -24,7 +24,26 @@ describe("database migrations", () => {
       "003_rename_username_to_name.sql",
       "004_rename_help_text_to_bio.sql",
       "005_normalize_user_topics.sql",
+      "006_allow_duplicate_display_names.sql",
+      "007_password_reset_tokens.sql",
     ]);
+  });
+
+  it("allows members to share the same display name", async () => {
+    const sql = await fs.readFile(
+      path.join(migrationsDirectory, "006_allow_duplicate_display_names.sql"),
+      "utf8",
+    );
+    assert.match(sql, /DROP CONSTRAINT IF EXISTS users_name_key/);
+  });
+
+  it("stores single-use expiring password reset tokens", async () => {
+    const sql = await fs.readFile(
+      path.join(migrationsDirectory, "007_password_reset_tokens.sql"),
+      "utf8",
+    );
+    assert.match(sql, /CREATE TABLE password_reset_tokens/);
+    assert.match(sql, /expires_at TIMESTAMPTZ NOT NULL/);
   });
 
   it("keeps required user constraints in versioned SQL", async () => {

@@ -83,7 +83,7 @@ function LoginPage() {
     <main className="login-page">
       <section className="login-panel" aria-labelledby="login-title">
         <div className="login-brand">
-          <span className="login-brand-mark">STL</span>
+          <img className="login-brand-mark" src="/favicon.svg" alt="" />
           <span>Mentorship Program</span>
         </div>
 
@@ -118,7 +118,9 @@ function LoginPage() {
           </label>
 
           <label className="login-field" htmlFor="login-password">
-            <span>Password</span>
+            <span className="login-password-label">
+              Password <Link to="/forgot-password">Forgot password?</Link>
+            </span>
             <input
               id="login-password"
               type="password"

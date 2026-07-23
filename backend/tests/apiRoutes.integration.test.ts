@@ -56,6 +56,7 @@ function buildApiApp(role: "admin" | "user" = "user") {
         verifyPassword: async () => true,
       },
       registrationDependencies: {
+        getTopics: async () => ["Career Planning", "Finance", "Technology"],
         createUser: async (input) => ({
           id: "88",
           name: input.name,
@@ -74,10 +75,19 @@ function buildApiApp(role: "admin" | "user" = "user") {
         sendAdminRegistrationNotification: async () => undefined,
       },
       profileDependencies: {
+        getTopics: async () => ["Career Planning", "Finance", "Technology"],
         updateBio: async (bio) => ({ bio }),
         updateAreasOfExpertise: async (areasOfExpertise) => ({
           areasOfExpertise,
         }),
+      },
+      passwordResetDependencies: {
+        createPasswordResetSecret: () => ({ token: "reset-secret", tokenHash: "reset-secret-hash" }),
+        hashPasswordResetToken: () => "reset-secret-hash",
+        createPasswordResetToken: async (email) => ({ email }),
+        consumePasswordResetToken: async () => ({ id: "7" }),
+        hashPassword: async () => "new-password-hash",
+        sendPasswordResetEmail: async () => undefined,
       },
       mentorDependencies: {
         getMentorsByPagination: async () => [mentor],

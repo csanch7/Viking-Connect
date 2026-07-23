@@ -71,7 +71,7 @@ const userService = {
     const response = await axios.get(endpoint, { params })
     return parseMentorList(response.data)
   },
-  async getMentor(id: number) {
+  async getMentor(id: string) {
     const endpoint: string = `${backend}/mentor/${id}`
     const response = await axios.get(endpoint)
     return parsePublicUser(response.data)

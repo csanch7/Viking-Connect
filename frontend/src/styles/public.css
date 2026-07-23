@@ -770,6 +770,29 @@
   font-weight: 750;
 }
 
+.login-password-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.login-password-label a {
+  color: var(--login-ink);
+  font-size: 13px;
+  text-decoration-color: var(--login-gold);
+  text-underline-offset: 3px;
+}
+
+.login-success {
+  padding: 14px;
+  border: 1px solid #b9d8bd;
+  border-radius: 8px;
+  color: #285c30;
+  font-size: 14px;
+  font-weight: 700;
+  background: #eef8ef;
+}
+
 .login-field input {
   width: 100%;
   min-height: 48px;
@@ -841,4 +864,3 @@
 .login-register-prompt a:hover {
   color: #8f6b00;
 }
-

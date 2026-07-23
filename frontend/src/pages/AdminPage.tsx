@@ -62,7 +62,7 @@ function AdminPage() {
           <div className="admin-stat-card">
             <dt>Mentors</dt>
             <dd className="admin-stat-value">{mentorCount ?? '...'}</dd>
-            <dd className="admin-stat-note">Available alumni guides</dd>
+            <dd className="admin-stat-note">Approved alumni mentors</dd>
           </div>
           <div className="admin-stat-card">
             <dt>Mentees</dt>

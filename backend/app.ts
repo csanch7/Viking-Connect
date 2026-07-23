@@ -38,7 +38,18 @@ export function createApp(options: AppOptions = {}) {
 
   app.use(
     helmet({
-      contentSecurityPolicy: false,
+      contentSecurityPolicy: {
+        directives: {
+          "default-src": ["'self'"],
+          "connect-src": ["'self'"],
+          "img-src": ["'self'", "data:"],
+          "script-src": ["'self'"],
+          "style-src": ["'self'"],
+          "base-uri": ["'self'"],
+          "form-action": ["'self'"],
+          "frame-ancestors": ["'none'"],
+        },
+      },
     }),
   );
 
@@ -78,8 +89,7 @@ export function createApp(options: AppOptions = {}) {
 
   app.use(
     "/api",
-    apiLimiter,
-    createApiRouter(authLimiter, options.apiDependencies),
+    createApiRouter(authLimiter, apiLimiter, options.apiDependencies),
   );
   app.use("/api", errorHandler);
 

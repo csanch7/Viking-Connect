@@ -4,6 +4,10 @@ import userService from '../services/userService'
 import { Link, useParams } from 'react-router-dom'
 import LoadingPage from '../components/LoadingPage'
 import ExpertiseChips from '../components/expertise/ExpertiseChips'
+import MemberProfileCardHeading from '../components/profile/MemberProfileCardHeading'
+import MemberProfileContact from '../components/profile/MemberProfileContact'
+import MemberProfileHero from '../components/profile/MemberProfileHero'
+import MemberProfileSummary from '../components/profile/MemberProfileSummary'
 
 function MentorPage() {
   const [mentor, setMentor] = useState<PublicUser>()
@@ -14,7 +18,7 @@ function MentorPage() {
   useEffect(() => {
     async function loadMentor() {
       try {
-        const response = await userService.getMentor(Number(id))
+        const response = await userService.getMentor(id ?? '')
 
         setMentor(response)
         setError('')
@@ -47,124 +51,71 @@ function MentorPage() {
   }
 
   return (
-    <main className="mentor-page">
-      <Link className="mentor-back-link" to="/dashboard">
+    <main className="member-profile-page">
+      <Link className="member-profile-back-link" to="/dashboard">
         <span aria-hidden="true">←</span>
         Back to mentor directory
       </Link>
 
-      <section
-        className="mentor-hero mentor-card"
-        aria-labelledby="mentor-title"
-      >
-        <div className="mentor-cover" aria-hidden="true" />
-        <div className="mentor-identity">
-          <div className="mentor-avatar" aria-hidden="true">
-            {mentor.name.slice(0, 1).toUpperCase()}
-          </div>
-          <div className="mentor-heading">
-            <p className="mentor-kicker">Alumni mentor</p>
-            <h1 id="mentor-title">{mentor.name}</h1>
-            <p>Mentor in the STL Mentorship Program</p>
-          </div>
-          <div className="mentor-actions">
-            {mentor.linkedin && (
-              <a
-                className="mentor-secondary-link"
-                href={mentor.linkedin}
-                target="_blank"
-                rel="noreferrer"
-              >
-                LinkedIn <span aria-hidden="true">↗</span>
-              </a>
-            )}
-          </div>
-        </div>
-      </section>
+      <MemberProfileHero
+        titleId="mentor-title"
+        user={mentor}
+        action={
+          mentor.linkedin ? (
+            <a
+              className="member-profile-secondary-action"
+              href={mentor.linkedin}
+              target="_blank"
+              rel="noreferrer"
+            >
+              LinkedIn <span aria-hidden="true">↗</span>
+            </a>
+          ) : undefined
+        }
+      />
 
-      <div className="mentor-layout">
-        <div className="mentor-main-column">
-          <section className="mentor-card" aria-labelledby="mentor-bio-title">
-            <div className="mentor-card-heading">
-              <span>Profile</span>
-              <h2 id="mentor-bio-title">About me</h2>
-            </div>
-            <p>{mentor.bio || 'This mentor has not added a bio yet.'}</p>
+      <div className="member-profile-layout">
+        <div className="member-profile-main-column">
+          <section
+            className="member-profile-card member-profile-card--accent"
+            aria-labelledby="mentor-bio-title"
+          >
+            <MemberProfileCardHeading
+              id="mentor-bio-title"
+              kicker="Profile"
+              title="About me"
+            />
+            <p className="member-profile-body">
+              {mentor.bio || 'This mentor has not added a bio yet.'}
+            </p>
           </section>
 
           <section
-            className="mentor-card mentor-card--accent"
+            className="member-profile-card"
             aria-labelledby="mentor-expertise-title"
           >
-            <div className="mentor-card-heading">
-              <span>Mentorship</span>
-              <h2 id="mentor-expertise-title">Areas of expertise</h2>
-            </div>
+            <MemberProfileCardHeading
+              id="mentor-expertise-title"
+              kicker="Mentorship"
+              title="Areas of expertise"
+            />
 
             {mentor.areasOfExpertise.length > 0 ? (
               <ExpertiseChips
                 areas={mentor.areasOfExpertise}
-                className="mentor-chips"
+                className="member-profile-chips"
               />
             ) : (
-              <p className="mentor-empty">No areas of expertise listed yet.</p>
+              <p className="member-profile-muted">
+                No areas of expertise listed yet.
+              </p>
             )}
           </section>
 
-          <section
-            className="mentor-card"
-            aria-labelledby="mentor-contact-title"
-          >
-            <div className="mentor-card-heading">
-              <span>Contact</span>
-              <h2 id="mentor-contact-title">About</h2>
-            </div>
-
-            <dl className="mentor-details">
-              <div>
-                <dt>Email</dt>
-                <dd>
-                  <a href={`mailto:${mentor.email}`}>{mentor.email}</a>
-                </dd>
-              </div>
-              <div>
-                <dt>LinkedIn</dt>
-                <dd>
-                  {mentor.linkedin ? (
-                    <a href={mentor.linkedin} target="_blank" rel="noreferrer">
-                      View profile <span aria-hidden="true">↗</span>
-                    </a>
-                  ) : (
-                    <span>Not added</span>
-                  )}
-                </dd>
-              </div>
-            </dl>
-          </section>
+          <MemberProfileContact user={mentor} />
         </div>
 
-        <aside className="mentor-side-column" aria-label="Mentor summary">
-          <section className="mentor-card mentor-summary-card">
-            <div className="mentor-card-heading">
-              <span>Program</span>
-              <h2>Snapshot</h2>
-            </div>
-            <dl className="mentor-summary-list">
-              <div>
-                <dt>Role</dt>
-                <dd>Mentor</dd>
-              </div>
-              <div>
-                <dt>Graduation year</dt>
-                <dd>{mentor.gradYear || 'Not listed'}</dd>
-              </div>
-              <div>
-                <dt>Member</dt>
-                <dd>#{mentor.id}</dd>
-              </div>
-            </dl>
-          </section>
-        </aside>
+        <MemberProfileSummary user={mentor} />
       </div>
     </main>
   )

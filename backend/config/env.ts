@@ -46,3 +46,8 @@ export function getRegistrationEmailConfig() {
     to: env.resendToEmail,
   };
 }
+
+export function getPasswordResetEmailConfig() {
+  if (!env.resendApiKey || !env.resendFromEmail) return null;
+  return { apiKey: env.resendApiKey, from: env.resendFromEmail };
+}

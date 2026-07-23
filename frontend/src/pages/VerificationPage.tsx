@@ -13,7 +13,7 @@ function VerificationPage() {
           Thank you for your interest in the STL Mentorship Program. One of the
           admins will review your registration and grant account access soon.
         </p>
-        <Link className="verification-link" to="/">
+        <Link className="verification-link" to="/login">
           <span aria-hidden="true">←</span>
           Back to sign in
         </Link>

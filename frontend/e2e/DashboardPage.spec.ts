@@ -92,6 +92,11 @@ test('paginates when another mentor result exists', async ({ page }) => {
   await expect(
     page.getByRole('button', { name: 'Next page' }),
   ).toBeHidden()
+
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
+  expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(0)
+  await page.getByRole('button', { name: 'Previous page' }).click()
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0)
 })
 
 test('does not show a next page for exactly ten results', async ({ page }) => {

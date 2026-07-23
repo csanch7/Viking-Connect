@@ -4,6 +4,7 @@ import './styles/directory.css'
 import './styles/member.css'
 import './styles/responsive.css'
 import './styles/refresh.css'
+import './styles/memberProfile.css'
 import AppNav from './components/AppNav'
 import VerificationPage from './pages/VerificationPage'
 import ProfilePage from './pages/ProfilePage'
@@ -14,6 +15,8 @@ import MentorPage from './pages/MentorPage'
 import LoginPage from './pages/LoginPage'
 import HomePage from './pages/HomePage'
 import RegisterPage from './pages/RegisterPage'
+import ForgotPasswordPage from './pages/ForgotPasswordPage'
+import ResetPasswordPage from './pages/ResetPasswordPage'
 import PageNotFound from './pages/PageNotFound'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import { useAuth } from './auth/useAuth'
@@ -32,9 +35,7 @@ function App() {
 
   return (
     <>
-      {showAppNav && (
-        <AppNav isAuthenticated={authenticated} isAdmin={admin} />
-      )}
+      {showAppNav && <AppNav isAuthenticated={authenticated} isAdmin={admin} />}
       <Routes>
         <Route path="*" element={<PageNotFound />} />
         <Route
@@ -44,6 +45,8 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/verification" element={<VerificationPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route
           path="/profile"
           element={

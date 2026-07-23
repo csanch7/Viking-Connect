@@ -5,6 +5,8 @@ import { createMentorRouter } from "./mentorRoutes";
 import { createProfileRouter } from "./profileRoutes";
 import { createRegistrationRouter } from "./registrationRoutes";
 import { createTopicRouter } from "./topicRoutes";
+import { createPasswordResetRouter } from "./passwordResetRoutes";
+import type { PasswordResetRouterDependencies } from "./passwordResetRoutes";
 import type { AuthRouterDependencies } from "./authRoutes";
 import type { AdminRouterDependencies } from "./adminRoutes";
 import type { MentorRouterDependencies } from "./mentorRoutes";
@@ -21,10 +23,12 @@ export interface ApiRouterOptions {
   registrationDependencies?: RegistrationRouterDependencies;
   topicDependencies?: TopicRouterDependencies;
   readinessCheck?: () => Promise<void>;
+  passwordResetDependencies?: PasswordResetRouterDependencies;
 }
 
 export function createApiRouter(
   authLimiter: RequestHandler,
+  apiLimiter: RequestHandler,
   options: ApiRouterOptions = {},
 ) {
   const router = Router();
@@ -42,7 +46,13 @@ export function createApiRouter(
     }
   });
 
+  router.use(apiLimiter);
+
   router.use("/auth", createAuthRouter(authLimiter, options.authDependencies));
+  router.use(
+    "/auth",
+    createPasswordResetRouter(authLimiter, options.passwordResetDependencies),
+  );
   router.use(
     "/register",
     createRegistrationRouter(authLimiter, options.registrationDependencies),
@@ -50,7 +60,7 @@ export function createApiRouter(
   router.use(createTopicRouter(options.topicDependencies));
   router.use("/admin", createAdminRouter(options.adminDependencies));
   router.use(createMentorRouter(options.mentorDependencies));
-  router.use(createProfileRouter(authLimiter, options.profileDependencies));
+  router.use(createProfileRouter(options.profileDependencies));
 
   return router;
 }

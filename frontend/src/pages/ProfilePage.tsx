@@ -7,6 +7,10 @@ import ExpertiseSelector from '../components/expertise/ExpertiseSelector'
 import type { PublicUser } from '../../../shared/contracts'
 import { useAuth } from '../auth/useAuth'
 import { useProfileEditor } from '../hooks/useProfileEditor'
+import MemberProfileCardHeading from '../components/profile/MemberProfileCardHeading'
+import MemberProfileContact from '../components/profile/MemberProfileContact'
+import MemberProfileHero from '../components/profile/MemberProfileHero'
+import MemberProfileSummary from '../components/profile/MemberProfileSummary'
 
 function ProfilePage() {
   const [user, setUser] = useState<PublicUser | null>(null)
@@ -114,7 +118,7 @@ function ProfilePage() {
 
     return (
       <div className="profile-help-summary">
-        <p className="profile-help-text">
+        <p className="member-profile-body">
           {user.bio || 'You have not added a bio yet.'}
         </p>
       </div>
@@ -165,10 +169,10 @@ function ProfilePage() {
     return user.areasOfExpertise.length > 0 ? (
       <ExpertiseChips
         areas={user.areasOfExpertise}
-        className="profile-chips"
+        className="member-profile-chips"
       />
     ) : (
-      <p className="profile-empty">
+      <p className="member-profile-muted">
         No areas of {user.type === 'mentor' ? 'expertise' : 'interest'} added
         yet.
       </p>
@@ -195,136 +199,73 @@ function ProfilePage() {
     return <LoadingPage />
   }
 
-  const memberType = user.type === 'mentor' ? 'Mentor' : 'Mentee'
-  const profileInitial = user.name.slice(0, 1).toUpperCase()
-
   return (
-    <main className="profile-page">
-      <section className="profile-hero profile-card">
-        <div className="profile-cover" aria-hidden="true" />
-        <div className="profile-identity">
-          <div className="profile-avatar" aria-hidden="true">
-            {profileInitial}
-          </div>
-          <div className="profile-heading">
-            <div className="profile-eyebrow">
-              {user.role === 'admin' && (
-                <span className="profile-role">Admin</span>
-              )}
-            </div>
-            <h1>{user.name}</h1>
-            <p>{memberType} in the STL Mentorship Program</p>
-          </div>
-          <div className="profile-actions">
-            <button
-              className="profile-logout-button"
-              onClick={handleLogout}
-              disabled={isLoggingOut}
-            >
-              {isLoggingOut ? 'Signing out...' : 'Sign out'}
-            </button>
-          </div>
-        </div>
-      </section>
+    <main className="member-profile-page">
+      <MemberProfileHero
+        user={user}
+        action={
+          <button
+            className="member-profile-secondary-action"
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+          >
+            {isLoggingOut ? 'Signing out...' : 'Sign out'}
+          </button>
+        }
+      />
 
-      <div className="profile-layout">
-        <div className="profile-main-column">
-          <section className="profile-card profile-card--accent">
-            <div className="profile-card-heading profile-card-heading--with-action">
-              <div>
-                <span className="profile-card-kicker">Profile</span>
-                <h2>About me</h2>
-              </div>
-              {!editMode && (
-                <button
-                  className="profile-edit-help-button"
-                  type="button"
-                  onClick={startEditingBio}
-                  aria-label="Edit bio"
-                >
-                  Edit
-                </button>
-              )}
-            </div>
+      <div className="member-profile-layout">
+        <div className="member-profile-main-column">
+          <section className="member-profile-card member-profile-card--accent">
+            <MemberProfileCardHeading
+              kicker="Profile"
+              title="About me"
+              action={
+                !editMode ? (
+                  <button
+                    className="member-profile-edit-button"
+                    type="button"
+                    onClick={startEditingBio}
+                    aria-label="Edit bio"
+                  >
+                    Edit
+                  </button>
+                ) : undefined
+              }
+            />
 
             {renderBioContent()}
           </section>
 
-          <section className="profile-card">
-            <div className="profile-card-heading profile-card-heading--with-action">
-              <div>
-                <span className="profile-card-kicker">Mentorship</span>
-                <h2>
-                  Areas of {user.type === 'mentor' ? 'expertise' : 'interest'}
-                </h2>
-              </div>
-              {!editMode && (
-                <button
-                  className="profile-edit-help-button"
-                  type="button"
-                  onClick={startEditingAreasOfExpertise}
-                  aria-label={`Edit areas of ${
-                    user.type === 'mentor' ? 'expertise' : 'interest'
-                  }`}
-                >
-                  Edit
-                </button>
-              )}
-            </div>
+          <section className="member-profile-card">
+            <MemberProfileCardHeading
+              kicker="Mentorship"
+              title={`Areas of ${
+                user.type === 'mentor' ? 'expertise' : 'interest'
+              }`}
+              action={
+                !editMode ? (
+                  <button
+                    className="member-profile-edit-button"
+                    type="button"
+                    onClick={startEditingAreasOfExpertise}
+                    aria-label={`Edit areas of ${
+                      user.type === 'mentor' ? 'expertise' : 'interest'
+                    }`}
+                  >
+                    Edit
+                  </button>
+                ) : undefined
+              }
+            />
 
             {renderExpertiseContent()}
           </section>
 
-          <section className="profile-card">
-            <div className="profile-card-heading">
-              <span className="profile-card-kicker">Contact</span>
-              <h2>About</h2>
-            </div>
-            <dl className="profile-details">
-              <div>
-                <dt>Email</dt>
-                <dd>
-                  <a href={`mailto:${user.email}`}>{user.email}</a>
-                </dd>
-              </div>
-              <div>
-                <dt>LinkedIn</dt>
-                <dd>
-                  {user.linkedin ? (
-                    <a href={user.linkedin} target="_blank" rel="noreferrer">
-                      View profile <span aria-hidden="true">↗</span>
-                    </a>
-                  ) : (
-                    <span className="profile-muted">Not added</span>
-                  )}
-                </dd>
-              </div>
-            </dl>
-          </section>
+          <MemberProfileContact user={user} />
         </div>
 
-        <aside className="profile-side-column" aria-label="Profile summary">
-          <section className="profile-card profile-summary-card">
-            <div className="profile-card-heading">
-              <span className="profile-card-kicker">Program</span>
-              <h2>Snapshot</h2>
-            </div>
-            <dl className="profile-summary-list">
-              <div>
-                <dt>Role</dt>
-                <dd>{memberType}</dd>
-              </div>
-              <div>
-                <dt>Graduation year</dt>
-                <dd>{user.gradYear}</dd>
-              </div>
-              <div>
-                <dt>Member</dt>
-                <dd>#{user.id}</dd>
-              </div>
-            </dl>
-          </section>
-        </aside>
+        <MemberProfileSummary user={user} />
       </div>
     </main>
   )

@@ -9,6 +9,10 @@ test('shows the sign-in form and an API authentication error', async ({
     await fulfillJson(route, { message: 'Invalid email or password' }, 401)
   })
   await page.goto('/login')
+  await expect(page.getByRole('link', { name: 'Forgot password?' })).toHaveAttribute(
+    'href',
+    '/forgot-password',
+  )
 
   await expect(
     page.getByRole('heading', { name: 'Sign in to your account' }),

@@ -133,6 +133,11 @@ function DashboardPage() {
     setPage(0)
   }
 
+  function changePage(nextPage: number) {
+    setPage(nextPage)
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+  }
+
   if (loading) {
     return <LoadingPage />
   }
@@ -289,20 +294,14 @@ function DashboardPage() {
           <div className="dashboard-pagination-actions">
             {page > 0 && (
               <button
-                onClick={() => {
-                  setPage((prevPage) => prevPage - 1)
-                  window.scrollTo({ top: 0, behavior: 'smooth' })
-                }}
+                onClick={() => changePage(page - 1)}
               >
                 Previous page
               </button>
             )}
             {hasNextPage && (
               <button
-                onClick={() => {
-                  setPage((prevPage) => prevPage + 1)
-                  window.scrollTo({ top: 0, behavior: 'smooth' })
-                }}
+                onClick={() => changePage(page + 1)}
               >
                 Next page
               </button>

@@ -11,6 +11,8 @@ function PendingUsersPage() {
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
   const [activeUserId, setActiveUserId] = useState<string | null>(null)
+  const [activeAction, setActiveAction] = useState<'approve' | 'deny' | null>(null)
+  const [denyConfirmationId, setDenyConfirmationId] = useState<string | null>(null)
 
   const navigate = useNavigate()
 
@@ -31,18 +33,26 @@ function PendingUsersPage() {
   async function denyUser(userId: string) {
     if (activeUserId) return
 
+    if (denyConfirmationId !== userId) {
+      setDenyConfirmationId(userId)
+      return
+    }
+
     setActiveUserId(userId)
+    setActiveAction('deny')
     try {
       await adminService.denyUser(userId)
       setUsers((currentUsers) =>
         currentUsers.filter((user) => user.id !== userId),
       )
       setMessage('User denied')
+      setDenyConfirmationId(null)
       setError('')
     } catch {
       setError('We could not deny this user. Please try again.')
     } finally {
       setActiveUserId(null)
+      setActiveAction(null)
     }
   }
 
@@ -50,6 +60,7 @@ function PendingUsersPage() {
     if (activeUserId) return
 
     setActiveUserId(userId)
+    setActiveAction('approve')
     try {
       await adminService.approveUser(userId)
       setUsers((currentUsers) =>
@@ -61,6 +72,7 @@ function PendingUsersPage() {
       setError('We could not approve this user. Please try again.')
     } finally {
       setActiveUserId(null)
+      setActiveAction(null)
     }
   }
 
@@ -101,14 +113,18 @@ function PendingUsersPage() {
       )}
 
       {users.length > 0 ? (
-        <section className="pending-user-list" aria-label="Pending users">
+        <section className="pending-user-list" aria-label="Registration review queue">
           {users.map((user: PendingUser) => (
             <PendingUserCard
               key={user.id}
               user={user}
               onApprove={approveUser}
               onDeny={denyUser}
-              activeAction={activeUserId === user.id ? '...' : undefined}
+              onCancelDeny={() => setDenyConfirmationId(null)}
+              confirmDeny={denyConfirmationId === user.id}
+              activeAction={
+                activeUserId === user.id ? activeAction ?? undefined : undefined
+              }
             />
           ))}
         </section>

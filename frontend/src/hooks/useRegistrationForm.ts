@@ -9,6 +9,8 @@ export const linkedinProfileUrlPattern =
   'https://(www\\.)?linkedin\\.com/in/[A-Za-z0-9-]{3,100}/?'
 const linkedinProfileUrlRegex =
   /^https:\/\/(www\.)?linkedin\.com\/in\/[A-Za-z0-9-]{3,100}\/?$/
+const earliestGraduationYear = 1961
+const latestGraduationYear = new Date().getFullYear() + 10
 
 interface ApiErrorResponse {
   message?: string
@@ -81,7 +83,11 @@ export function useRegistrationForm() {
       )
       return
     }
-    if (gradYear < 1961) {
+    if (
+      !Number.isInteger(gradYear) ||
+      gradYear < earliestGraduationYear ||
+      gradYear > latestGraduationYear
+    ) {
       showError('Select a valid graduation year')
       return
     }

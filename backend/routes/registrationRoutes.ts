@@ -14,12 +14,14 @@ import {
   normalizeRegistrationUser,
 } from "../validation/registrationValidation";
 import type { UserType } from "../../shared/contracts";
+import { getTopics } from "../repositories/topicRepository";
 
 export interface RegistrationRouterDependencies {
   createUser: typeof createUser;
   hashPassword: typeof hashPassword;
   isUniqueViolation: typeof isUniqueViolation;
   sendAdminRegistrationNotification: typeof sendAdminRegistrationNotification;
+  getTopics: typeof getTopics;
 }
 
 const defaultDependencies: RegistrationRouterDependencies = {
@@ -27,6 +29,7 @@ const defaultDependencies: RegistrationRouterDependencies = {
   hashPassword,
   isUniqueViolation,
   sendAdminRegistrationNotification,
+  getTopics,
 };
 
 export function createRegistrationRouter(
@@ -39,6 +42,7 @@ export function createRegistrationRouter(
     hashPassword,
     isUniqueViolation,
     sendAdminRegistrationNotification,
+    getTopics,
   } = dependencies;
 
   router.post(
@@ -54,6 +58,16 @@ export function createRegistrationRouter(
 
       if (validationError) {
         res.status(400).json({ message: validationError });
+        return;
+      }
+
+      const allowedTopics = new Set(await getTopics());
+      if (
+        !normalizedUser.areasOfExpertise.every((topic) =>
+          allowedTopics.has(topic),
+        )
+      ) {
+        res.status(400).json({ message: "Choose valid topics" });
         return;
       }
 
@@ -86,7 +100,7 @@ export function createRegistrationRouter(
       } catch (error) {
         if (isUniqueViolation(error)) {
           res.status(409).json({
-            message: "A user with that email or name already exists",
+            message: "An account with that email already exists",
           });
           return;
         }

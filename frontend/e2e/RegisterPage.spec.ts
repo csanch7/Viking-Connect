@@ -11,6 +11,10 @@ test('shows the fields that match the selected program role', async ({
   page,
 }) => {
   await page.getByRole('radio', { name: /Mentor/ }).check()
+  await expect(page.getByLabel('Graduation year')).toHaveAttribute(
+    'type',
+    'number',
+  )
   await expect(page.getByRole('heading', { name: 'About you' })).toBeVisible()
   await expect(page.getByLabel('Bio')).toBeVisible()
   await expect(
