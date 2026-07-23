@@ -60,18 +60,6 @@ function MentorPage() {
       <MemberProfileHero
         titleId="mentor-title"
         user={mentor}
-        action={
-          mentor.linkedin ? (
-            <a
-              className="member-profile-secondary-action"
-              href={mentor.linkedin}
-              target="_blank"
-              rel="noreferrer"
-            >
-              LinkedIn <span aria-hidden="true">↗</span>
-            </a>
-          ) : undefined
-        }
       />
 
       <div className="member-profile-layout">

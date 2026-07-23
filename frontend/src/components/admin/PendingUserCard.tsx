@@ -33,7 +33,7 @@ function PendingUserCard({
       <dl className="pending-user-details">
         <div>
           <dt>Program role</dt>
-          <dd>{user.type}</dd>
+          <dd>{user.type.toUpperCase()}</dd>
         </div>
         <div>
           <dt>Graduation year</dt>
