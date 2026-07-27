@@ -293,18 +293,12 @@ function DashboardPage() {
           <p>Page {page + 1}</p>
           <div className="dashboard-pagination-actions">
             {page > 0 && (
-              <button
-                onClick={() => changePage(page - 1)}
-              >
+              <button onClick={() => changePage(page - 1)}>
                 Previous page
               </button>
             )}
             {hasNextPage && (
-              <button
-                onClick={() => changePage(page + 1)}
-              >
-                Next page
-              </button>
+              <button onClick={() => changePage(page + 1)}>Next page</button>
             )}
           </div>
         </div>

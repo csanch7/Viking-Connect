@@ -36,23 +36,18 @@ function HomePage({ isAuthenticated = false }: HomePageProps) {
       <section className="home-hero" aria-labelledby="home-title">
         <div className="home-hero-art" aria-hidden="true">
           <div className="home-signal-card home-signal-card--primary">
-            <span>Mentor directory</span>
+            <span>Find mentors</span>
             <strong>Explore alumni in finance</strong>
-            <p>Interview preparation, first-role strategy, career perspective</p>
-          </div>
-          <div className="home-signal-card home-signal-card--secondary">
-            <span>Student goal</span>
-            <strong>Land a summer internship</strong>
-            <p>Resume story, LinkedIn polish, questions for alumni</p>
+            <p>
+              Interview preparation, first-role strategy, career perspective
+            </p>
           </div>
           <div className="home-signal-line" />
         </div>
 
         <div className="home-hero-content">
           <p className="home-kicker">St. Laurence alumni mentorship</p>
-          <h1 id="home-title">
-            Turn school pride into career momentum.
-          </h1>
+          <h1 id="home-title">Turn school pride into career momentum.</h1>
           <p className="home-hero-copy">
             A private alumni network for students and recent graduates who want
             honest career advice, useful professional skills, and warm
@@ -62,7 +57,7 @@ function HomePage({ isAuthenticated = false }: HomePageProps) {
             {isAuthenticated ? (
               <>
                 <Link className="home-primary-link" to="/dashboard">
-                  Find mentors
+                  Go to dashboard
                 </Link>
                 <Link className="home-secondary-link" to="/profile">
                   View your profile
@@ -82,21 +77,26 @@ function HomePage({ isAuthenticated = false }: HomePageProps) {
         </div>
       </section>
 
-      <section className="home-proof" aria-label="Program focus areas">
+      <section className="home-proof" aria-label="How the program works">
         <div>
-          <span>01</span>
-          <strong>Insider guidance</strong>
-          <p>Conversations that answer what the job market actually feels like.</p>
+          <span>Step 1</span>
+          <Link to="/register">
+            <strong>Sign up</strong>
+          </Link>
+
+          <p>Sign up and complete your profile (takes less than 5 minutes)</p>
         </div>
         <div>
-          <span>02</span>
-          <strong>Professional readiness</strong>
-          <p>Interviewing, networking, LinkedIn, offers, and follow-through.</p>
+          <span>Step 2</span>
+          <strong>Get approved</strong>
+          <p>Takes less than 24 hours</p>
         </div>
         <div>
-          <span>03</span>
-          <strong>Belonging</strong>
-          <p>A shared St. Laurence background makes mentorship feel immediate.</p>
+          <span>Step 3</span>
+          <Link to="/dashboard">
+            <strong>Find a mentor</strong>
+          </Link>
+          <p>Reach out via email or LinkedIn</p>
         </div>
       </section>
 
@@ -115,17 +115,17 @@ function HomePage({ isAuthenticated = false }: HomePageProps) {
           <div>
             <span>Most urgent</span>
             <strong>Career anxiety</strong>
-            <p>What job fits me, and how do I even begin?</p>
+            <p>Learn about the pros and cons of different career paths</p>
           </div>
           <div>
             <span>Most useful</span>
             <strong>Insider knowledge</strong>
-            <p>What did you do that actually opened doors?</p>
+            <p>Make connections that open doors</p>
           </div>
           <div>
             <span>Most lasting</span>
             <strong>Identity and belonging</strong>
-            <p>Someone from my school sees where I am headed.</p>
+            <p>Have someone help you navigate different career phases</p>
           </div>
         </div>
       </section>

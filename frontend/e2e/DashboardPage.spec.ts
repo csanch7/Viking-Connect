@@ -89,9 +89,7 @@ test('paginates when another mentor result exists', async ({ page }) => {
 
   await expect(page.getByText('Page 2')).toBeVisible()
   await expect(page.getByRole('link', { name: 'Mentor 11' })).toBeVisible()
-  await expect(
-    page.getByRole('button', { name: 'Next page' }),
-  ).toBeHidden()
+  await expect(page.getByRole('button', { name: 'Next page' })).toBeHidden()
 
   await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
   expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(0)
@@ -113,9 +111,7 @@ test('does not show a next page for exactly ten results', async ({ page }) => {
   await page.goto('/dashboard')
 
   await expect(page.getByText('Page 1')).toBeVisible()
-  await expect(
-    page.getByRole('button', { name: 'Next page' }),
-  ).toBeHidden()
+  await expect(page.getByRole('button', { name: 'Next page' })).toBeHidden()
 })
 
 test('shows an error state when mentor loading fails', async ({ page }) => {

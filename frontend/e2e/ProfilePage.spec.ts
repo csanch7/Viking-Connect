@@ -64,9 +64,7 @@ test('edits and saves a member bio', async ({ page }) => {
   await expect(
     page.getByText('I am looking for resume review and interview preparation.'),
   ).toBeVisible()
-  await expect(
-    page.getByRole('button', { name: 'Edit bio' }),
-  ).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Edit bio' })).toBeVisible()
 })
 
 test('edits and saves mentor expertise', async ({ page }) => {

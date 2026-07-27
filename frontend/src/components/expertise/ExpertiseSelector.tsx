@@ -36,7 +36,9 @@ function ExpertiseSelector({
       .catch(() => {
         if (isCurrent) {
           setTopics([])
-          setLoadError('We could not load topics. Please refresh and try again.')
+          setLoadError(
+            'We could not load topics. Please refresh and try again.',
+          )
         }
       })
       .finally(() => {

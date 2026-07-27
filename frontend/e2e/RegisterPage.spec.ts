@@ -33,7 +33,9 @@ test('shows the fields that match the selected program role', async ({
   ).toBeVisible()
 })
 
-test('shows a loading state before database topics arrive', async ({ page }) => {
+test('shows a loading state before database topics arrive', async ({
+  page,
+}) => {
   await page.unroute('**/api/topics')
 
   let releaseTopics!: () => void

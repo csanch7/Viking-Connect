@@ -52,9 +52,7 @@ function PendingUserCard({
           <dd>{user.bio || 'No bio provided'}</dd>
         </div>
         <div className="pending-user-detail-wide">
-          <dt>
-            Areas of {user.type === 'mentor' ? 'expertise' : 'interest'}
-          </dt>
+          <dt>Areas of {user.type === 'mentor' ? 'expertise' : 'interest'}</dt>
           <dd>{user.areasOfExpertise.join(', ') || 'No areas listed'}</dd>
         </div>
       </dl>
@@ -87,22 +85,22 @@ function PendingUserCard({
         </div>
       ) : (
         <div className="pending-user-actions">
-        <button
-          className="pending-user-deny"
-          type="button"
-          onClick={() => onDeny(user.id)}
-          disabled={Boolean(activeAction)}
-        >
-          Deny
-        </button>
-        <button
-          className="pending-user-approve"
-          type="button"
-          onClick={() => onApprove(user.id)}
-          disabled={Boolean(activeAction)}
-        >
-          {activeAction === 'approve' ? 'Approving...' : 'Approve'}
-        </button>
+          <button
+            className="pending-user-deny"
+            type="button"
+            onClick={() => onDeny(user.id)}
+            disabled={Boolean(activeAction)}
+          >
+            Deny
+          </button>
+          <button
+            className="pending-user-approve"
+            type="button"
+            onClick={() => onApprove(user.id)}
+            disabled={Boolean(activeAction)}
+          >
+            {activeAction === 'approve' ? 'Approving...' : 'Approve'}
+          </button>
         </div>
       )}
     </article>

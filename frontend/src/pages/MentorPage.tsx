@@ -57,10 +57,7 @@ function MentorPage() {
         Back to mentor directory
       </Link>
 
-      <MemberProfileHero
-        titleId="mentor-title"
-        user={mentor}
-      />
+      <MemberProfileHero titleId="mentor-title" user={mentor} />
 
       <div className="member-profile-layout">
         <div className="member-profile-main-column">

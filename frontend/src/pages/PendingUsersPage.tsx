@@ -11,8 +11,12 @@ function PendingUsersPage() {
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
   const [activeUserId, setActiveUserId] = useState<string | null>(null)
-  const [activeAction, setActiveAction] = useState<'approve' | 'deny' | null>(null)
-  const [denyConfirmationId, setDenyConfirmationId] = useState<string | null>(null)
+  const [activeAction, setActiveAction] = useState<'approve' | 'deny' | null>(
+    null,
+  )
+  const [denyConfirmationId, setDenyConfirmationId] = useState<string | null>(
+    null,
+  )
 
   const navigate = useNavigate()
 
@@ -113,7 +117,10 @@ function PendingUsersPage() {
       )}
 
       {users.length > 0 ? (
-        <section className="pending-user-list" aria-label="Registration review queue">
+        <section
+          className="pending-user-list"
+          aria-label="Registration review queue"
+        >
           {users.map((user: PendingUser) => (
             <PendingUserCard
               key={user.id}
@@ -123,7 +130,9 @@ function PendingUsersPage() {
               onCancelDeny={() => setDenyConfirmationId(null)}
               confirmDeny={denyConfirmationId === user.id}
               activeAction={
-                activeUserId === user.id ? activeAction ?? undefined : undefined
+                activeUserId === user.id
+                  ? (activeAction ?? undefined)
+                  : undefined
               }
             />
           ))}

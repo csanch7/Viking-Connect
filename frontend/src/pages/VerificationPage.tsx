@@ -3,7 +3,10 @@ import { Link } from 'react-router-dom'
 function VerificationPage() {
   return (
     <main className="verification-page">
-      <section className="verification-card" aria-labelledby="verification-title">
+      <section
+        className="verification-card"
+        aria-labelledby="verification-title"
+      >
         <div className="verification-icon" aria-hidden="true">
           ✓
         </div>
