@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import ContactUsForm from '../components/home/ContactUsForm'
 
 const outcomes = [
   {
@@ -188,6 +189,20 @@ function HomePage({ isAuthenticated = false }: HomePageProps) {
               </Link>
             </>
           )}
+        </div>
+      </section>
+
+      <section className="home-contact" aria-labelledby="home-contact-title">
+        <div className="home-contact-copy">
+          <p className="home-kicker">Contact us</p>
+          <h2 id="home-contact-title">Have a question about the program?</h2>
+          <p>
+            Send the mentorship team a message and we will get back to you as
+            soon as possible.
+          </p>
+        </div>
+        <div className="home-contact-card">
+          <ContactUsForm />
         </div>
       </section>
     </main>

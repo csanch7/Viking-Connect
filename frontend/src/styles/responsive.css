@@ -15,7 +15,8 @@
 
   .home-section--split,
   .home-outcome-grid,
-  .home-network {
+  .home-network,
+  .home-contact {
     grid-template-columns: 1fr;
   }
 
@@ -56,14 +57,16 @@
   .home-proof,
   .home-section,
   .home-network,
-  .home-final-cta {
+  .home-final-cta,
+  .home-contact {
     width: min(100% - 28px, 1140px);
   }
 
   .home-proof,
   .home-section--split,
   .home-outcome-grid,
-  .home-network {
+  .home-network,
+  .home-contact {
     grid-template-columns: 1fr;
   }
 
@@ -84,12 +87,26 @@
   .home-section-copy h2,
   .home-section-heading h2,
   .home-network h2,
-  .home-final-cta h2 {
+  .home-final-cta h2,
+  .home-contact h2 {
     font-size: 34px;
   }
 
   .home-final-cta {
     padding: 72px 0;
+  }
+
+  .home-contact {
+    gap: 24px;
+    padding-bottom: 72px;
+  }
+
+  .home-contact-copy {
+    padding-top: 0;
+  }
+
+  .home-contact-card {
+    padding: 20px;
   }
 
   .app-nav {

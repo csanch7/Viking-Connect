@@ -35,7 +35,12 @@ const mentor = {
   areasOfExpertise: ["Finance"],
 };
 
-function buildApiApp(role: "admin" | "user" = "user") {
+function buildApiApp(
+  role: "admin" | "user" = "user",
+  sendContactUsEmail: (
+    request: import("../../shared/contracts").EmailRequest,
+  ) => Promise<void> = async () => undefined,
+) {
   const authenticatedUser = { ...baseUser, role };
 
   return createApp({
@@ -44,6 +49,9 @@ function buildApiApp(role: "admin" | "user" = "user") {
     isProduction: false,
     apiDependencies: {
       readinessCheck: async () => undefined,
+      contactDependencies: {
+        sendContactUsEmail,
+      },
       topicDependencies: {
         getTopics: async () => ["Career Planning", "Finance", "Technology"],
       },
@@ -82,7 +90,10 @@ function buildApiApp(role: "admin" | "user" = "user") {
         }),
       },
       passwordResetDependencies: {
-        createPasswordResetSecret: () => ({ token: "reset-secret", tokenHash: "reset-secret-hash" }),
+        createPasswordResetSecret: () => ({
+          token: "reset-secret",
+          tokenHash: "reset-secret-hash",
+        }),
         hashPasswordResetToken: () => "reset-secret-hash",
         createPasswordResetToken: async (email) => ({ email }),
         consumePasswordResetToken: async () => ({ id: "7" }),
@@ -152,6 +163,71 @@ describe("API routes", () => {
     assert.equal(response.status, 200);
     assert.deepEqual(response.body, {
       topics: ["Career Planning", "Finance", "Technology"],
+    });
+  });
+
+  it("validates and sends contact form submissions", async () => {
+    let received: import("../../shared/contracts").EmailRequest | undefined;
+    const app = buildApiApp("user", async (emailRequest) => {
+      received = emailRequest;
+    });
+
+    const response = await request(app).post("/api/contact-us").send({
+      sender: "  Visitor@Example.com ",
+      subject: " Mentorship question ",
+      body: " I would like to learn more about the program. ",
+    });
+
+    assert.equal(response.status, 200);
+    assert.deepEqual(response.body, {
+      message: "Message sent successfully",
+    });
+    assert.deepEqual(received, {
+      sender: "visitor@example.com",
+      subject: "Mentorship question",
+      body: "I would like to learn more about the program.",
+    });
+  });
+
+  it("rejects invalid contact form submissions", async () => {
+    let sendCount = 0;
+    const app = buildApiApp("user", async () => {
+      sendCount += 1;
+    });
+
+    const response = await request(app).post("/api/contact-us").send({
+      sender: "not-an-email",
+      subject: "",
+      body: "",
+    });
+
+    assert.equal(response.status, 400);
+    assert.deepEqual(response.body, {
+      message: "Enter a valid email address",
+    });
+    assert.equal(sendCount, 0);
+  });
+
+  it("limits contact form submissions independently", async () => {
+    const app = buildApiApp();
+    const payload = {
+      sender: "visitor@example.com",
+      subject: "Mentorship question",
+      body: "I would like to learn more about the program.",
+    };
+
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      const response = await request(app).post("/api/contact-us").send(payload);
+      assert.equal(response.status, 200);
+    }
+
+    const limitedResponse = await request(app)
+      .post("/api/contact-us")
+      .send(payload);
+
+    assert.equal(limitedResponse.status, 429);
+    assert.deepEqual(limitedResponse.body, {
+      message: "Too many messages; please try again later",
     });
   });
 

@@ -33,6 +33,12 @@ export interface RegistrationRequest {
   gradYear: number;
 }
 
+export interface EmailRequest {
+  sender: string;
+  subject: string;
+  body: string;
+}
+
 export interface SessionResponse {
   authenticated: boolean;
   admin: boolean;

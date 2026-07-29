@@ -32,6 +32,7 @@ export const env = {
   resendApiKey: optionalEnv("RESEND_API"),
   resendFromEmail: optionalEnv("FROM_RESEND_EMAIL"),
   resendToEmail: optionalEnv("TO_RESEND_EMAIL"),
+  contactToEmail: optionalEnv("TO_CONTACT_US_EMAIL"),
   sessionSecret,
 };
 
@@ -44,6 +45,18 @@ export function getRegistrationEmailConfig() {
     apiKey: env.resendApiKey,
     from: env.resendFromEmail,
     to: env.resendToEmail,
+  };
+}
+
+export function getContactUsEmailConfig() {
+  if (!env.resendApiKey || !env.resendFromEmail || !env.contactToEmail) {
+    return null;
+  }
+
+  return {
+    apiKey: env.resendApiKey,
+    from: env.resendFromEmail,
+    to: env.contactToEmail,
   };
 }
 

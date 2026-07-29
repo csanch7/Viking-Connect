@@ -48,8 +48,11 @@ The frontend development server proxies `/api` requests to
 - `RESEND_API` — optional Resend API key
 - `FROM_RESEND_EMAIL` — optional verified sender
 - `TO_RESEND_EMAIL` — optional admin notification recipient
+- `TO_CONTACT_US_EMAIL` — optional contact form recipient
 
-Registration email is skipped when the Resend settings are incomplete.
+Registration email is skipped when its Resend settings are incomplete. Contact
+form delivery requires `RESEND_API`, `FROM_RESEND_EMAIL`, and
+`TO_CONTACT_US_EMAIL`.
 
 ## Database migrations
 

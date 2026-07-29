@@ -87,9 +87,24 @@ export function createApp(options: AppOptions = {}) {
     message: { message: "Too many attempts; please try again later" },
   });
 
+  const contactLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000,
+    limit: 5,
+    standardHeaders: "draft-8",
+    legacyHeaders: false,
+    message: {
+      message: "Too many messages; please try again later",
+    },
+  });
+
   app.use(
     "/api",
-    createApiRouter(authLimiter, apiLimiter, options.apiDependencies),
+    createApiRouter(
+      authLimiter,
+      apiLimiter,
+      contactLimiter,
+      options.apiDependencies,
+    ),
   );
   app.use("/api", errorHandler);
 
