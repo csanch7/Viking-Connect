@@ -1,6 +1,7 @@
 import { Resend } from "resend";
 import type { EmailRequest } from "../../shared/contracts";
 import { getContactUsEmailConfig } from "../config/env";
+import { renderContactUsEmail } from "../emails/contactUsEmail";
 import { log, logError } from "./logger";
 
 function renderContactUsText(emailData: EmailRequest) {
@@ -29,6 +30,7 @@ export async function sendContactUsEmail(emailData: EmailRequest) {
       replyTo: emailData.sender,
       subject: emailData.subject,
       text: renderContactUsText(emailData),
+      html: renderContactUsEmail(emailData),
     });
 
     if (result.error) {
