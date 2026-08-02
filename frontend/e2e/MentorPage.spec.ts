@@ -32,7 +32,7 @@ test('shows a mentor profile returned by the API', async ({ page }) => {
   ).toHaveAttribute('href', 'https://www.linkedin.com/in/alex-mentor')
   await expect(
     page.getByRole('link', { name: 'Back to mentor directory' }),
-  ).toHaveAttribute('href', '/dashboard')
+  ).toHaveAttribute('href', '/directory')
 })
 
 test('shows the not-found state when the mentor request fails', async ({
@@ -48,5 +48,5 @@ test('shows the not-found state when the mentor request fails', async ({
   ).toBeVisible()
   await expect(
     page.getByRole('link', { name: 'Back to directory' }),
-  ).toHaveAttribute('href', '/dashboard')
+  ).toHaveAttribute('href', '/directory')
 })

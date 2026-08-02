@@ -17,8 +17,10 @@ export interface PublicUser {
 
 export type MentorDirectoryUser = Pick<
   PublicUser,
-  "id" | "name" | "email" | "linkedin" | "areasOfExpertise"
+  "id" | "name" | "email" | "linkedin" | "areasOfExpertise" | "type"
 > & { gradYear?: number };
+
+export type MenteeDirectoryUser = MentorDirectoryUser;
 
 export type PendingUser = Omit<PublicUser, "status">;
 
@@ -42,6 +44,7 @@ export interface EmailRequest {
 export interface SessionResponse {
   authenticated: boolean;
   admin: boolean;
+  mentee: boolean;
 }
 
 export interface MessageResponse {
@@ -95,12 +98,17 @@ export function parseSessionResponse(value: unknown): SessionResponse {
   if (
     !isRecord(value) ||
     typeof value.authenticated !== "boolean" ||
-    typeof value.admin !== "boolean"
+    typeof value.admin !== "boolean" ||
+    typeof value.mentee !== "boolean"
   ) {
     return contractError("session");
   }
 
-  return { authenticated: value.authenticated, admin: value.admin };
+  return {
+    authenticated: value.authenticated,
+    admin: value.admin,
+    mentee: value.mentee,
+  };
 }
 
 export function parseMessageResponse(value: unknown): MessageResponse {
@@ -148,7 +156,7 @@ export function parseUserEnvelope(value: unknown) {
 
 export function parseMentor(value: unknown): MentorDirectoryUser {
   if (!isRecord(value)) {
-    return contractError("mentor");
+    return contractError("mentee");
   }
 
   const parsed: MentorDirectoryUser = {
@@ -156,7 +164,29 @@ export function parseMentor(value: unknown): MentorDirectoryUser {
     name: readString(value, "name"),
     email: readString(value, "email"),
     linkedin: readString(value, "linkedin"),
+    type: parseUserType(value.type),
     areasOfExpertise: readStringArray(value, "areasOfExpertise"),
+  };
+
+  if (value.gradYear !== undefined) {
+    parsed.gradYear = readNumber(value, "gradYear");
+  }
+
+  return parsed;
+}
+
+export function parseMentee(value: unknown): MenteeDirectoryUser {
+  if (!isRecord(value)) {
+    return contractError("mentor");
+  }
+
+  const parsed: MenteeDirectoryUser = {
+    id: readString(value, "id"),
+    name: readString(value, "name"),
+    email: readString(value, "email"),
+    linkedin: readString(value, "linkedin"),
+    areasOfExpertise: readStringArray(value, "areasOfExpertise"),
+    type: parseUserType(value.type),
   };
 
   if (value.gradYear !== undefined) {
@@ -172,6 +202,14 @@ export function parseMentorList(value: unknown) {
   }
 
   return value.map(parseMentor);
+}
+
+export function parseMenteeList(value: unknown) {
+  if (!Array.isArray(value)) {
+    return contractError("mentee list");
+  }
+
+  return value.map(parseMentee);
 }
 
 export function parsePendingUsersEnvelope(value: unknown) {

@@ -51,14 +51,29 @@ test('authenticated application pages have no accessibility violations', async (
     status: 'approved',
     role: 'admin',
   }
+  const menteeUser = {
+    ...user,
+    id: '77',
+    name: 'Jordan Mentee',
+    email: 'jordan@example.com',
+    linkedin: 'https://www.linkedin.com/in/jordan-mentee',
+    type: 'mentee',
+    bio: 'I am exploring careers in finance and technology.',
+    gradYear: 2027,
+    role: 'user',
+  }
   await mockAuthenticatedSession(page, true)
   await mockTopics(page, ['Finance'])
   await page.route('**/api/auth/me', async (route) =>
     fulfillJson(route, { user }),
   )
   await page.route('**/api/mentors/**', async (route) => fulfillJson(route, []))
+  await page.route('**/api/mentees/**', async (route) => fulfillJson(route, []))
   await page.route('**/api/mentor/42', async (route) =>
     fulfillJson(route, user),
+  )
+  await page.route('**/api/mentee/77', async (route) =>
+    fulfillJson(route, menteeUser),
   )
   await page.route('**/api/admin/mentor-count', async (route) =>
     fulfillJson(route, { count: 1 }),
@@ -71,11 +86,15 @@ test('authenticated application pages have no accessibility violations', async (
   )
 
   for (const [path, heading] of [
-    ['/dashboard', 'Find alumni mentors'],
+    ['/directory', 'Find alumni mentors'],
+    ['/mentees/directory', 'Connect with fellow mentees'],
     ['/profile', 'Alex Mentor'],
     ['/mentor/42', 'Alex Mentor'],
+    ['/mentee/77', 'Jordan Mentee'],
     ['/admin', 'Program review center'],
     ['/admin/pending-users', 'Pending users'],
+    ['/admin/mentors', 'Manage mentors'],
+    ['/admin/mentees', 'Manage mentees'],
   ]) {
     await page.goto(path)
     await expect(

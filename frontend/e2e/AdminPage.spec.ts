@@ -21,9 +21,18 @@ test('shows directory totals and the pending-user queue link', async ({
   await expect(
     page.getByRole('link', { name: 'View pending users' }),
   ).toHaveAttribute('href', '/admin/pending-users')
+  const approvedMembers = page.getByRole('region', {
+    name: 'Approved members',
+  })
+  await expect(
+    approvedMembers.getByRole('link', { name: 'Manage mentors' }),
+  ).toHaveAttribute('href', '/admin/mentors')
+  await expect(
+    approvedMembers.getByRole('link', { name: 'Manage mentees' }),
+  ).toHaveAttribute('href', '/admin/mentees')
 })
 
-test('redirects a signed-in non-admin visitor to the dashboard', async ({
+test('redirects a signed-in non-admin visitor to the directory', async ({
   page,
 }) => {
   await mockAuthenticatedSession(page)
@@ -32,7 +41,7 @@ test('redirects a signed-in non-admin visitor to the dashboard', async ({
   })
   await page.goto('/admin')
 
-  await expect(page).toHaveURL('/dashboard')
+  await expect(page).toHaveURL('/directory')
   await expect(
     page.getByRole('heading', { name: 'Find alumni mentors' }),
   ).toBeVisible()

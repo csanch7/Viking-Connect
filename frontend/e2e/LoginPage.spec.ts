@@ -29,7 +29,11 @@ test('shows the sign-in form and an API authentication error', async ({
 test('redirects an already authenticated visitor to their profile', async ({
   page,
 }) => {
-  await mockSession(page, { authenticated: true, admin: false })
+  await mockSession(page, {
+    authenticated: true,
+    admin: false,
+    mentee: false,
+  })
   await page.route('**/api/auth/me', async (route) => {
     await fulfillJson(route, {
       user: {

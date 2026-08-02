@@ -77,6 +77,7 @@ export function createAuthRouter(
 
       req.session.userId = user.id;
       req.session.role = user.role;
+      req.session.type = user.type;
       res.json({
         message: "Logged in",
         user: {
@@ -100,6 +101,7 @@ export function createAuthRouter(
     res.json({
       authenticated: Boolean(req.session.userId),
       admin: Boolean(req.session.role === "admin"),
+      mentee: Boolean(req.session.type === "mentee"),
     });
   });
 

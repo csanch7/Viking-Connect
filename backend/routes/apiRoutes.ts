@@ -16,11 +16,14 @@ import type { TopicRouterDependencies } from "./topicRoutes";
 import { createContactRouter } from "./contactRoutes";
 import type { ContactRouterDependencies } from "./contactRoutes";
 import { checkDatabase } from "../database";
+import { createMenteeRouter } from "./menteeRoutes";
+import type { MenteeRouterDependencies } from "./menteeRoutes";
 
 export interface ApiRouterOptions {
   adminDependencies?: AdminRouterDependencies;
   authDependencies?: AuthRouterDependencies;
   mentorDependencies?: MentorRouterDependencies;
+  menteeDependencies?: MenteeRouterDependencies;
   profileDependencies?: ProfileRouterDependencies;
   registrationDependencies?: RegistrationRouterDependencies;
   topicDependencies?: TopicRouterDependencies;
@@ -69,6 +72,7 @@ export function createApiRouter(
   router.use("/admin", createAdminRouter(options.adminDependencies));
   router.use(createMentorRouter(options.mentorDependencies));
   router.use(createProfileRouter(options.profileDependencies));
+  router.use(createMenteeRouter(options.menteeDependencies));
 
   return router;
 }

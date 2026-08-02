@@ -33,6 +33,11 @@ const adminService = {
     const response = await axios.get(endpoint)
     return parseCountResponse(response.data).count
   },
+  async deleteUser(userId: string) {
+    const endpoint: string = `${backend}/admin/users/${userId}`
+    const response = await axios.delete(endpoint)
+    return parseMessageResponse(response.data)
+  },
 }
 
 export default adminService

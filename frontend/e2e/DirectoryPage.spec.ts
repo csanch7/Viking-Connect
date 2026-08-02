@@ -11,6 +11,7 @@ const mentors = [
     name: 'Alex Mentor',
     email: 'alex@example.com',
     linkedin: 'https://www.linkedin.com/in/alex-mentor',
+    type: 'mentor',
     areasOfExpertise: ['Finance', 'Career Planning'],
     gradYear: 2012,
   },
@@ -27,7 +28,7 @@ test.beforeEach(async ({ page }) => {
 test('shows the mentor directory and mentor contact details', async ({
   page,
 }) => {
-  await page.goto('/dashboard')
+  await page.goto('/directory')
 
   await expect(
     page.getByRole('heading', { name: 'Find alumni mentors' }),
@@ -41,7 +42,7 @@ test('shows the mentor directory and mentor contact details', async ({
 })
 
 test('applies an expertise filter to the mentor request', async ({ page }) => {
-  await page.goto('/dashboard')
+  await page.goto('/directory')
   await expect(
     page.getByRole('heading', { name: 'Find alumni mentors' }),
   ).toBeVisible()
@@ -83,7 +84,7 @@ test('paginates when another mentor result exists', async ({ page }) => {
           ],
     )
   })
-  await page.goto('/dashboard')
+  await page.goto('/directory')
 
   await page.getByRole('button', { name: 'Next page' }).click()
 
@@ -108,7 +109,7 @@ test('does not show a next page for exactly ten results', async ({ page }) => {
       })),
     )
   })
-  await page.goto('/dashboard')
+  await page.goto('/directory')
 
   await expect(page.getByText('Page 1')).toBeVisible()
   await expect(page.getByRole('button', { name: 'Next page' })).toBeHidden()
@@ -118,7 +119,7 @@ test('shows an error state when mentor loading fails', async ({ page }) => {
   await page.route('**/api/mentors/**', async (route) => {
     await fulfillJson(route, { message: 'Unavailable' }, 503)
   })
-  await page.goto('/dashboard')
+  await page.goto('/directory')
 
   await expect(
     page.getByRole('heading', { name: 'Unable to load mentors' }),

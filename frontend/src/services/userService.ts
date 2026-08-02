@@ -1,5 +1,6 @@
 import axios from 'axios'
 import {
+  parseMenteeList,
   parseMentorList,
   parseMessageResponse,
   parsePublicUser,
@@ -71,8 +72,30 @@ const userService = {
     const response = await axios.get(endpoint, { params })
     return parseMentorList(response.data)
   },
+  async getMentees(
+    paginator: number,
+    filter: string[] = [],
+    searchText?: string,
+  ) {
+    const endpoint = `${backend}/mentees/${paginator}`
+    const params = new URLSearchParams()
+
+    filter.forEach((area) => params.append('filter', area))
+
+    if (searchText) {
+      params.set('searchText', searchText)
+    }
+
+    const response = await axios.get(endpoint, { params })
+    return parseMenteeList(response.data)
+  },
   async getMentor(id: string) {
     const endpoint: string = `${backend}/mentor/${id}`
+    const response = await axios.get(endpoint)
+    return parsePublicUser(response.data)
+  },
+  async getMentee(id: string) {
+    const endpoint: string = `${backend}/mentee/${id}`
     const response = await axios.get(endpoint)
     return parsePublicUser(response.data)
   },

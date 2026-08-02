@@ -6,10 +6,15 @@ import LoadingPage from '../LoadingPage'
 interface ProtectedRouteProps {
   children: ReactNode
   adminOnly?: boolean
+  menteeRoute?: boolean
 }
 
-function ProtectedRoute({ children, adminOnly = false }: ProtectedRouteProps) {
-  const { authenticated, admin, isCheckingSession } = useAuth()
+function ProtectedRoute({
+  children,
+  adminOnly = false,
+  menteeRoute = false,
+}: ProtectedRouteProps) {
+  const { authenticated, admin, mentee, isCheckingSession } = useAuth()
   const location = useLocation()
 
   if (isCheckingSession) {
@@ -21,7 +26,11 @@ function ProtectedRoute({ children, adminOnly = false }: ProtectedRouteProps) {
   }
 
   if (adminOnly && !admin) {
-    return <Navigate to="/dashboard" replace />
+    return <Navigate to="/directory" replace />
+  }
+
+  if (menteeRoute && !admin && !mentee) {
+    return <Navigate to="/directory" replace />
   }
 
   return children

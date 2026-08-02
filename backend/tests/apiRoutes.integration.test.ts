@@ -32,7 +32,17 @@ const mentor = {
   name: "Alex Mentor",
   email: "alex@example.com",
   linkedin: "https://www.linkedin.com/in/alex-mentor",
+  type: "mentor" as const,
   areasOfExpertise: ["Finance"],
+};
+
+const mentee = {
+  ...baseUser,
+  id: "77",
+  name: "Jordan Mentee",
+  email: "jordan@example.com",
+  linkedin: "https://www.linkedin.com/in/jordan-mentee",
+  areasOfExpertise: ["Career Planning"],
 };
 
 function buildApiApp(
@@ -40,8 +50,9 @@ function buildApiApp(
   sendContactUsEmail: (
     request: import("../../shared/contracts").EmailRequest,
   ) => Promise<void> = async () => undefined,
+  type: "mentor" | "mentee" = "mentee",
 ) {
-  const authenticatedUser = { ...baseUser, role };
+  const authenticatedUser = { ...baseUser, role, type };
 
   return createApp({
     sessionStore: new session.MemoryStore(),
@@ -112,6 +123,10 @@ function buildApiApp(
               }
             : undefined,
       },
+      menteeDependencies: {
+        getMenteesByPagination: async () => [mentee],
+        findMenteeById: async (id) => (id === mentee.id ? mentee : undefined),
+      },
       adminDependencies: {
         getPendingUsers: async () => [
           {
@@ -127,6 +142,8 @@ function buildApiApp(
           },
         ],
         approveUser: async (id) => ({ id }),
+        deleteUser: async (id) =>
+          id === mentor.id ? { name: mentor.name } : undefined,
         denyUser: async (id) => ({ id }),
         getMentorCount: async () => ({ count: "12" }),
         getMenteeCount: async () => ({ count: "34" }),
@@ -283,6 +300,32 @@ describe("API routes", () => {
     assert.equal(profile.body.id, "42");
   });
 
+  it("returns mentee search results and profiles to mentees", async () => {
+    const agent = await login(buildApiApp());
+
+    const directory = await agent.get(
+      "/api/mentees/0?filter=Career%20Planning&searchText=Jordan",
+    );
+    assert.equal(directory.status, 200);
+    assert.equal(directory.body[0].name, mentee.name);
+
+    const profile = await agent.get(`/api/mentee/${mentee.id}`);
+    assert.equal(profile.status, 200);
+    assert.equal(profile.body.id, mentee.id);
+  });
+
+  it("does not expose the mentee directory to mentors", async () => {
+    const app = buildApiApp("user", async () => undefined, "mentor");
+    const agent = await login(app);
+
+    const response = await agent.get("/api/mentees/0");
+
+    assert.equal(response.status, 403);
+    assert.deepEqual(response.body, {
+      message: "Only mentees and admins can view mentees",
+    });
+  });
+
   it("allows admins to review and approve pending users", async () => {
     const agent = await login(buildApiApp("admin"));
 
@@ -295,11 +338,43 @@ describe("API routes", () => {
     assert.deepEqual(approval.body, { message: "19 has been approved" });
   });
 
+  it("allows admins to permanently delete a user", async () => {
+    const agent = await login(buildApiApp("admin"));
+
+    const deletion = await agent.delete(`/api/admin/users/${mentor.id}`);
+
+    assert.equal(deletion.status, 200);
+    assert.deepEqual(deletion.body, {
+      message: `${mentor.name} has been deleted`,
+    });
+  });
+
+  it("rejects self-deletion and missing users", async () => {
+    const agent = await login(buildApiApp("admin"));
+
+    const selfDeletion = await agent.delete(`/api/admin/users/${baseUser.id}`);
+    assert.equal(selfDeletion.status, 400);
+    assert.deepEqual(selfDeletion.body, {
+      message: "You cannot delete your own account",
+    });
+
+    const missingUser = await agent.delete("/api/admin/users/999");
+    assert.equal(missingUser.status, 404);
+    assert.deepEqual(missingUser.body, { message: "User not found" });
+
+    const invalidUser = await agent.delete("/api/admin/users/not-a-user-id");
+    assert.equal(invalidUser.status, 400);
+  });
+
   it("blocks non-admin members from admin routes", async () => {
     const agent = await login(buildApiApp());
     const response = await agent.get("/api/admin/pending-users");
 
     assert.equal(response.status, 403);
     assert.deepEqual(response.body, { message: "Forbidden" });
+
+    const deletion = await agent.delete(`/api/admin/users/${mentor.id}`);
+    assert.equal(deletion.status, 403);
+    assert.deepEqual(deletion.body, { message: "Forbidden" });
   });
 });

@@ -56,6 +56,28 @@ export async function approveUser(userId: string) {
   return rows[0] as { id: string } | undefined;
 }
 
+export async function deleteUser(userId: string) {
+  const rows = await sql`
+    WITH target_user AS (
+      SELECT id
+      FROM users
+      WHERE id = ${userId}
+        AND role = 'user'
+    ),
+    deleted_sessions AS (
+      DELETE FROM session
+      WHERE sess ->> 'userId' = (
+        SELECT id::text FROM target_user
+      )
+    )
+    DELETE FROM users
+    WHERE id IN (SELECT id FROM target_user)
+    RETURNING name
+  `;
+
+  return rows[0] as { name: string } | undefined;
+}
+
 export async function getMentorCount(): Promise<CountRow> {
   const rows = await sql`
     SELECT COUNT(*) 

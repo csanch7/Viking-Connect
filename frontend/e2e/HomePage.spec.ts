@@ -25,11 +25,15 @@ test('shows the public home page and opens registration', async ({ page }) => {
 test('shows member navigation for an authenticated visitor', async ({
   page,
 }) => {
-  await mockSession(page, { authenticated: true, admin: false })
+  await mockSession(page, {
+    authenticated: true,
+    admin: false,
+    mentee: false,
+  })
   await page.goto('/')
 
   await expect(
-    page.getByRole('link', { name: 'Dashboard', exact: true }),
+    page.getByRole('link', { name: 'Mentors', exact: true }),
   ).toBeVisible()
   await expect(
     page.getByRole('link', { name: 'Profile', exact: true }),

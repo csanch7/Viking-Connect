@@ -99,7 +99,7 @@ function LoginPage() {
         <div className="login-heading">
           <p className="login-kicker">Welcome back</p>
           <h1 id="login-title">Sign in to your account</h1>
-          <p>Access your profile, mentorship dashboard, and program updates.</p>
+          <p>Access your profile, mentorship directory, and program updates.</p>
         </div>
 
         <form className="login-form" onSubmit={(e) => handleSignIn(e)}>

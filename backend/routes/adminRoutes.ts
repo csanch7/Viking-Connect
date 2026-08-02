@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   approveUser,
+  deleteUser,
   denyUser,
   getMenteeCount,
   getMentorCount,
@@ -15,6 +16,7 @@ import {
 
 export interface AdminRouterDependencies {
   approveUser: typeof approveUser;
+  deleteUser: typeof deleteUser;
   denyUser: typeof denyUser;
   getMenteeCount: typeof getMenteeCount;
   getMentorCount: typeof getMentorCount;
@@ -23,6 +25,7 @@ export interface AdminRouterDependencies {
 
 const defaultDependencies: AdminRouterDependencies = {
   approveUser,
+  deleteUser,
   denyUser,
   getMenteeCount,
   getMentorCount,
@@ -35,6 +38,7 @@ export function createAdminRouter(
   const router = Router();
   const {
     approveUser,
+    deleteUser,
     denyUser,
     getMenteeCount,
     getMentorCount,
@@ -112,6 +116,34 @@ export function createAdminRouter(
       }
 
       res.json({ message: `${userId} has been approved` });
+    }),
+  );
+
+  router.delete(
+    "/users/:userId",
+    requireAdmin,
+    asyncHandler(async (req, res) => {
+      const userId = normalizeIdParam(req.params.userId);
+      const validationError = getIdParamValidationError(userId);
+
+      if (validationError) {
+        res.status(400).json({ message: validationError });
+        return;
+      }
+
+      if (userId === req.session.userId) {
+        res.status(400).json({ message: "You cannot delete your own account" });
+        return;
+      }
+
+      const deletedUser = await deleteUser(userId);
+
+      if (!deletedUser) {
+        res.status(404).json({ message: "User not found" });
+        return;
+      }
+
+      res.json({ message: `${deletedUser.name} has been deleted` });
     }),
   );
 

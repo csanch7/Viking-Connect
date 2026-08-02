@@ -10,7 +10,7 @@ import VerificationPage from './pages/VerificationPage'
 import ProfilePage from './pages/ProfilePage'
 import AdminPage from './pages/AdminPage'
 import PendingUsersPage from './pages/PendingUsersPage'
-import DashboardPage from './pages/DashboardPage'
+import DirectoryPage from './pages/DirectoryPage'
 import MentorPage from './pages/MentorPage'
 import LoginPage from './pages/LoginPage'
 import HomePage from './pages/HomePage'
@@ -20,22 +20,36 @@ import ResetPasswordPage from './pages/ResetPasswordPage'
 import PageNotFound from './pages/PageNotFound'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import { useAuth } from './auth/useAuth'
+import MentorListPage from './pages/MentorListPage'
+import MenteeDirectoryPage from './pages/MenteeDirectoryPage'
+import MenteeListPage from './pages/MenteeListPage'
+import MenteePage from './pages/MenteePage'
 
 function App() {
-  const { authenticated, admin } = useAuth()
+  const { authenticated, admin, mentee } = useAuth()
   const location = useLocation()
   const showAppNav =
     location.pathname === '/' ||
     (authenticated &&
-      (location.pathname === '/dashboard' ||
+      (location.pathname === '/directory' ||
         location.pathname === '/profile' ||
         location.pathname === '/admin' ||
         location.pathname === '/admin/pending-users' ||
-        location.pathname.startsWith('/mentor/')))
+        location.pathname === '/admin/mentors' ||
+        location.pathname === '/admin/mentees' ||
+        location.pathname === '/mentees/directory' ||
+        location.pathname.startsWith('/mentor/') ||
+        location.pathname.startsWith('/mentee/')))
 
   return (
     <>
-      {showAppNav && <AppNav isAuthenticated={authenticated} isAdmin={admin} />}
+      {showAppNav && (
+        <AppNav
+          isAuthenticated={authenticated}
+          isAdmin={admin}
+          isMentee={mentee}
+        />
+      )}
       <Routes>
         <Route path="*" element={<PageNotFound />} />
         <Route
@@ -63,6 +77,15 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        <Route
+          path="/mentees/directory"
+          element={
+            <ProtectedRoute menteeRoute>
+              <MenteeDirectoryPage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/admin/pending-users"
           element={
@@ -72,10 +95,27 @@ function App() {
           }
         />
         <Route
-          path="/dashboard"
+          path="/admin/mentors"
+          element={
+            <ProtectedRoute adminOnly>
+              <MentorListPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/mentees"
+          element={
+            <ProtectedRoute adminOnly>
+              <MenteeListPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/directory"
           element={
             <ProtectedRoute>
-              <DashboardPage />
+              <DirectoryPage />
             </ProtectedRoute>
           }
         />
@@ -84,6 +124,14 @@ function App() {
           element={
             <ProtectedRoute>
               <MentorPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/mentee/:id"
+          element={
+            <ProtectedRoute menteeRoute>
+              <MenteePage />
             </ProtectedRoute>
           }
         />

@@ -10,8 +10,8 @@ import {
 describe("shared API contracts", () => {
   it("parses valid session and mentor responses", () => {
     assert.deepEqual(
-      parseSessionResponse({ authenticated: true, admin: false }),
-      { authenticated: true, admin: false },
+      parseSessionResponse({ authenticated: true, admin: false, mentee: true }),
+      { authenticated: true, admin: false, mentee: true },
     );
     assert.equal(
       parseMentorList([
@@ -20,6 +20,7 @@ describe("shared API contracts", () => {
           name: "Alex Mentor",
           email: "alex@example.com",
           linkedin: "https://www.linkedin.com/in/alex-mentor",
+          type: "mentor",
           areasOfExpertise: ["Finance"],
         },
       ])[0].id,

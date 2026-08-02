@@ -35,7 +35,8 @@ function HomePage({ isAuthenticated = false }: HomePageProps) {
   return (
     <main className="home-page">
       <section className="home-hero" aria-labelledby="home-title">
-        <div className="home-hero-art" aria-hidden="true">
+        {/* <div className="home-hero-art" aria-hidden="true"> */}
+        <div className="disabled" aria-hidden="true">
           <div className="home-signal-card home-signal-card--primary">
             <span>Find mentors</span>
             <strong>Explore alumni in finance</strong>
@@ -57,8 +58,8 @@ function HomePage({ isAuthenticated = false }: HomePageProps) {
           <div className="home-hero-actions">
             {isAuthenticated ? (
               <>
-                <Link className="home-primary-link" to="/dashboard">
-                  Go to dashboard
+                <Link className="home-primary-link" to="/directory">
+                  Go to directory
                 </Link>
                 <Link className="home-secondary-link" to="/profile">
                   View your profile
@@ -80,7 +81,7 @@ function HomePage({ isAuthenticated = false }: HomePageProps) {
 
       <section className="home-proof" aria-label="How the program works">
         <div>
-          <span>Step 1</span>
+          <span className="home-block-header">Step 1</span>
           <Link to="/register">
             <strong>Sign up</strong>
           </Link>
@@ -88,13 +89,13 @@ function HomePage({ isAuthenticated = false }: HomePageProps) {
           <p>Sign up and complete your profile (takes less than 5 minutes)</p>
         </div>
         <div>
-          <span>Step 2</span>
+          <span className="home-block-header">Step 2</span>
           <strong>Get approved</strong>
           <p>Takes less than 24 hours</p>
         </div>
         <div>
-          <span>Step 3</span>
-          <Link to="/dashboard">
+          <span className="home-block-header">Step 3</span>
+          <Link to="/directory">
             <strong>Find a mentor</strong>
           </Link>
           <p>Reach out via email or LinkedIn</p>
@@ -114,17 +115,17 @@ function HomePage({ isAuthenticated = false }: HomePageProps) {
 
         <div className="home-insight-panel" aria-label="Student concerns">
           <div>
-            <span>Most urgent</span>
+            <span className="home-block-header">Most urgent</span>
             <strong>Career anxiety</strong>
             <p>Learn about the pros and cons of different career paths</p>
           </div>
           <div>
-            <span>Most useful</span>
+            <span className="home-block-header">Most useful</span>
             <strong>Insider knowledge</strong>
             <p>Make connections that open doors</p>
           </div>
           <div>
-            <span>Most lasting</span>
+            <span className="home-block-header">Most lasting</span>
             <strong>Identity and belonging</strong>
             <p>Have someone help you navigate different career phases</p>
           </div>
@@ -140,7 +141,7 @@ function HomePage({ isAuthenticated = false }: HomePageProps) {
         <div className="home-outcome-grid">
           {outcomes.map((outcome) => (
             <article className="home-outcome-card" key={outcome.label}>
-              <span>{outcome.label}</span>
+              <span className="home-block-header">{outcome.label}</span>
               <h3>{outcome.title}</h3>
               <p>{outcome.text}</p>
             </article>
@@ -172,8 +173,8 @@ function HomePage({ isAuthenticated = false }: HomePageProps) {
         <div className="home-hero-actions">
           {isAuthenticated ? (
             <>
-              <Link className="home-primary-link" to="/dashboard">
-                Go to dashboard
+              <Link className="home-primary-link" to="/directory">
+                Go to directory
               </Link>
               <Link className="home-secondary-link" to="/profile">
                 Manage profile

@@ -3,7 +3,7 @@ import type { BaseUser } from "./userRepository";
 
 export type MentorDirectoryUser = Pick<
   BaseUser,
-  "id" | "name" | "email" | "linkedin" | "areasOfExpertise"
+  "id" | "name" | "email" | "linkedin" | "type" | "areasOfExpertise"
 >;
 
 export type MentorProfileUser = BaseUser;
@@ -28,6 +28,7 @@ export async function getMentorsByPagination(
             name,
             email,
             linkedin,
+            type,
             COALESCE(
               (SELECT ARRAY_AGG(topics.name ORDER BY topics.name)
                FROM user_topics
@@ -56,6 +57,7 @@ export async function getMentorsByPagination(
             name,
             email,
             linkedin,
+            type,
             COALESCE(
               (SELECT ARRAY_AGG(topics.name ORDER BY topics.name)
                FROM user_topics

@@ -116,6 +116,7 @@ describe("authentication routes", () => {
     assert.deepEqual(sessionResponse.body, {
       authenticated: true,
       admin: false,
+      mentee: true,
     });
 
     const me = await agent.get("/api/auth/me");
@@ -146,6 +147,7 @@ describe("authentication routes", () => {
     assert.deepEqual(sessionResponse.body, {
       authenticated: false,
       admin: false,
+      mentee: false,
     });
   });
 });

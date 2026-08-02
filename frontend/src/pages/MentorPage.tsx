@@ -43,7 +43,7 @@ function MentorPage() {
         <span className="mentor-state-icon">!</span>
         <h1>Mentor not found</h1>
         <p>{error || 'We could not load this mentor profile.'}</p>
-        <Link className="mentor-primary-link" to="/dashboard">
+        <Link className="mentor-primary-link" to="/directory">
           Back to directory
         </Link>
       </main>
@@ -52,7 +52,7 @@ function MentorPage() {
 
   return (
     <main className="member-profile-page">
-      <Link className="member-profile-back-link" to="/dashboard">
+      <Link className="member-profile-back-link" to="/directory">
         <span aria-hidden="true">←</span>
         Back to mentor directory
       </Link>

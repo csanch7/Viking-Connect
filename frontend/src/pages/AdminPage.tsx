@@ -63,11 +63,27 @@ function AdminPage() {
             <dt>Mentors</dt>
             <dd className="admin-stat-value">{mentorCount ?? '...'}</dd>
             <dd className="admin-stat-note">Approved alumni mentors</dd>
+            <dd className="admin-stat-action">
+              <Link className="admin-stat-link" to="/admin/mentors">
+                <span>Manage mentors</span>
+                <svg aria-hidden="true" viewBox="0 0 20 20" fill="none">
+                  <path d="M4 10h11M11 6l4 4-4 4" />
+                </svg>
+              </Link>
+            </dd>
           </div>
           <div className="admin-stat-card">
             <dt>Mentees</dt>
             <dd className="admin-stat-value">{menteeCount ?? '...'}</dd>
             <dd className="admin-stat-note">Students seeking support</dd>
+            <dd className="admin-stat-action">
+              <Link className="admin-stat-link" to="/admin/mentees">
+                <span>Manage mentees</span>
+                <svg aria-hidden="true" viewBox="0 0 20 20" fill="none">
+                  <path d="M4 10h11M11 6l4 4-4 4" />
+                </svg>
+              </Link>
+            </dd>
           </div>
         </dl>
       </section>
