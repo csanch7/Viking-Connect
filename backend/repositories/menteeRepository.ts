@@ -11,7 +11,6 @@ export type MenteeProfileUser = BaseUser;
 export async function getMenteesByPagination(
   paginator: number,
   filter: string[] = [],
-  userId: string,
   searchText?: string,
 ): Promise<MenteeDirectoryUser[]> {
   const batchSize = 10;
@@ -39,7 +38,6 @@ export async function getMenteesByPagination(
           FROM users
           WHERE type = 'mentee'
             AND status = 'approved'
-            AND id::text != ${userId}
             AND EXISTS (
               SELECT 1
               FROM user_topics
@@ -68,7 +66,6 @@ export async function getMenteesByPagination(
           FROM users
           WHERE type = 'mentee'
             AND status = 'approved'
-            AND id::text != ${userId}
             AND (${trimmedSearchText === ""} OR name ILIKE ${searchPattern})
           ORDER BY name ASC, id ASC
           LIMIT ${fetchSize} OFFSET ${page * batchSize}

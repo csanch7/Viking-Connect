@@ -61,7 +61,6 @@ export function createMentorRouter(
       const users = await getMentorsByPagination(
         page,
         filter,
-        req.session.userId as string,
         searchText,
       );
 

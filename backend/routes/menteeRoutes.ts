@@ -67,7 +67,6 @@ export function createMenteeRouter(
       const users = await getMenteesByPagination(
         page,
         filter,
-        req.session.userId as string,
         searchText,
       );
 
