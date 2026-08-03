@@ -8,6 +8,10 @@ import { env } from "./config/env";
 import { errorHandler } from "./middleware/errorHandler";
 import { createApiRouter, type ApiRouterOptions } from "./routes/apiRoutes";
 import { requestContext } from "./middleware/requestContext";
+import {
+  getApiRateLimitKey,
+  getAuthRateLimitKey,
+} from "./middleware/rateLimitKey";
 
 const PgSession = pgSession(session);
 
@@ -73,6 +77,7 @@ export function createApp(options: AppOptions = {}) {
   const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     limit: 100,
+    keyGenerator: getApiRateLimitKey,
     standardHeaders: "draft-8",
     legacyHeaders: false,
     message: { message: "Too many requests; please try again later" },
@@ -81,6 +86,7 @@ export function createApp(options: AppOptions = {}) {
   const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     limit: 5,
+    keyGenerator: getAuthRateLimitKey,
     skipSuccessfulRequests: true,
     standardHeaders: "draft-8",
     legacyHeaders: false,

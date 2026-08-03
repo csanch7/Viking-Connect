@@ -126,6 +126,30 @@ describe("authentication routes", () => {
     assert.equal("passwordHash" in me.body.user, false);
   });
 
+  it("does not share failed-login limits between emails on one IP", async () => {
+    const app = buildTestApp();
+
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      const response = await request(app).post("/api/auth/login").send({
+        email: "first@example.com",
+        password: "WrongPass123!",
+      });
+      assert.equal(response.status, 401);
+    }
+
+    const limited = await request(app).post("/api/auth/login").send({
+      email: "first@example.com",
+      password: "WrongPass123!",
+    });
+    assert.equal(limited.status, 429);
+
+    const otherStudent = await request(app).post("/api/auth/login").send({
+      email: "second@example.com",
+      password: "StrongPass123!",
+    });
+    assert.equal(otherStudent.status, 200);
+  });
+
   it("protects member routes without an authenticated session", async () => {
     const response = await request(buildTestApp()).get("/api/auth/me");
 
