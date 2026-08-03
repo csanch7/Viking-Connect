@@ -7,6 +7,7 @@ const mentee = {
   email: 'jordan@example.com',
   linkedin: 'https://www.linkedin.com/in/jordan-mentee',
   type: 'mentee',
+  college: null,
   bio: 'I am exploring careers in finance and technology.',
   areasOfExpertise: ['Career Planning'],
   gradYear: 2027,

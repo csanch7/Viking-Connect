@@ -16,6 +16,7 @@ export function createTopicRouter(
   router.get(
     "/topics",
     asyncHandler(async (_req, res) => {
+      res.set("Cache-Control", "public, max-age=300");
       res.json({ topics: await dependencies.getTopics() });
     }),
   );

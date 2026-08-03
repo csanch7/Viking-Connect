@@ -20,6 +20,7 @@ const baseUser = {
   email: "jane@example.com",
   linkedin: "https://www.linkedin.com/in/jane-student",
   type: "mentee" as const,
+  college: null,
   bio: "I am preparing for internships and early-career interviews.",
   areasOfExpertise: [],
   gradYear: 2027,
@@ -66,6 +67,12 @@ function buildApiApp(
       topicDependencies: {
         getTopics: async () => ["Career Planning", "Finance", "Technology"],
       },
+      collegeDependencies: {
+        getColleges: async () => [
+          "DePaul University",
+          "University of Illinois Chicago",
+        ],
+      },
       authDependencies: {
         findUserByEmail: async () => ({
           ...authenticatedUser,
@@ -76,12 +83,17 @@ function buildApiApp(
       },
       registrationDependencies: {
         getTopics: async () => ["Career Planning", "Finance", "Technology"],
+        getColleges: async () => [
+          "DePaul University",
+          "University of Illinois Chicago",
+        ],
         createUser: async (input) => ({
           id: "88",
           name: input.name,
           email: input.email,
           linkedin: input.linkedin,
           type: input.type,
+          college: input.college,
           bio: input.bio,
           areasOfExpertise: input.areasOfExpertise,
           gradYear: input.gradYear,
@@ -95,7 +107,13 @@ function buildApiApp(
       },
       profileDependencies: {
         getTopics: async () => ["Career Planning", "Finance", "Technology"],
+        getColleges: async () => [
+          "DePaul University",
+          "University of Illinois Chicago",
+        ],
         updateBio: async (bio) => ({ bio }),
+        updateCollege: async (college) => ({ college }),
+        updateProfile: async (profile) => profile,
         updateAreasOfExpertise: async (areasOfExpertise) => ({
           areasOfExpertise,
         }),
@@ -135,6 +153,7 @@ function buildApiApp(
             email: "pat@example.com",
             linkedin: "https://www.linkedin.com/in/pat-mentor",
             type: "mentor",
+            college: "DePaul University",
             bio: "I mentor students interested in technology careers.",
             areasOfExpertise: ["Technology"],
             gradYear: 2008,
@@ -181,6 +200,16 @@ describe("API routes", () => {
     assert.deepEqual(response.body, {
       topics: ["Career Planning", "Finance", "Technology"],
     });
+  });
+
+  it("serves colleges for registration and profile forms", async () => {
+    const response = await request(buildApiApp()).get("/api/colleges");
+
+    assert.equal(response.status, 200);
+    assert.deepEqual(response.body, {
+      colleges: ["DePaul University", "University of Illinois Chicago"],
+    });
+    assert.equal(response.headers["cache-control"], "public, max-age=300");
   });
 
   it("validates and sends contact form submissions", async () => {
@@ -257,6 +286,7 @@ describe("API routes", () => {
         email: "alex@example.com",
         linkedin: "https://www.linkedin.com/in/alex-mentor",
         type: "mentor",
+        college: "DePaul University",
         bio: "I help students prepare for careers in finance.",
         areasOfExpertise: ["Finance"],
         gradYear: 2012,
@@ -265,6 +295,7 @@ describe("API routes", () => {
     assert.equal(response.status, 201);
     assert.equal(response.body.message, "User created");
     assert.equal(response.body.user.status, "pending");
+    assert.equal(response.body.user.college, "DePaul University");
     assert.equal("passwordHash" in response.body.user, false);
   });
 
@@ -284,6 +315,42 @@ describe("API routes", () => {
       bio: "Attempted change",
     });
     assert.equal(forbidden.status, 403);
+
+    const collegeUpdate = await agent.patch("/api/change-college/7").send({
+      college: "University of Illinois Chicago",
+    });
+    assert.equal(collegeUpdate.status, 200);
+    assert.equal(collegeUpdate.body.college, "University of Illinois Chicago");
+
+    const invalidCollege = await agent.patch("/api/change-college/7").send({
+      college: "Not a listed college",
+    });
+    assert.equal(invalidCollege.status, 400);
+
+    const malformedCollege = await agent.patch("/api/change-college/7").send({
+      college: 42,
+    });
+    assert.equal(malformedCollege.status, 400);
+
+    const profileUpdate = await agent.patch("/api/profile/7").send({
+      bio: "I am looking for career planning and interview preparation.",
+      college: "University of Illinois Chicago",
+      areasOfExpertise: ["Career Planning", "Finance"],
+    });
+    assert.equal(profileUpdate.status, 200);
+    assert.deepEqual(profileUpdate.body, {
+      message: "Profile has been successfully updated",
+      bio: "I am looking for career planning and interview preparation.",
+      college: "University of Illinois Chicago",
+      areasOfExpertise: ["Career Planning", "Finance"],
+    });
+
+    const forbiddenProfileUpdate = await agent.patch("/api/profile/8").send({
+      bio: "Attempted change",
+      college: null,
+      areasOfExpertise: ["Finance"],
+    });
+    assert.equal(forbiddenProfileUpdate.status, 403);
   });
 
   it("returns mentor search results and individual profiles", async () => {

@@ -13,6 +13,7 @@ test('shows a mentor profile returned by the API', async ({ page }) => {
       email: 'alex@example.com',
       linkedin: 'https://www.linkedin.com/in/alex-mentor',
       type: 'mentor',
+      college: 'DePaul University',
       bio: 'I help students prepare for careers in finance.',
       areasOfExpertise: ['Finance', 'Career Planning'],
       gradYear: 2012,

@@ -1,9 +1,15 @@
 import { expect, test } from '@playwright/test'
-import { fulfillJson, mockSession, mockTopics } from './support/mockApi'
+import {
+  fulfillJson,
+  mockColleges,
+  mockSession,
+  mockTopics,
+} from './support/mockApi'
 
 test.beforeEach(async ({ page }) => {
   await mockSession(page)
   await mockTopics(page)
+  await mockColleges(page)
   await page.goto('/register')
 })
 
@@ -81,6 +87,7 @@ test('validates and submits a complete mentee registration', async ({
     .getByLabel('LinkedIn URL')
     .fill('https://www.linkedin.com/in/jane-student')
   await page.getByLabel('Graduation year').fill('2027')
+  await page.getByLabel('College').selectOption('DePaul University')
   await page
     .getByLabel('Bio')
     .fill('I am interested in interview preparation and career planning.')
@@ -96,6 +103,7 @@ test('validates and submits a complete mentee registration', async ({
     name: 'Jane Student',
     email: 'jane@example.com',
     type: 'mentee',
+    college: 'DePaul University',
     bio: 'I am interested in interview preparation and career planning.',
     areasOfExpertise: ['Career Planning'],
     gradYear: 2027,

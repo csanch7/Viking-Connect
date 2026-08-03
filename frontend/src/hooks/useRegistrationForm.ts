@@ -45,6 +45,7 @@ export function useRegistrationForm() {
   const [selectedAreasOfExpertise, setSelectedAreasOfExpertise] = useState<
     string[]
   >([])
+  const [college, setCollege] = useState('')
   const [expertise, setExpertise] = useState('')
   const [gradYear, setGradYear] = useState(0)
   const navigate = useNavigate()
@@ -111,6 +112,7 @@ export function useRegistrationForm() {
       linkedin: trimmedLinkedin,
       type,
       bio,
+      college: college || null,
       areasOfExpertise: selectedAreasOfExpertise,
       gradYear,
     }
@@ -178,5 +180,7 @@ export function useRegistrationForm() {
     removeExpertise,
     addExpertise,
     navigate,
+    college,
+    setCollege,
   }
 }

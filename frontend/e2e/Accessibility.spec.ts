@@ -3,6 +3,7 @@ import AxeBuilder from '@axe-core/playwright'
 import {
   fulfillJson,
   mockAuthenticatedSession,
+  mockColleges,
   mockSession,
   mockTopics,
 } from './support/mockApi'
@@ -21,6 +22,7 @@ for (const publicPage of publicPages) {
   }) => {
     await mockSession(page)
     await mockTopics(page)
+    await mockColleges(page)
     await page.goto(publicPage.path)
     await expect(
       page.getByRole('heading', { name: publicPage.heading }),
@@ -45,6 +47,7 @@ test('authenticated application pages have no accessibility violations', async (
     email: 'alex@example.com',
     linkedin: 'https://www.linkedin.com/in/alex-mentor',
     type: 'mentor',
+    college: 'DePaul University',
     bio: 'I help students prepare for careers in finance.',
     areasOfExpertise: ['Finance'],
     gradYear: 2012,

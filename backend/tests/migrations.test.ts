@@ -26,6 +26,7 @@ describe("database migrations", () => {
       "005_normalize_user_topics.sql",
       "006_allow_duplicate_display_names.sql",
       "007_password_reset_tokens.sql",
+      "008_add_college_relationship.sql",
     ]);
   });
 
@@ -44,6 +45,21 @@ describe("database migrations", () => {
     );
     assert.match(sql, /CREATE TABLE password_reset_tokens/);
     assert.match(sql, /expires_at TIMESTAMPTZ NOT NULL/);
+  });
+
+  it("adds a normalized college table and an indexed user relationship", async () => {
+    const sql = await fs.readFile(
+      path.join(migrationsDirectory, "008_add_college_relationship.sql"),
+      "utf8",
+    );
+
+    assert.match(sql, /CREATE TABLE colleges/);
+    assert.match(sql, /INSERT INTO colleges \(name\)/);
+    assert.match(sql, /University of Illinois Chicago/);
+    assert.match(sql, /ON CONFLICT \(name\) DO NOTHING/);
+    assert.match(sql, /ADD COLUMN college_id BIGINT/);
+    assert.match(sql, /FOREIGN KEY \(college_id\) REFERENCES colleges \(id\)/);
+    assert.match(sql, /CREATE INDEX users_college_id_idx/);
   });
 
   it("keeps required user constraints in versioned SQL", async () => {

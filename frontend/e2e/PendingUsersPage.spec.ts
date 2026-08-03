@@ -7,6 +7,7 @@ const pendingUser = {
   email: 'pat@example.com',
   linkedin: 'https://www.linkedin.com/in/pat-mentor',
   type: 'mentor',
+  college: 'DePaul University',
   bio: 'I mentor students interested in technology careers.',
   areasOfExpertise: ['Technology', 'Leadership'],
   gradYear: 2008,

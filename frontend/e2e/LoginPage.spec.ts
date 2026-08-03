@@ -41,6 +41,7 @@ test('redirects an already authenticated visitor to their profile', async ({
         name: 'Jane Student',
         email: 'jane@example.com',
         type: 'mentee',
+        college: null,
         linkedin: 'https://www.linkedin.com/in/jane-student',
         bio: 'I am preparing for internships and early-career interviews.',
         areasOfExpertise: [],

@@ -8,6 +8,7 @@ export interface PublicUser {
   email: string;
   linkedin: string;
   type: UserType;
+  college: string | null;
   bio: string;
   areasOfExpertise: string[];
   gradYear: number;
@@ -31,6 +32,7 @@ export interface RegistrationRequest {
   linkedin: string;
   type: string;
   bio: string;
+  college: string | null;
   areasOfExpertise: string[];
   gradYear: number;
 }
@@ -62,6 +64,12 @@ function contractError(name: string): never {
 function readString(record: Record<string, unknown>, key: string) {
   const value = record[key];
   return typeof value === "string" ? value : contractError(key);
+}
+
+function readCollege(value: unknown): string | null {
+  return typeof value === "string" || value === null
+    ? value
+    : contractError("college");
 }
 
 function readStringArray(record: Record<string, unknown>, key: string) {
@@ -127,6 +135,14 @@ export function parseTopicsEnvelope(value: unknown) {
   return { topics: readStringArray(value, "topics") };
 }
 
+export function parseCollegesEnvelope(value: unknown) {
+  if (!isRecord(value)) {
+    return contractError("colleges envelope");
+  }
+
+  return { colleges: readStringArray(value, "colleges") };
+}
+
 export function parsePublicUser(value: unknown): PublicUser {
   if (!isRecord(value)) {
     return contractError("user");
@@ -143,6 +159,7 @@ export function parsePublicUser(value: unknown): PublicUser {
     gradYear: readNumber(value, "gradYear"),
     status: parseUserStatus(value.status),
     role: parseUserRole(value.role),
+    college: readCollege(value.college),
   };
 }
 
@@ -232,6 +249,7 @@ export function parsePendingUsersEnvelope(value: unknown) {
       areasOfExpertise: readStringArray(user, "areasOfExpertise"),
       gradYear: readNumber(user, "gradYear"),
       role: parseUserRole(user.role),
+      college: readCollege(user.college),
     };
   });
 

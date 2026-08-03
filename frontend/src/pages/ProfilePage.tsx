@@ -11,6 +11,7 @@ import MemberProfileCardHeading from '../components/profile/MemberProfileCardHea
 import MemberProfileContact from '../components/profile/MemberProfileContact'
 import MemberProfileHero from '../components/profile/MemberProfileHero'
 import MemberProfileSummary from '../components/profile/MemberProfileSummary'
+import CollegeSelector from '../components/profile/CollegeSelector'
 
 function ProfilePage() {
   const [user, setUser] = useState<PublicUser | null>(null)
@@ -20,22 +21,19 @@ function ProfilePage() {
   const { markSignedOut } = useAuth()
   const editor = useProfileEditor(user, setUser)
   const {
+    editor: editorState,
     saveError,
-    editMode,
-    editBio,
-    setEditBio,
     isSaving,
-    editAreasOfExpertise,
-    editExpertise,
-    setEditExpertise,
+    startEditing,
     cancelEditing,
-    startEditingBio,
-    startEditingAreasOfExpertise,
+    updateBio,
+    updateCollege,
+    updateSelectedExpertise,
     removeExpertise,
     addExpertise,
-    saveAreasOfExpertise,
-    saveBio,
+    saveProfile,
   } = editor
+  const isEditing = editorState.mode === 'profile'
 
   useEffect(() => {
     async function loadUser() {
@@ -63,56 +61,23 @@ function ProfilePage() {
     }
   }
 
-  function renderSubmitButton() {
-    return (
-      <button
-        className="profile-primary-button"
-        type="submit"
-        disabled={isSaving}
-      >
-        {isSaving ? 'Saving...' : 'Save'}
-      </button>
-    )
-  }
-
   function renderBioContent() {
     if (!user) {
       return null
     }
 
-    if (editMode === 'bio') {
+    if (editorState.mode === 'profile') {
       return (
-        <form
-          className="profile-help-form"
-          onSubmit={(event) => {
-            event.preventDefault()
-            void saveBio()
-          }}
-        >
-          {saveError && (
-            <p className="profile-inline-error" role="alert">
-              {saveError}
-            </p>
-          )}
+        <div className="profile-help-form">
           <label htmlFor="editBio">Bio</label>
           <textarea
             id="editBio"
-            value={editBio}
-            onChange={(event) => setEditBio(event.target.value)}
+            value={editorState.bio}
+            onChange={(event) => updateBio(event.target.value)}
             rows={5}
             required
           />
-          <div className="profile-help-actions">
-            <button
-              className="profile-secondary-button"
-              type="button"
-              onClick={cancelEditing}
-            >
-              Cancel
-            </button>
-            {renderSubmitButton()}
-          </div>
-        </form>
+        </div>
       )
     }
 
@@ -130,39 +95,18 @@ function ProfilePage() {
       return null
     }
 
-    if (editMode === 'expertise') {
+    if (editorState.mode === 'profile') {
       return (
-        <form
-          className="profile-help-form"
-          onSubmit={(event) => {
-            event.preventDefault()
-            void saveAreasOfExpertise()
-          }}
-        >
-          {saveError && (
-            <p className="profile-inline-error" role="alert">
-              {saveError}
-            </p>
-          )}
+        <div className="profile-help-form">
           <ExpertiseSelector
             selectId="editExpertise"
-            selectedAreas={editAreasOfExpertise}
-            selectedArea={editExpertise}
-            onSelectedAreaChange={setEditExpertise}
+            selectedAreas={editorState.areasOfExpertise}
+            selectedArea={editorState.selectedArea}
+            onSelectedAreaChange={updateSelectedExpertise}
             onAddArea={addExpertise}
             onRemoveArea={removeExpertise}
           />
-          <div className="profile-help-actions">
-            <button
-              className="profile-secondary-button"
-              type="button"
-              onClick={cancelEditing}
-            >
-              Cancel
-            </button>
-            {renderSubmitButton()}
-          </div>
-        </form>
+        </div>
       )
     }
 
@@ -176,6 +120,22 @@ function ProfilePage() {
         No areas of {user.type === 'mentor' ? 'expertise' : 'interest'} added
         yet.
       </p>
+    )
+  }
+
+  function renderCollegeEditor() {
+    if (editorState.mode !== 'profile') {
+      return undefined
+    }
+
+    return (
+      <div className="profile-help-form">
+        <CollegeSelector
+          selectId="editCollege"
+          value={editorState.college}
+          onChange={updateCollege}
+        />
+      </div>
     )
   }
 
@@ -204,69 +164,88 @@ function ProfilePage() {
       <MemberProfileHero
         user={user}
         action={
-          <button
-            className="member-profile-secondary-action"
-            onClick={handleLogout}
-            disabled={isLoggingOut}
-          >
-            {isLoggingOut ? 'Signing out...' : 'Sign out'}
-          </button>
+          isEditing ? (
+            <>
+              <button
+                className="member-profile-secondary-action"
+                type="button"
+                onClick={cancelEditing}
+                disabled={isSaving}
+              >
+                Cancel
+              </button>
+              <button
+                className="member-profile-primary-action"
+                type="submit"
+                form="profile-edit-form"
+                disabled={isSaving}
+              >
+                {isSaving ? 'Saving...' : 'Save changes'}
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                className="member-profile-primary-action"
+                type="button"
+                onClick={startEditing}
+              >
+                Edit profile
+              </button>
+              <button
+                className="member-profile-secondary-action"
+                type="button"
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+              >
+                {isLoggingOut ? 'Signing out...' : 'Sign out'}
+              </button>
+            </>
+          )
         }
       />
 
-      <div className="member-profile-layout">
-        <div className="member-profile-main-column">
-          <section className="member-profile-card member-profile-card--accent">
-            <MemberProfileCardHeading
-              kicker="Profile"
-              title="About me"
-              action={
-                !editMode ? (
-                  <button
-                    className="member-profile-edit-button"
-                    type="button"
-                    onClick={startEditingBio}
-                    aria-label="Edit bio"
-                  >
-                    Edit
-                  </button>
-                ) : undefined
-              }
-            />
+      <form
+        id="profile-edit-form"
+        className="member-profile-edit-form"
+        onSubmit={(event) => {
+          event.preventDefault()
+          void saveProfile()
+        }}
+      >
+        {saveError && (
+          <p className="profile-inline-error profile-edit-error" role="alert">
+            {saveError}
+          </p>
+        )}
+        <div className="member-profile-layout">
+          <div className="member-profile-main-column">
+            <section className="member-profile-card member-profile-card--accent">
+              <MemberProfileCardHeading kicker="Profile" title="About me" />
 
-            {renderBioContent()}
-          </section>
+              {renderBioContent()}
+            </section>
 
-          <section className="member-profile-card">
-            <MemberProfileCardHeading
-              kicker="Mentorship"
-              title={`Areas of ${
-                user.type === 'mentor' ? 'expertise' : 'interest'
-              }`}
-              action={
-                !editMode ? (
-                  <button
-                    className="member-profile-edit-button"
-                    type="button"
-                    onClick={startEditingAreasOfExpertise}
-                    aria-label={`Edit areas of ${
-                      user.type === 'mentor' ? 'expertise' : 'interest'
-                    }`}
-                  >
-                    Edit
-                  </button>
-                ) : undefined
-              }
-            />
+            <section className="member-profile-card">
+              <MemberProfileCardHeading
+                kicker="Mentorship"
+                title={`Areas of ${
+                  user.type === 'mentor' ? 'expertise' : 'interest'
+                }`}
+              />
 
-            {renderExpertiseContent()}
-          </section>
+              {renderExpertiseContent()}
+            </section>
 
-          <MemberProfileContact user={user} />
+            <MemberProfileContact user={user} />
+          </div>
+
+          <MemberProfileSummary
+            user={user}
+            collegeEditor={renderCollegeEditor()}
+          />
         </div>
-
-        <MemberProfileSummary user={user} />
-      </div>
+      </form>
     </main>
   )
 }

@@ -1,11 +1,16 @@
 import type { PublicUser } from '../../../../shared/contracts'
+import type { ReactNode } from 'react'
 import MemberProfileCardHeading from './MemberProfileCardHeading'
 
 interface MemberProfileSummaryProps {
-  user: Pick<PublicUser, 'gradYear' | 'id' | 'type'>
+  user: Pick<PublicUser, 'gradYear' | 'id' | 'type' | 'college'>
+  collegeEditor?: ReactNode
 }
 
-function MemberProfileSummary({ user }: MemberProfileSummaryProps) {
+function MemberProfileSummary({
+  user,
+  collegeEditor,
+}: MemberProfileSummaryProps) {
   const memberType = user.type === 'mentor' ? 'Mentor' : 'Mentee'
 
   return (
@@ -19,13 +24,20 @@ function MemberProfileSummary({ user }: MemberProfileSummaryProps) {
           </div>
           <div>
             <dt>Graduation year</dt>
-            <dd>{user.gradYear || 'Not listed'}</dd>
+            <dd>{user.gradYear}</dd>
           </div>
           <div>
             <dt>Member</dt>
             <dd>#{user.id}</dd>
           </div>
+          {!collegeEditor && (
+            <div>
+              <dt>College</dt>
+              <dd>{user.college || 'Not listed'}</dd>
+            </div>
+          )}
         </dl>
+        {collegeEditor}
       </section>
     </aside>
   )

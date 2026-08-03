@@ -51,10 +51,13 @@ export function normalizeRegistrationUser(input: User): RegistrationEmailUser {
 
   return {
     name: typeof input.name === "string" ? input.name.trim() : "",
-    email: typeof input.email === "string" ? input.email.trim().toLowerCase() : "",
+    email:
+      typeof input.email === "string" ? input.email.trim().toLowerCase() : "",
     linkedin: typeof input.linkedin === "string" ? input.linkedin.trim() : "",
     type,
     bio: typeof input.bio === "string" ? input.bio.trim() : "",
+    college:
+      typeof input.college === "string" ? input.college.trim() || null : null,
     areasOfExpertise,
     gradYear: Number(input.gradYear),
   };

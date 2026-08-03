@@ -1,9 +1,5 @@
 import { sql } from "../database";
-import type {
-  PublicUser,
-  UserRole,
-  UserType,
-} from "../../shared/contracts";
+import type { PublicUser, UserRole, UserType } from "../../shared/contracts";
 
 export type BaseUser = PublicUser;
 
@@ -18,6 +14,7 @@ export async function createUser(input: {
   email: string;
   linkedin: string;
   type: UserType;
+  college: string | null;
   bio: string;
   areasOfExpertise: string[];
   gradYear: number;
@@ -27,13 +24,15 @@ export async function createUser(input: {
   const rows = await sql`
     WITH created_user AS (
       INSERT INTO users (
-        name, email, linkedin, type, bio, grad_year, role, password_hash
+        name, email, linkedin, type, college_id, bio, grad_year, role,
+        password_hash
       )
       VALUES (
         ${input.name},
         ${input.email.toLowerCase()},
         ${input.linkedin},
         ${input.type},
+        (SELECT id FROM colleges WHERE name = ${input.college}),
         ${input.bio},
         ${input.gradYear},
         ${input.role},
@@ -60,6 +59,7 @@ export async function createUser(input: {
       created_user.email,
       created_user.linkedin,
       created_user.type,
+      (SELECT name FROM colleges WHERE id = created_user.college_id) AS college,
       created_user.bio,
       COALESCE(
         (SELECT ARRAY_AGG(selected_topics.name ORDER BY selected_topics.name)
@@ -81,12 +81,13 @@ export async function findUserByEmail(
 ): Promise<DatabaseUserWithPassword | undefined> {
   const rows = await sql`
     SELECT
-      id::text,
-      name,
-      email,
-      linkedin,
-      type,
-      bio,
+      users.id::text,
+      users.name,
+      users.email,
+      users.linkedin,
+      users.type,
+      colleges.name AS "college",
+      users.bio,
       COALESCE(
         (SELECT ARRAY_AGG(topics.name ORDER BY topics.name)
          FROM user_topics
@@ -94,11 +95,12 @@ export async function findUserByEmail(
          WHERE user_topics.user_id = users.id),
         ARRAY[]::text[]
       ) AS "areasOfExpertise",
-      grad_year AS "gradYear",
-      role,
-      password_hash AS "passwordHash",
-      status
+      users.grad_year AS "gradYear",
+      users.role,
+      users.password_hash AS "passwordHash",
+      users.status
     FROM users
+    LEFT JOIN colleges ON colleges.id = users.college_id
     WHERE LOWER(email) = LOWER(${email})
     LIMIT 1
   `;
@@ -111,12 +113,13 @@ export async function findUserById(
 ): Promise<DatabaseUser | undefined> {
   const rows = await sql`
     SELECT
-      id::text,
-      name,
-      email,
-      linkedin,
-      type,
-      bio,
+      users.id::text,
+      users.name,
+      users.email,
+      users.linkedin,
+      users.type,
+      colleges.name AS "college",
+      users.bio,
       COALESCE(
         (SELECT ARRAY_AGG(topics.name ORDER BY topics.name)
          FROM user_topics
@@ -124,11 +127,12 @@ export async function findUserById(
          WHERE user_topics.user_id = users.id),
         ARRAY[]::text[]
       ) AS "areasOfExpertise",
-      grad_year AS "gradYear",
-      role,
-      status
+      users.grad_year AS "gradYear",
+      users.role,
+      users.status
     FROM users
-    WHERE id = ${userId}
+    LEFT JOIN colleges ON colleges.id = users.college_id
+    WHERE users.id = ${userId}
     LIMIT 1
   `;
 
@@ -186,6 +190,68 @@ export async function updateAreasOfExpertise(
   `;
 
   return rows[0] as { areasOfExpertise: string[] } | undefined;
+}
+
+export async function updateProfile(
+  input: {
+    bio: string;
+    college: string | null;
+    areasOfExpertise: string[];
+  },
+  userId: string,
+) {
+  const rows = await sql`
+    WITH selected_college AS (
+      SELECT id
+      FROM colleges
+      WHERE name = ${input.college}
+    ),
+    updated_user AS (
+      UPDATE users
+      SET
+        bio = ${input.bio},
+        college_id = (SELECT id FROM selected_college)
+      WHERE id = ${userId}
+      RETURNING id, bio, college_id
+    ),
+    selected_topics AS (
+      SELECT id, name
+      FROM topics
+      WHERE name = ANY(${input.areasOfExpertise})
+    ),
+    added_links AS (
+      INSERT INTO user_topics (user_id, topic_id)
+      SELECT updated_user.id, selected_topics.id
+      FROM updated_user
+      CROSS JOIN selected_topics
+      ON CONFLICT (user_id, topic_id) DO NOTHING
+      RETURNING topic_id
+    ),
+    removed_links AS (
+      DELETE FROM user_topics
+      WHERE user_id IN (SELECT id FROM updated_user)
+        AND topic_id NOT IN (SELECT id FROM selected_topics)
+      RETURNING topic_id
+    )
+    SELECT
+      updated_user.bio,
+      colleges.name AS college,
+      COALESCE(
+        (SELECT ARRAY_AGG(selected_topics.name ORDER BY selected_topics.name)
+         FROM selected_topics),
+        ARRAY[]::text[]
+      ) AS "areasOfExpertise"
+    FROM updated_user
+    LEFT JOIN colleges ON colleges.id = updated_user.college_id
+  `;
+
+  return rows[0] as
+    | {
+        bio: string;
+        college: string | null;
+        areasOfExpertise: string[];
+      }
+    | undefined;
 }
 
 export function isUniqueViolation(error: unknown) {

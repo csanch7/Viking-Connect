@@ -16,6 +16,7 @@ function makeUser(overrides: Partial<User> = {}): User {
     email: "jane@example.com",
     linkedin: "https://www.linkedin.com/in/jane-mentor",
     type: "mentor",
+    college: null,
     bio: "I help students prepare for careers in technology.",
     areasOfExpertise: ["Software Engineering"],
     gradYear: 2020,
@@ -60,6 +61,7 @@ describe("registration validation", () => {
     assert.equal(normalized.name, "Jane Mentor");
     assert.equal(normalized.email, "jane@example.com");
     assert.equal(normalized.type, "mentor");
+    assert.equal(normalized.college, null);
     assert.deepEqual(normalized.areasOfExpertise, ["Software Engineering"]);
   });
 
@@ -105,9 +107,7 @@ describe("registration validation", () => {
       "Choose at least one area of expertise",
     );
     assert.equal(
-      validate(
-        makeUser({ type: "mentee", areasOfExpertise: [], bio: "" }),
-      ),
+      validate(makeUser({ type: "mentee", areasOfExpertise: [], bio: "" })),
       "Tell us about yourself",
     );
     assert.equal(

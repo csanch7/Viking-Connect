@@ -18,6 +18,8 @@ import type { ContactRouterDependencies } from "./contactRoutes";
 import { checkDatabase } from "../database";
 import { createMenteeRouter } from "./menteeRoutes";
 import type { MenteeRouterDependencies } from "./menteeRoutes";
+import { createCollegeRouter } from "./collegeRoutes";
+import type { CollegeRouterDependencies } from "./collegeRoutes";
 
 export interface ApiRouterOptions {
   adminDependencies?: AdminRouterDependencies;
@@ -27,6 +29,7 @@ export interface ApiRouterOptions {
   profileDependencies?: ProfileRouterDependencies;
   registrationDependencies?: RegistrationRouterDependencies;
   topicDependencies?: TopicRouterDependencies;
+  collegeDependencies?: CollegeRouterDependencies;
   contactDependencies?: ContactRouterDependencies;
   readinessCheck?: () => Promise<void>;
   passwordResetDependencies?: PasswordResetRouterDependencies;
@@ -73,6 +76,7 @@ export function createApiRouter(
   router.use(createMentorRouter(options.mentorDependencies));
   router.use(createProfileRouter(options.profileDependencies));
   router.use(createMenteeRouter(options.menteeDependencies));
+  router.use(createCollegeRouter(options.collegeDependencies));
 
   return router;
 }

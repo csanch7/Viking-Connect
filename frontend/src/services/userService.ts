@@ -21,6 +21,19 @@ function readStringField(value: unknown, field: string) {
   return fieldValue
 }
 
+function readNullableStringField(value: unknown, field: string) {
+  if (typeof value !== 'object' || value === null || !(field in value)) {
+    throw new Error(`Invalid API response: ${field}`)
+  }
+
+  const fieldValue = (value as Record<string, unknown>)[field]
+  if (typeof fieldValue !== 'string' && fieldValue !== null) {
+    throw new Error(`Invalid API response: ${field}`)
+  }
+
+  return fieldValue
+}
+
 function readStringArrayField(value: unknown, field: string) {
   if (typeof value !== 'object' || value === null || !(field in value)) {
     throw new Error(`Invalid API response: ${field}`)
@@ -99,23 +112,21 @@ const userService = {
     const response = await axios.get(endpoint)
     return parsePublicUser(response.data)
   },
-  async updateBio(bio: string, id: string) {
-    const endpoint: string = `${backend}/change-bio/${id}`
-    const response = await axios.patch(endpoint, {
-      bio,
-    })
+  async updateProfile(
+    profile: {
+      bio: string
+      college: string | null
+      areasOfExpertise: string[]
+    },
+    id: string,
+  ) {
+    const endpoint = `${backend}/profile/${id}`
+    const response = await axios.patch(endpoint, profile)
+
     return {
       message: readStringField(response.data, 'message'),
       bio: readStringField(response.data, 'bio'),
-    }
-  },
-  async updateAreasOfExpertise(areasOfExpertise: string[], id: string) {
-    const endpoint: string = `${backend}/change-areas-of-expertise/${id}`
-    const response = await axios.patch(endpoint, {
-      areasOfExpertise,
-    })
-    return {
-      message: readStringField(response.data, 'message'),
+      college: readNullableStringField(response.data, 'college'),
       areasOfExpertise: readStringArrayField(response.data, 'areasOfExpertise'),
     }
   },

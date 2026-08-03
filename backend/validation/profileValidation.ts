@@ -6,6 +6,14 @@ export function normalizeBio(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
 }
 
+export function normalizeCollege(value: unknown) {
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  return value.trim() || null;
+}
+
 export function getBioValidationError(bio: string) {
   if (!bio) {
     return "Bio is required";

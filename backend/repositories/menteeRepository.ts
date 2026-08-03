@@ -82,12 +82,13 @@ export async function findMenteeById(
 ): Promise<MenteeProfileUser | undefined> {
   const rows = await sql`
     SELECT
-      id::text,
-      name,
-      email,
-      linkedin,
-      type,
-      bio,
+      users.id::text,
+      users.name,
+      users.email,
+      users.linkedin,
+      users.type,
+      colleges.name AS "college",
+      users.bio,
       COALESCE(
         (SELECT ARRAY_AGG(topics.name ORDER BY topics.name)
          FROM user_topics
@@ -95,13 +96,14 @@ export async function findMenteeById(
          WHERE user_topics.user_id = users.id),
         ARRAY[]::text[]
       ) AS "areasOfExpertise",
-      grad_year AS "gradYear",
-      role,
-      status
+      users.grad_year AS "gradYear",
+      users.role,
+      users.status
     FROM users
-    WHERE id = ${userId}
-    AND type = 'mentee'
-    AND status = 'approved'
+    LEFT JOIN colleges ON colleges.id = users.college_id
+    WHERE users.id = ${userId}
+    AND users.type = 'mentee'
+    AND users.status = 'approved'
     LIMIT 1
   `;
 

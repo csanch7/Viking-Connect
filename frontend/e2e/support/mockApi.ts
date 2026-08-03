@@ -37,3 +37,12 @@ export async function mockTopics(
     await fulfillJson(route, { topics })
   })
 }
+
+export async function mockColleges(
+  page: Page,
+  colleges = ['DePaul University', 'University of Illinois Chicago'],
+) {
+  await page.route('**/api/colleges', async (route) => {
+    await fulfillJson(route, { colleges })
+  })
+}

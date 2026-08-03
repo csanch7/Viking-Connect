@@ -1,4 +1,5 @@
 import ExpertiseSelector from '../components/expertise/ExpertiseSelector'
+import CollegeSelector from '../components/profile/CollegeSelector'
 import {
   linkedinProfileUrlPattern,
   useRegistrationForm,
@@ -38,7 +39,10 @@ function RegisterPage() {
     removeExpertise,
     addExpertise,
     navigate,
+    setCollege,
+    college,
   } = useRegistrationForm()
+
   return (
     <main className="register-page">
       <section className="register-hero" aria-labelledby="register-title">
@@ -215,6 +219,14 @@ function RegisterPage() {
                 required
               />
             </label>
+
+            <CollegeSelector
+              selectId="college"
+              value={college}
+              onChange={setCollege}
+              emptyLabel="Choose a college (optional)"
+              supportingText="Optional. Add the college you attend or attended."
+            />
           </div>
         </section>
 

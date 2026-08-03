@@ -21,6 +21,7 @@ const approvedUser: DatabaseUserWithPassword = {
   email: "jane@example.com",
   linkedin: "https://www.linkedin.com/in/jane-student",
   type: "mentee",
+  college: null,
   bio: "I am preparing for internships and early-career interviews.",
   areasOfExpertise: [],
   gradYear: 2027,

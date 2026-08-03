@@ -15,6 +15,7 @@ import {
 } from "../validation/registrationValidation";
 import type { UserType } from "../../shared/contracts";
 import { getTopics } from "../repositories/topicRepository";
+import { getColleges } from "../repositories/collegeRepository";
 
 export interface RegistrationRouterDependencies {
   createUser: typeof createUser;
@@ -22,6 +23,7 @@ export interface RegistrationRouterDependencies {
   isUniqueViolation: typeof isUniqueViolation;
   sendAdminRegistrationNotification: typeof sendAdminRegistrationNotification;
   getTopics: typeof getTopics;
+  getColleges: typeof getColleges;
 }
 
 const defaultDependencies: RegistrationRouterDependencies = {
@@ -30,6 +32,7 @@ const defaultDependencies: RegistrationRouterDependencies = {
   isUniqueViolation,
   sendAdminRegistrationNotification,
   getTopics,
+  getColleges,
 };
 
 export function createRegistrationRouter(
@@ -43,6 +46,7 @@ export function createRegistrationRouter(
     isUniqueViolation,
     sendAdminRegistrationNotification,
     getTopics,
+    getColleges,
   } = dependencies;
 
   router.post(
@@ -71,6 +75,14 @@ export function createRegistrationRouter(
         return;
       }
 
+      if (normalizedUser.college) {
+        const allowedColleges = new Set(await getColleges());
+        if (!allowedColleges.has(normalizedUser.college)) {
+          res.status(400).json({ message: "Choose a valid college" });
+          return;
+        }
+      }
+
       try {
         const passwordHash = await hashPassword(password);
         const createdUser = await createUser({
@@ -90,6 +102,7 @@ export function createRegistrationRouter(
             email: createdUser.email,
             linkedin: createdUser.linkedin,
             type: createdUser.type,
+            college: createdUser.college,
             bio: createdUser.bio,
             areasOfExpertise: createdUser.areasOfExpertise,
             gradYear: createdUser.gradYear,

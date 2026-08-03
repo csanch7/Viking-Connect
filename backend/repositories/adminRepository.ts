@@ -8,12 +8,13 @@ type CountRow = { count: string };
 export async function getPendingUsers(): Promise<PendingUser[]> {
   const rows = await sql`
     SELECT
-      id::text,
-      name,
-      email,
-      linkedin,
-      type,
-      bio,
+      users.id::text,
+      users.name,
+      users.email,
+      users.linkedin,
+      users.type,
+      colleges.name AS college,
+      users.bio,
       COALESCE(
         (SELECT ARRAY_AGG(topics.name ORDER BY topics.name)
          FROM user_topics
@@ -21,10 +22,11 @@ export async function getPendingUsers(): Promise<PendingUser[]> {
          WHERE user_topics.user_id = users.id),
         ARRAY[]::text[]
       ) AS "areasOfExpertise",
-      grad_year AS "gradYear",
-      role
+      users.grad_year AS "gradYear",
+      users.role
     FROM users
-    WHERE status = 'pending'
+    LEFT JOIN colleges ON colleges.id = users.college_id
+    WHERE users.status = 'pending'
   `;
 
   return rows as PendingUser[];

@@ -4,16 +4,25 @@ import axios from 'axios'
 import type { PublicUser } from '../../../shared/contracts'
 import userService from '../services/userService'
 
+type ProfileEditorState =
+  | { mode: null }
+  | {
+      mode: 'profile'
+      bio: string
+      college: string
+      areasOfExpertise: string[]
+      selectedArea: string
+    }
+
+const closedEditor: ProfileEditorState = { mode: null }
+
 export function useProfileEditor(
   user: PublicUser | null,
   setUser: Dispatch<SetStateAction<PublicUser | null>>,
 ) {
+  const [editor, setEditor] = useState<ProfileEditorState>(closedEditor)
   const [saveError, setSaveError] = useState('')
-  const [editMode, setEditMode] = useState<'bio' | 'expertise' | null>(null)
-  const [editBio, setEditBio] = useState('')
   const [isSaving, setIsSaving] = useState(false)
-  const [editAreasOfExpertise, setEditAreasOfExpertise] = useState<string[]>([])
-  const [editExpertise, setEditExpertise] = useState('')
 
   function getSaveError(error: unknown) {
     if (axios.isAxiosError<{ message?: string }>(error)) {
@@ -22,45 +31,86 @@ export function useProfileEditor(
     return 'We could not save your changes.'
   }
 
+  function startEditing() {
+    if (!user) return
+
+    setSaveError('')
+    setEditor({
+      mode: 'profile',
+      bio: user.bio,
+      college: user.college ?? '',
+      areasOfExpertise: user.areasOfExpertise,
+      selectedArea: '',
+    })
+  }
+
   function cancelEditing() {
-    setEditMode(null)
-    setEditBio('')
-    setEditAreasOfExpertise([])
-    setEditExpertise('')
+    setEditor(closedEditor)
     setSaveError('')
   }
 
-  function startEditingBio() {
-    if (!user) return
-    setEditBio(user.bio)
-    setEditAreasOfExpertise([])
-    setEditExpertise('')
-    setSaveError('')
-    setEditMode('bio')
+  function updateBio(bio: string) {
+    setEditor((current) =>
+      current.mode === 'profile' ? { ...current, bio } : current,
+    )
   }
 
-  function startEditingAreasOfExpertise() {
-    if (!user) return
-    setEditAreasOfExpertise(user.areasOfExpertise)
-    setEditBio('')
-    setEditExpertise('')
-    setSaveError('')
-    setEditMode('expertise')
+  function updateCollege(college: string) {
+    setEditor((current) =>
+      current.mode === 'profile' ? { ...current, college } : current,
+    )
+  }
+
+  function updateSelectedExpertise(selectedArea: string) {
+    setEditor((current) =>
+      current.mode === 'profile' ? { ...current, selectedArea } : current,
+    )
   }
 
   function removeExpertise(area: string) {
-    setEditAreasOfExpertise((list) => list.filter((item) => item !== area))
+    setEditor((current) =>
+      current.mode === 'profile'
+        ? {
+            ...current,
+            areasOfExpertise: current.areasOfExpertise.filter(
+              (item) => item !== area,
+            ),
+          }
+        : current,
+    )
   }
 
   function addExpertise() {
-    if (!editExpertise || editAreasOfExpertise.includes(editExpertise)) return
-    setEditAreasOfExpertise((list) => [...list, editExpertise])
-    setEditExpertise('')
+    setEditor((current) => {
+      if (
+        current.mode !== 'profile' ||
+        !current.selectedArea ||
+        current.areasOfExpertise.includes(current.selectedArea)
+      ) {
+        return current
+      }
+
+      return {
+        ...current,
+        areasOfExpertise: [...current.areasOfExpertise, current.selectedArea],
+        selectedArea: '',
+      }
+    })
   }
 
-  async function saveAreasOfExpertise() {
-    if (!user) return
-    if (editAreasOfExpertise.length === 0) {
+  async function saveProfile() {
+    if (!user || editor.mode !== 'profile') return
+
+    const bio = editor.bio.trim()
+    const college = editor.college || null
+    const areasOfExpertise = editor.areasOfExpertise
+
+    if (!bio) {
+      setSaveError('Bio cannot be empty.')
+      return
+    }
+
+    if (areasOfExpertise.length === 0) {
       setSaveError(
         user.type === 'mentor'
           ? 'Choose at least one area of expertise.'
@@ -69,10 +119,14 @@ export function useProfileEditor(
       return
     }
 
-    const unchanged =
-      user.areasOfExpertise.length === editAreasOfExpertise.length &&
-      user.areasOfExpertise.every((area) => editAreasOfExpertise.includes(area))
-    if (unchanged) {
+    const expertiseUnchanged =
+      user.areasOfExpertise.length === areasOfExpertise.length &&
+      user.areasOfExpertise.every((area) => areasOfExpertise.includes(area))
+    if (
+      bio === user.bio.trim() &&
+      college === user.college &&
+      expertiseUnchanged
+    ) {
       cancelEditing()
       return
     }
@@ -80,36 +134,16 @@ export function useProfileEditor(
     setIsSaving(true)
     setSaveError('')
     try {
-      const response = await userService.updateAreasOfExpertise(
-        editAreasOfExpertise,
+      const response = await userService.updateProfile(
+        { bio, college, areasOfExpertise },
         user.id,
       )
-      setUser({ ...user, areasOfExpertise: response.areasOfExpertise })
-      cancelEditing()
-    } catch (error) {
-      setSaveError(getSaveError(error))
-    } finally {
-      setIsSaving(false)
-    }
-  }
-
-  async function saveBio() {
-    if (!user) return
-    const normalizedBio = editBio.trim()
-    if (!normalizedBio) {
-      setSaveError('Bio cannot be empty.')
-      return
-    }
-    if (normalizedBio === user.bio.trim()) {
-      cancelEditing()
-      return
-    }
-
-    setIsSaving(true)
-    setSaveError('')
-    try {
-      const response = await userService.updateBio(normalizedBio, user.id)
-      setUser({ ...user, bio: response.bio })
+      setUser({
+        ...user,
+        bio: response.bio,
+        college: response.college,
+        areasOfExpertise: response.areasOfExpertise,
+      })
       cancelEditing()
     } catch (error) {
       setSaveError(getSaveError(error))
@@ -119,20 +153,16 @@ export function useProfileEditor(
   }
 
   return {
+    editor,
     saveError,
-    editMode,
-    editBio,
-    setEditBio,
     isSaving,
-    editAreasOfExpertise,
-    editExpertise,
-    setEditExpertise,
+    startEditing,
     cancelEditing,
-    startEditingBio,
-    startEditingAreasOfExpertise,
+    updateBio,
+    updateCollege,
+    updateSelectedExpertise,
     removeExpertise,
     addExpertise,
-    saveAreasOfExpertise,
-    saveBio,
+    saveProfile,
   }
 }
