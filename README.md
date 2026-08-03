@@ -1,5 +1,4 @@
-# STL Mentor Program
-https://stl-mentor-program-4lk5.onrender.com
+# Viking Connect -- https://www.vikingconnect.org/
 
 An alumni mentorship platform for connecting St. Laurence students and alumni
 with approved mentors. The application includes member registration, admin
