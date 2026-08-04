@@ -41,6 +41,34 @@ test('shows the mentor directory and mentor contact details', async ({
   await expect(page.getByText('Finance')).toBeVisible()
 })
 
+test('shows personalized recommendations to mentees', async ({ page }) => {
+  await page.unroute('**/api/auth/session')
+  await mockAuthenticatedSession(page, false, true)
+  await page.route('**/api/recommendations/mentors', async (route) => {
+    await fulfillJson(route, {
+      recommendations: [
+        {
+          mentor: mentors[0],
+          recommendationScore: 60,
+          coveragePercentage: 50,
+          sharedTopicCount: 2,
+          matchedTopics: ['Career Planning', 'Finance'],
+          sameCollege: true,
+        },
+      ],
+    })
+  })
+
+  await page.goto('/directory')
+
+  await expect(
+    page.getByRole('heading', { name: 'Recommended for you' }),
+  ).toBeVisible()
+  await expect(page.getByText('50% interest coverage')).toBeVisible()
+  await expect(page.getByText('2 shared topics')).toBeVisible()
+  await expect(page.getByText('Same college')).toBeVisible()
+})
+
 test('applies an expertise filter to the mentor request', async ({ page }) => {
   await page.goto('/directory')
   await expect(

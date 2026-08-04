@@ -2,6 +2,7 @@ import axios from 'axios'
 import {
   parseMenteeList,
   parseMentorList,
+  parseMentorRecommendationsResponse,
   parseMessageResponse,
   parsePublicUser,
   parseSessionResponse,
@@ -84,6 +85,11 @@ const userService = {
 
     const response = await axios.get(endpoint, { params })
     return parseMentorList(response.data)
+  },
+  async getMentorRecommendations() {
+    const endpoint = `${backend}/recommendations/mentors`
+    const response = await axios.get(endpoint)
+    return parseMentorRecommendationsResponse(response.data).recommendations
   },
   async getMentees(
     paginator: number,

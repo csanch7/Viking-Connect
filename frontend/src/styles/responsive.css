@@ -185,6 +185,14 @@
     padding: 16px;
   }
 
+  .recommendations {
+    padding: 16px;
+  }
+
+  .recommendations-grid {
+    grid-template-columns: 1fr;
+  }
+
   .directory-search-row {
     grid-template-columns: 1fr;
   }

@@ -37,6 +37,15 @@ const mentor = {
   areasOfExpertise: ["Finance"],
 };
 
+const mentorRecommendation = {
+  mentor,
+  recommendationScore: 60,
+  coveragePercentage: 50,
+  sharedTopicCount: 2,
+  matchedTopics: ["Career Planning", "Finance"],
+  sameCollege: true,
+};
+
 const mentee = {
   ...baseUser,
   id: "77",
@@ -140,6 +149,9 @@ function buildApiApp(
                 gradYear: 2012,
               }
             : undefined,
+      },
+      recommendationDependencies: {
+        getMentorRecommendations: async () => [mentorRecommendation],
       },
       menteeDependencies: {
         getMenteesByPagination: async () => [mentee],
@@ -365,6 +377,29 @@ describe("API routes", () => {
     const profile = await agent.get("/api/mentor/42");
     assert.equal(profile.status, 200);
     assert.equal(profile.body.id, "42");
+  });
+
+  it("returns personalized mentor recommendations to mentees", async () => {
+    const agent = await login(buildApiApp());
+
+    const response = await agent.get("/api/recommendations/mentors");
+
+    assert.equal(response.status, 200);
+    assert.deepEqual(response.body, {
+      recommendations: [mentorRecommendation],
+    });
+  });
+
+  it("does not expose mentee recommendations to mentors", async () => {
+    const app = buildApiApp("user", async () => undefined, "mentor");
+    const agent = await login(app);
+
+    const response = await agent.get("/api/recommendations/mentors");
+
+    assert.equal(response.status, 403);
+    assert.deepEqual(response.body, {
+      message: "Mentor recommendations are available to mentees",
+    });
   });
 
   it("returns mentee search results and profiles to mentees", async () => {

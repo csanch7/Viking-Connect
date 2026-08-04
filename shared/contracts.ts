@@ -23,6 +23,19 @@ export type MentorDirectoryUser = Pick<
 
 export type MenteeDirectoryUser = MentorDirectoryUser;
 
+export interface MentorRecommendation {
+  mentor: MentorDirectoryUser;
+  recommendationScore: number;
+  coveragePercentage: number;
+  sharedTopicCount: number;
+  matchedTopics: string[];
+  sameCollege: boolean;
+}
+
+export interface MentorRecommendationsResponse {
+  recommendations: MentorRecommendation[];
+}
+
 export type PendingUser = Omit<PublicUser, "status">;
 
 export interface RegistrationRequest {
@@ -219,6 +232,34 @@ export function parseMentorList(value: unknown) {
   }
 
   return value.map(parseMentor);
+}
+
+export function parseMentorRecommendationsResponse(
+  value: unknown,
+): MentorRecommendationsResponse {
+  if (!isRecord(value) || !Array.isArray(value.recommendations)) {
+    return contractError("mentor recommendations");
+  }
+
+  return {
+    recommendations: value.recommendations.map((recommendation) => {
+      if (
+        !isRecord(recommendation) ||
+        typeof recommendation.sameCollege !== "boolean"
+      ) {
+        return contractError("mentor recommendation");
+      }
+
+      return {
+        mentor: parseMentor(recommendation.mentor),
+        recommendationScore: readNumber(recommendation, "recommendationScore"),
+        coveragePercentage: readNumber(recommendation, "coveragePercentage"),
+        sharedTopicCount: readNumber(recommendation, "sharedTopicCount"),
+        matchedTopics: readStringArray(recommendation, "matchedTopics"),
+        sameCollege: recommendation.sameCollege,
+      };
+    }),
+  };
 }
 
 export function parseMenteeList(value: unknown) {

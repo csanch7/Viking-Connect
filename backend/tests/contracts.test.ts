@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   parseMentorList,
+  parseMentorRecommendationsResponse,
   parsePublicUser,
   parseSessionResponse,
   parseTopicsEnvelope,
@@ -29,11 +30,54 @@ describe("shared API contracts", () => {
     assert.deepEqual(parseTopicsEnvelope({ topics: ["Finance"] }), {
       topics: ["Finance"],
     });
+    assert.deepEqual(
+      parseMentorRecommendationsResponse({
+        recommendations: [
+          {
+            mentor: {
+              id: "42",
+              name: "Alex Mentor",
+              email: "alex@example.com",
+              linkedin: "https://www.linkedin.com/in/alex-mentor",
+              type: "mentor",
+              areasOfExpertise: ["Career Planning", "Finance"],
+            },
+            recommendationScore: 60,
+            coveragePercentage: 50,
+            sharedTopicCount: 2,
+            matchedTopics: ["Career Planning", "Finance"],
+            sameCollege: true,
+          },
+        ],
+      }).recommendations[0],
+      {
+        mentor: {
+          id: "42",
+          name: "Alex Mentor",
+          email: "alex@example.com",
+          linkedin: "https://www.linkedin.com/in/alex-mentor",
+          type: "mentor",
+          areasOfExpertise: ["Career Planning", "Finance"],
+        },
+        recommendationScore: 60,
+        coveragePercentage: 50,
+        sharedTopicCount: 2,
+        matchedTopics: ["Career Planning", "Finance"],
+        sameCollege: true,
+      },
+    );
   });
 
   it("rejects contract drift at runtime", () => {
     assert.throws(
       () => parseSessionResponse({ authenticated: "yes", admin: false }),
+      /Invalid API response/,
+    );
+    assert.throws(
+      () =>
+        parseMentorRecommendationsResponse({
+          recommendations: [{ recommendationScore: "high" }],
+        }),
       /Invalid API response/,
     );
     assert.throws(

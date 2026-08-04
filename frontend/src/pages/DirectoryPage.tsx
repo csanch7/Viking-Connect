@@ -4,10 +4,14 @@ import topicService from '../services/topicService'
 import type { Mentor } from '../types/user'
 import LoadingPage from '../components/LoadingPage'
 import UserDirectoryCard from '../components/user/UserDirectoryCard'
+import RecommendedMentorCard from '../components/user/RecommendedMentorCard'
+import type { MentorRecommendation } from '../../../shared/contracts'
+import { useAuth } from '../auth/useAuth'
 
 const pageSize = 10
 
 function DirectoryPage() {
+  const { mentee: isMentee } = useAuth()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [topics, setTopics] = useState<string[]>([])
@@ -22,9 +26,48 @@ function DirectoryPage() {
   const [filterSearchText, setFilterSearchText] = useState<string>('')
   const [filterPanelOpen, setFilterPanelOpen] = useState(false)
   const [debouncedSearchText, setDebouncedSearchText] = useState<string>('')
+  const [recommendations, setRecommendations] = useState<
+    MentorRecommendation[]
+  >([])
+  const [recommendationsLoading, setRecommendationsLoading] = useState(isMentee)
+  const [recommendationsError, setRecommendationsError] = useState('')
   const visibleExpertiseOptions = topics.filter((area) =>
     area.toLowerCase().includes(filterSearchText.trim().toLowerCase()),
   )
+
+  useEffect(() => {
+    if (!isMentee) {
+      return
+    }
+
+    let isCurrentRequest = true
+
+    async function loadRecommendations() {
+      try {
+        const response = await userService.getMentorRecommendations()
+
+        if (isCurrentRequest) {
+          setRecommendations(response)
+          setRecommendationsError('')
+        }
+      } catch {
+        if (isCurrentRequest) {
+          setRecommendations([])
+          setRecommendationsError(
+            'We could not load your recommendations right now.',
+          )
+        }
+      } finally {
+        if (isCurrentRequest) setRecommendationsLoading(false)
+      }
+    }
+
+    void loadRecommendations()
+
+    return () => {
+      isCurrentRequest = false
+    }
+  }, [isMentee])
 
   useEffect(() => {
     let isCurrentRequest = true
@@ -153,6 +196,47 @@ function DirectoryPage() {
             experience, contact details, and areas of expertise.
           </p>
         </section>
+
+        {isMentee && (
+          <section
+            className="recommendations"
+            aria-labelledby="recommendations-title"
+          >
+            <div className="recommendations-header">
+              <div>
+                <p className="directory-kicker">Based on your profile</p>
+                <h2 id="recommendations-title">Recommended for you</h2>
+                <p>
+                  Ranked by shared interests, interest coverage, and college.
+                </p>
+              </div>
+            </div>
+
+            {recommendationsLoading ? (
+              <p className="recommendations-status" aria-live="polite">
+                Finding your strongest mentor matches...
+              </p>
+            ) : recommendationsError ? (
+              <p className="recommendations-status" role="alert">
+                {recommendationsError}
+              </p>
+            ) : recommendations.length > 0 ? (
+              <div className="recommendations-grid">
+                {recommendations.slice(0, 3).map((recommendation) => (
+                  <RecommendedMentorCard
+                    key={recommendation.mentor.id}
+                    recommendation={recommendation}
+                  />
+                ))}
+              </div>
+            ) : (
+              <p className="recommendations-status">
+                No close matches yet. You can still browse every approved mentor
+                below.
+              </p>
+            )}
+          </section>
+        )}
 
         <form className="directory-controls" onSubmit={handleFilter}>
           <div className="directory-filters-header">

@@ -142,6 +142,138 @@
   box-shadow: 0 10px 30px rgba(25, 25, 25, 0.045);
 }
 
+.recommendations {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 20px;
+  border: 1px solid #e1d49d;
+  border-radius: 8px;
+  background: var(--directory-gold-soft);
+  box-shadow: 0 10px 30px rgba(25, 25, 25, 0.045);
+}
+
+.recommendations-header h2 {
+  margin: 2px 0 4px;
+  color: var(--directory-ink);
+  font-size: 20px;
+  font-weight: 780;
+}
+
+.recommendations-header > div > p:last-child,
+.recommendations-status {
+  color: var(--directory-muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.recommendations-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.recommendation-card {
+  display: grid;
+  align-content: start;
+  gap: 16px;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--directory-border);
+  border-radius: 8px;
+  background: var(--directory-card);
+}
+
+.recommendation-card-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.recommendation-card-heading > div {
+  min-width: 0;
+}
+
+.recommendation-card h3 {
+  margin: 0 0 4px;
+  font-size: 16px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.recommendation-card h3 a {
+  color: var(--directory-ink);
+  text-decoration-color: #dba800;
+  text-underline-offset: 3px;
+}
+
+.recommendation-card-heading p {
+  color: var(--directory-muted);
+  font-size: 12px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.recommendation-score {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: baseline;
+  min-height: 34px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  color: #191919;
+  font-size: 16px;
+  font-weight: 800;
+  background: var(--directory-gold);
+}
+
+.recommendation-score small {
+  font-size: 10px;
+  font-weight: 720;
+}
+
+.recommendation-signals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.recommendation-signals span {
+  padding: 5px 8px;
+  border: 1px solid #e7dfcc;
+  border-radius: 999px;
+  color: #514a3d;
+  font-size: 11px;
+  font-weight: 700;
+  background: #fbf8f0;
+}
+
+.recommendation-topics {
+  display: grid;
+  gap: 8px;
+}
+
+.recommendation-topics > p {
+  color: var(--directory-muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.recommendation-profile-link {
+  align-self: end;
+  color: var(--directory-ink);
+  font-size: 13px;
+  font-weight: 760;
+  text-decoration-color: #dba800;
+  text-underline-offset: 3px;
+}
+
+.recommendation-card a:focus-visible {
+  outline: 3px solid rgba(255, 199, 44, 0.5);
+  outline-offset: 3px;
+}
+
 .directory-filters-header {
   display: flex;
   align-items: flex-start;
