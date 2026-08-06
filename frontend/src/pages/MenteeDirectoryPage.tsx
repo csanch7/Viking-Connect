@@ -1,144 +1,32 @@
-import { useEffect, useState } from 'react'
-import userService from '../services/userService'
-import topicService from '../services/topicService'
 import type { Mentee } from '../types/user'
 import LoadingPage from '../components/LoadingPage'
 import UserDirectoryCard from '../components/user/UserDirectoryCard'
-
-const pageSize = 10
+import { useMenteeDirectory } from '../hooks/useMenteeDirectory'
 
 function MenteeDirectoryPage() {
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
-  const [topics, setTopics] = useState<string[]>([])
-  const [topicsLoading, setTopicsLoading] = useState(true)
-  const [topicsError, setTopicsError] = useState('')
-  const [page, setPage] = useState<number>(0)
-  const [filter, setFilter] = useState<string[]>([])
-  const [draftFilter, setDraftFilter] = useState<string[]>([])
-  const [mentees, setMentees] = useState<Mentee[]>([])
-  const [hasNextPage, setHasNextPage] = useState(false)
-  const [searchText, setSearchText] = useState<string>('')
-  const [filterSearchText, setFilterSearchText] = useState<string>('')
-  const [filterPanelOpen, setFilterPanelOpen] = useState(false)
-  const [debouncedSearchText, setDebouncedSearchText] = useState<string>('')
-  const visibleExpertiseOptions = topics.filter((area) =>
-    area.toLowerCase().includes(filterSearchText.trim().toLowerCase()),
-  )
+  const directory = useMenteeDirectory()
+  const {
+    page,
+    searchText,
+    expertiseSearchText,
+    draftExpertise,
+    filterPanelOpen,
+    mentees,
+    hasNextPage,
+    error,
+    topicsLoading,
+    topicsError,
+    visibleExpertiseOptions,
+    activeFilterCount,
+    canClearFilters,
+  } = directory
 
-  useEffect(() => {
-    let isCurrentRequest = true
-
-    async function loadTopics() {
-      try {
-        const response = await topicService.getTopics()
-
-        if (isCurrentRequest) {
-          setTopics(response)
-          setTopicsError('')
-        }
-      } catch {
-        if (isCurrentRequest) {
-          setTopics([])
-          setTopicsError(
-            'We could not load expertise filters. Please refresh and try again.',
-          )
-        }
-      } finally {
-        if (isCurrentRequest) {
-          setTopicsLoading(false)
-        }
-      }
-    }
-
-    void loadTopics()
-
-    return () => {
-      isCurrentRequest = false
-    }
-  }, [])
-
-  useEffect(() => {
-    const timeoutId = window.setTimeout(() => {
-      setDebouncedSearchText(searchText.trim())
-    }, 400)
-
-    return () => window.clearTimeout(timeoutId)
-  }, [searchText])
-
-  useEffect(() => {
-    let isCurrentRequest = true
-
-    async function loadMentees() {
-      try {
-        const response = await userService.getMentees(
-          page,
-          filter,
-          debouncedSearchText,
-        )
-
-        if (!isCurrentRequest) {
-          return
-        }
-
-        setMentees(response.slice(0, pageSize))
-        setHasNextPage(response.length > pageSize)
-        setError('')
-      } catch {
-        if (!isCurrentRequest) {
-          return
-        }
-
-        setMentees([])
-        setHasNextPage(false)
-        setError('We could not load mentees right now. Please try again.')
-      } finally {
-        if (isCurrentRequest) {
-          setLoading(false)
-        }
-      }
-    }
-
-    void loadMentees()
-
-    return () => {
-      isCurrentRequest = false
-    }
-  }, [page, filter, debouncedSearchText])
-
-  function handleFilter(e: React.SubmitEvent<HTMLFormElement>) {
-    e.preventDefault()
-
-    setFilter(draftFilter)
-    setPage(0)
+  function handleFilter(event: React.SubmitEvent<HTMLFormElement>) {
+    event.preventDefault()
+    directory.applyFilters()
   }
 
-  function handleExpertiseChange(area: string, checked: boolean) {
-    setDraftFilter((previousFilter) =>
-      checked
-        ? [...previousFilter, area]
-        : previousFilter.filter((selectedArea) => selectedArea !== area),
-    )
-  }
-
-  function handleSearchText(value: string) {
-    setSearchText(value)
-    setPage(0)
-  }
-
-  function clearFilter() {
-    setFilter([])
-    setDraftFilter([])
-    setFilterSearchText('')
-    setPage(0)
-  }
-
-  function changePage(nextPage: number) {
-    setPage(nextPage)
-    window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
-  }
-
-  if (loading) {
+  if (directory.loading) {
     return <LoadingPage />
   }
 
@@ -169,7 +57,7 @@ function MenteeDirectoryPage() {
                 id="mentee-search"
                 type="search"
                 value={searchText}
-                onChange={(event) => handleSearchText(event.target.value)}
+                onChange={(event) => directory.changeSearch(event.target.value)}
                 placeholder="Search by name"
               />
             </label>
@@ -179,12 +67,10 @@ function MenteeDirectoryPage() {
               type="button"
               aria-expanded={filterPanelOpen}
               aria-controls="directory-filter-panel"
-              onClick={() =>
-                setFilterPanelOpen((currentIsOpen) => !currentIsOpen)
-              }
+              onClick={directory.toggleFilterPanel}
             >
               Filters
-              <span>{draftFilter.length}</span>
+              <span>{activeFilterCount}</span>
             </button>
           </div>
 
@@ -198,8 +84,10 @@ function MenteeDirectoryPage() {
                 <input
                   id="interest-search"
                   type="search"
-                  value={filterSearchText}
-                  onChange={(event) => setFilterSearchText(event.target.value)}
+                  value={expertiseSearchText}
+                  onChange={(event) =>
+                    directory.changeExpertiseSearch(event.target.value)
+                  }
                   placeholder="Find a filter"
                 />
               </label>
@@ -221,9 +109,9 @@ function MenteeDirectoryPage() {
                         type="checkbox"
                         name="expertise"
                         value={area}
-                        checked={draftFilter.includes(area)}
+                        checked={draftExpertise.includes(area)}
                         onChange={(event) =>
-                          handleExpertiseChange(area, event.target.checked)
+                          directory.toggleExpertise(area, event.target.checked)
                         }
                       />
                       <span>{area}</span>
@@ -243,16 +131,8 @@ function MenteeDirectoryPage() {
                 <button
                   className="directory-filter-clear"
                   type="reset"
-                  onClick={() => {
-                    clearFilter()
-                    setSearchText('')
-                  }}
-                  disabled={
-                    draftFilter.length === 0 &&
-                    filter.length === 0 &&
-                    searchText.length === 0 &&
-                    filterSearchText.length === 0
-                  }
+                  onClick={directory.clearFilters}
+                  disabled={!canClearFilters}
                 >
                   Clear
                 </button>
@@ -290,12 +170,14 @@ function MenteeDirectoryPage() {
           <p>Page {page + 1}</p>
           <div className="directory-pagination-actions">
             {page > 0 && (
-              <button onClick={() => changePage(page - 1)}>
+              <button onClick={() => directory.changePage(page - 1)}>
                 Previous page
               </button>
             )}
             {hasNextPage && (
-              <button onClick={() => changePage(page + 1)}>Next page</button>
+              <button onClick={() => directory.changePage(page + 1)}>
+                Next page
+              </button>
             )}
           </div>
         </div>

@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test'
 import {
   fulfillJson,
   mockAuthenticatedSession,
+  mockColleges,
   mockTopics,
 } from './support/mockApi'
 
@@ -20,6 +21,7 @@ const mentors = [
 test.beforeEach(async ({ page }) => {
   await mockAuthenticatedSession(page)
   await mockTopics(page, ['Career Planning', 'Data Ethics', 'Finance'])
+  await mockColleges(page)
   await page.route('**/api/mentors/**', async (route) => {
     await fulfillJson(route, mentors)
   })
@@ -64,9 +66,12 @@ test('shows personalized recommendations to mentees', async ({ page }) => {
   await expect(
     page.getByRole('heading', { name: 'Recommended for you' }),
   ).toBeVisible()
-  await expect(page.getByText('50% interest coverage')).toBeVisible()
+  await expect(page.getByText('50% of your interests covered')).toBeVisible()
   await expect(page.getByText('2 shared topics')).toBeVisible()
   await expect(page.getByText('Same college')).toBeVisible()
+  await expect(
+    page.getByLabel('Recommendation score 60 out of 100'),
+  ).toBeVisible()
 })
 
 test('applies an expertise filter to the mentor request', async ({ page }) => {
@@ -88,6 +93,72 @@ test('applies an expertise filter to the mentor request', async ({ page }) => {
   await page.getByRole('button', { name: 'Apply filters' }).click()
 
   await filteredRequest
+})
+
+test('keeps the directory visible while filters are applied', async ({
+  page,
+}) => {
+  let releaseFilteredResponse: (() => void) | undefined
+  const filteredResponseAllowed = new Promise<void>((resolve) => {
+    releaseFilteredResponse = resolve
+  })
+
+  await page.unroute('**/api/mentors/**')
+  await page.route('**/api/mentors/**', async (route) => {
+    const isFiltered = new URL(route.request().url()).searchParams.has('filter')
+
+    if (isFiltered) {
+      await filteredResponseAllowed
+    }
+
+    await fulfillJson(route, mentors)
+  })
+
+  await page.goto('/directory')
+  await page.getByRole('button', { name: /Filters/ }).click()
+  await page.getByRole('checkbox', { name: 'Data Ethics', exact: true }).check()
+
+  const filteredRequest = page.waitForRequest((request) =>
+    new URL(request.url()).searchParams.has('filter'),
+  )
+  await page.getByRole('button', { name: 'Apply filters' }).click()
+  await filteredRequest
+
+  await expect(
+    page.getByRole('heading', { name: 'Find alumni mentors' }),
+  ).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Alex Mentor' })).toBeVisible()
+  await expect(page.getByText('Gathering your information...')).toBeHidden()
+
+  releaseFilteredResponse?.()
+})
+
+test('applies and clears a separate college filter', async ({ page }) => {
+  await page.goto('/directory')
+  await page.getByRole('button', { name: /Filters/ }).click()
+  await page
+    .getByLabel('College')
+    .selectOption('University of Illinois Chicago')
+
+  const filteredRequest = page.waitForRequest((request) => {
+    const url = new URL(request.url())
+    return (
+      url.pathname === '/api/mentors/0' &&
+      url.searchParams.get('college') === 'University of Illinois Chicago'
+    )
+  })
+
+  await page.getByRole('button', { name: 'Apply filters' }).click()
+  await filteredRequest
+
+  const clearedRequest = page.waitForRequest((request) => {
+    const url = new URL(request.url())
+    return url.pathname === '/api/mentors/0' && !url.searchParams.has('college')
+  })
+
+  await page.getByRole('button', { name: 'Clear filters' }).click()
+  await clearedRequest
+  await expect(page.getByLabel('College')).toHaveValue('')
 })
 
 test('paginates when another mentor result exists', async ({ page }) => {

@@ -7,7 +7,7 @@ import type { SessionResponse } from '../../../shared/contracts'
 const signedOutSession: SessionResponse = {
   authenticated: false,
   admin: false,
-  mentee: false
+  mentee: false,
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {

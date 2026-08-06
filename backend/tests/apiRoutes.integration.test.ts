@@ -55,6 +55,15 @@ const mentee = {
   areasOfExpertise: ["Career Planning"],
 };
 
+let receivedMentorQuery:
+  | {
+      page: number;
+      filters: string[];
+      searchText: string | undefined;
+      college: string | undefined;
+    }
+  | undefined;
+
 function buildApiApp(
   role: "admin" | "user" = "user",
   sendContactUsEmail: (
@@ -139,7 +148,15 @@ function buildApiApp(
         sendPasswordResetEmail: async () => undefined,
       },
       mentorDependencies: {
-        getMentorsByPagination: async () => [mentor],
+        getMentorsByPagination: async (page, filters, searchText, college) => {
+          receivedMentorQuery = {
+            page,
+            filters: filters ?? [],
+            searchText,
+            college,
+          };
+          return [mentor];
+        },
         findMentorById: async (id) =>
           id === mentor.id
             ? {
@@ -369,10 +386,24 @@ describe("API routes", () => {
     const agent = await login(buildApiApp());
 
     const directory = await agent.get(
-      "/api/mentors/0?filter=Finance&searchText=Alex",
+      "/api/mentors/0?filter=Finance&searchText=Alex&college=DePaul%20University",
     );
     assert.equal(directory.status, 200);
     assert.equal(directory.body[0].name, "Alex Mentor");
+    assert.deepEqual(receivedMentorQuery, {
+      page: 0,
+      filters: ["Finance"],
+      searchText: "Alex",
+      college: "DePaul University",
+    });
+
+    const invalidCollege = await agent.get(
+      "/api/mentors/0?college=DePaul&college=UIC",
+    );
+    assert.equal(invalidCollege.status, 400);
+    assert.deepEqual(invalidCollege.body, {
+      message: "Choose a valid college",
+    });
 
     const profile = await agent.get("/api/mentor/42");
     assert.equal(profile.status, 200);

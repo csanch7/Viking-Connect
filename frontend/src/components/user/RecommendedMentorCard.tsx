@@ -29,13 +29,13 @@ function RecommendedMentorCard({ recommendation }: RecommendedMentorCardProps) {
           className="recommendation-score"
           aria-label={`Recommendation score ${recommendationScore} out of 100`}
         >
-          {recommendationScore}
-          <small>/100</small>
+          <strong>{recommendationScore}</strong>
+          <small>/100 match</small>
         </span>
       </div>
 
       <div className="recommendation-signals">
-        <span>{coveragePercentage}% interest coverage</span>
+        <span>{coveragePercentage}% of your interests covered</span>
         <span>
           {sharedTopicCount} shared{' '}
           {sharedTopicCount === 1 ? 'topic' : 'topics'}

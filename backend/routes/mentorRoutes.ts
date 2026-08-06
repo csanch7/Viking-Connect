@@ -6,10 +6,12 @@ import {
 import { asyncHandler } from "../middleware/asyncHandler";
 import { requireAuth } from "../middleware/auth";
 import {
+  getCollegeFilterValidationError,
   getFilterValidationError,
   getIdParamValidationError,
   getSearchTextValidationError,
   normalizeFilterQuery,
+  normalizeCollegeFilter,
   normalizeIdParam,
   normalizePageParam,
   normalizeSearchText,
@@ -58,10 +60,22 @@ export function createMentorRouter(
         return;
       }
 
+      const collegeValidationError = getCollegeFilterValidationError(
+        req.query.college,
+      );
+
+      if (collegeValidationError) {
+        res.status(400).json({ message: collegeValidationError });
+        return;
+      }
+
+      const college = normalizeCollegeFilter(req.query.college);
+
       const users = await getMentorsByPagination(
         page,
         filter,
         searchText,
+        college,
       );
 
       res.json(users);

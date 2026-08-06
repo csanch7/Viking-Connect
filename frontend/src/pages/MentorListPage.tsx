@@ -1,113 +1,39 @@
-import { useEffect, useState } from 'react'
 import userService from '../services/userService'
 import type { Mentor } from '../types/user'
 import LoadingPage from '../components/LoadingPage'
 import { useNavigate } from 'react-router-dom'
-import adminService from '../services/adminService'
 import MentorListCard from '../components/user/MentorListCard'
 import ConfirmationDialog from '../components/ConfirmationDialog'
+import { useAdminUserList } from '../hooks/useAdminUserList'
 
-const pageSize = 10
+function loadMentors(page: number, searchText: string) {
+  return userService.getMentors(page, [], searchText)
+}
 
 function MentorListPage() {
-  const [loading, setLoading] = useState(true)
-  const [loadError, setLoadError] = useState('')
-  const [deleteError, setDeleteError] = useState('')
-  const [message, setMessage] = useState('')
-  const [activeUserId, setActiveUserId] = useState<string | null>(null)
-  const [deleteTarget, setDeleteTarget] = useState<Mentor | null>(null)
-  const [page, setPage] = useState<number>(0)
-  const [mentors, setMentors] = useState<Mentor[]>([])
-  const [hasNextPage, setHasNextPage] = useState(false)
-  const [searchText, setSearchText] = useState<string>('')
-
-  const [debouncedSearchText, setDebouncedSearchText] = useState<string>('')
   const navigate = useNavigate()
+  const list = useAdminUserList<Mentor>({
+    queryName: 'mentors',
+    loadUsers: loadMentors,
+    loadErrorMessage: 'We could not load mentors right now. Please try again.',
+  })
+  const {
+    page,
+    searchText,
+    users: mentors,
+    hasNextPage,
+    loadError,
+    deleteError,
+    message,
+    activeUserId,
+    deleteTarget,
+  } = list
 
-  useEffect(() => {
-    const timeoutId = window.setTimeout(() => {
-      setDebouncedSearchText(searchText.trim())
-    }, 400)
-
-    return () => window.clearTimeout(timeoutId)
-  }, [searchText])
-
-  useEffect(() => {
-    let isCurrentRequest = true
-
-    async function loadMentors() {
-      try {
-        const response = await userService.getMentors(
-          page,
-          [],
-          debouncedSearchText,
-        )
-
-        if (!isCurrentRequest) {
-          return
-        }
-
-        setMentors(response.slice(0, pageSize))
-        setHasNextPage(response.length > pageSize)
-        setLoadError('')
-      } catch {
-        if (!isCurrentRequest) {
-          return
-        }
-
-        setMentors([])
-        setHasNextPage(false)
-        setLoadError('We could not load mentors right now. Please try again.')
-      } finally {
-        if (isCurrentRequest) {
-          setLoading(false)
-        }
-      }
-    }
-
-    void loadMentors()
-
-    return () => {
-      isCurrentRequest = false
-    }
-  }, [page, debouncedSearchText])
-
-  function handleFilter(e: React.SubmitEvent<HTMLFormElement>) {
-    e.preventDefault()
-
-    setPage(0)
+  function handleFilter(event: React.SubmitEvent<HTMLFormElement>) {
+    event.preventDefault()
   }
 
-  function handleSearchText(value: string) {
-    setSearchText(value)
-    setPage(0)
-  }
-
-  function changePage(nextPage: number) {
-    setPage(nextPage)
-    window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
-  }
-
-  async function handleDeleteUser(userId: string) {
-    if (activeUserId) return
-
-    setActiveUserId(userId)
-    setDeleteError('')
-    try {
-      const response = await adminService.deleteUser(userId)
-      setMentors((currentMentors) =>
-        currentMentors.filter((mentor) => mentor.id !== userId),
-      )
-      setMessage(response.message)
-      setDeleteTarget(null)
-    } catch {
-      setDeleteError('We could not delete this user. Please try again.')
-    } finally {
-      setActiveUserId(null)
-    }
-  }
-
-  if (loading) {
+  if (list.loading) {
     return <LoadingPage />
   }
 
@@ -155,7 +81,7 @@ function MentorListPage() {
                 id="mentor-search"
                 type="search"
                 value={searchText}
-                onChange={(event) => handleSearchText(event.target.value)}
+                onChange={(event) => list.changeSearch(event.target.value)}
                 placeholder="Search by name"
               />
             </label>
@@ -175,11 +101,7 @@ function MentorListPage() {
                 <MentorListCard
                   key={mentor.id}
                   mentor={mentor}
-                  onDelete={() => {
-                    setDeleteTarget(mentor)
-                    setDeleteError('')
-                    setMessage('')
-                  }}
+                  onDelete={() => list.beginDelete(mentor)}
                   actionsDisabled={Boolean(activeUserId)}
                 />
               ))}
@@ -195,12 +117,14 @@ function MentorListPage() {
           <p>Page {page + 1}</p>
           <div className="directory-pagination-actions">
             {page > 0 && (
-              <button onClick={() => changePage(page - 1)}>
+              <button onClick={() => list.changePage(page - 1)}>
                 Previous page
               </button>
             )}
             {hasNextPage && (
-              <button onClick={() => changePage(page + 1)}>Next page</button>
+              <button onClick={() => list.changePage(page + 1)}>
+                Next page
+              </button>
             )}
           </div>
         </div>
@@ -212,15 +136,8 @@ function MentorListPage() {
         pendingLabel="Deleting account..."
         pending={Boolean(activeUserId)}
         error={deleteError}
-        onCancel={() => {
-          if (!activeUserId) {
-            setDeleteTarget(null)
-            setDeleteError('')
-          }
-        }}
-        onConfirm={() => {
-          if (deleteTarget) void handleDeleteUser(deleteTarget.id)
-        }}
+        onCancel={list.cancelDelete}
+        onConfirm={list.confirmDelete}
       >
         {deleteTarget && (
           <p>

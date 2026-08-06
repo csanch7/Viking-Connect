@@ -210,6 +210,10 @@
     gap: 8px;
   }
 
+  .directory-filter-fields {
+    grid-template-columns: 1fr;
+  }
+
   .directory-filter-chip {
     flex: 1 1 calc(50% - 8px);
   }

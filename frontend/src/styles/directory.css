@@ -55,7 +55,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: end;
-  gap: 12px;
+  gap: 16px;
 }
 
 .directory-search {
@@ -68,8 +68,8 @@
 
 .directory-search input {
   width: 100%;
-  min-height: 44px;
-  padding: 0 12px;
+  min-height: 46px;
+  padding: 0 14px;
   border: 1px solid var(--directory-border);
   border-radius: 6px;
   color: var(--directory-ink);
@@ -96,8 +96,8 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 44px;
-  padding: 0 14px;
+  min-height: 46px;
+  padding: 0 16px;
   border: 1px solid #191919;
   border-radius: 6px;
   color: #fffefa;
@@ -107,6 +107,9 @@
   background: #191919;
   cursor: pointer;
   white-space: nowrap;
+  transition:
+    background 160ms ease,
+    box-shadow 160ms ease;
 }
 
 .directory-filter-toggle span {
@@ -126,6 +129,10 @@
   background: #2b2a27;
 }
 
+.directory-filter-toggle[aria-expanded='true'] {
+  box-shadow: inset 0 -3px 0 var(--directory-gold);
+}
+
 .directory-filter-toggle:focus-visible {
   outline: 3px solid rgba(255, 199, 44, 0.5);
   outline-offset: 3px;
@@ -135,7 +142,7 @@
   display: grid;
   gap: 16px;
   margin-bottom: 24px;
-  padding: 20px;
+  padding: 24px;
   border: 1px solid var(--directory-border);
   border-radius: 8px;
   background: var(--directory-card);
@@ -169,7 +176,7 @@
 
 .recommendations-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
   gap: 12px;
 }
 
@@ -219,6 +226,7 @@
   display: inline-flex;
   flex: 0 0 auto;
   align-items: baseline;
+  gap: 2px;
   min-height: 34px;
   padding: 6px 8px;
   border-radius: 6px;
@@ -228,8 +236,13 @@
   background: var(--directory-gold);
 }
 
+.recommendation-score strong {
+  font-size: 16px;
+  line-height: 1;
+}
+
 .recommendation-score small {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 720;
 }
 
@@ -261,7 +274,10 @@
 }
 
 .recommendation-profile-link {
+  display: inline-flex;
+  align-items: center;
   align-self: end;
+  min-height: 40px;
   color: var(--directory-ink);
   font-size: 13px;
   font-weight: 760;
@@ -297,24 +313,33 @@
 
 .directory-filter-panel {
   display: grid;
-  gap: 12px;
-  padding: 14px;
+  gap: 16px;
+  padding: 16px;
   border: 1px solid #ece5da;
   border-radius: 8px;
-  background: #fffdfa;
+  background: #fbf8f0;
 }
 
-.directory-filter-search {
+.directory-filter-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 0.6fr);
+  gap: 12px;
+  align-items: end;
+}
+
+.directory-filter-search,
+.directory-filter-select {
   display: grid;
   gap: 8px;
   color: var(--directory-ink);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 760;
 }
 
-.directory-filter-search input {
+.directory-filter-search input,
+.directory-filter-select select {
   width: 100%;
-  min-height: 40px;
+  min-height: 44px;
   padding: 0 12px;
   border: 1px solid var(--directory-border);
   border-radius: 6px;
@@ -324,17 +349,65 @@
   background: var(--directory-card);
 }
 
-.directory-filter-search input:focus {
+.directory-filter-select-shell {
+  position: relative;
+  min-width: 0;
+}
+
+.directory-filter-select select {
+  padding-right: 40px;
+  appearance: none;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(25, 25, 25, 0.04);
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease;
+}
+
+.directory-filter-select select:hover:not(:disabled) {
+  border-color: #b6aa92;
+  background: #fffdf8;
+}
+
+.directory-filter-select-icon {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  width: 18px;
+  height: 18px;
+  color: var(--directory-muted);
+  pointer-events: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+  transform: translateY(-50%);
+}
+
+.directory-filter-select select:disabled {
+  color: #8b857b;
+  cursor: not-allowed;
+  background: #f4f0e8;
+}
+
+.directory-filter-search input:focus,
+.directory-filter-select select:focus {
   border-color: #191919;
   outline: none;
   box-shadow: 0 0 0 3px rgba(255, 199, 44, 0.35);
+}
+
+.directory-filter-select select:focus + .directory-filter-select-icon {
+  color: #765900;
 }
 
 .directory-filter-options {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  max-height: 220px;
+  max-height: 224px;
   overflow-y: auto;
   padding: 0;
   border: 0;
@@ -412,13 +485,14 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: flex-start;
-  gap: 10px;
-  padding-top: 2px;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid #e7dfd2;
 }
 
 .directory-filter-actions button {
-  min-height: 38px;
-  padding: 0 14px;
+  min-height: 40px;
+  padding: 0 16px;
   border-radius: 6px;
   font: inherit;
   font-size: 13px;

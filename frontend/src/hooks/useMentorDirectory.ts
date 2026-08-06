@@ -1,0 +1,67 @@
+import { useQuery } from '@tanstack/react-query'
+import userService from '../services/userService'
+import { useDirectoryFilters } from './useDirectoryFilters'
+import {
+  useCollegesQuery,
+  useDebouncedValue,
+  usePaginatedDirectoryQuery,
+  useTopicsQuery,
+} from './useDirectoryQueries'
+
+export function useMentorDirectory(isMentee: boolean) {
+  const filters = useDirectoryFilters()
+  const debouncedSearchText = useDebouncedValue(filters.searchText.trim())
+  const mentorsQuery = usePaginatedDirectoryQuery({
+    queryKey: [
+      'mentors',
+      filters.page,
+      filters.appliedExpertise,
+      debouncedSearchText,
+      filters.appliedCollege,
+    ],
+    queryFn: () =>
+      userService.getMentors(
+        filters.page,
+        filters.appliedExpertise,
+        debouncedSearchText,
+        filters.appliedCollege,
+      ),
+    errorMessage: 'We could not load mentors right now. Please try again.',
+  })
+  const recommendationsQuery = useQuery({
+    queryKey: ['mentorRecommendations'],
+    queryFn: userService.getMentorRecommendations,
+    enabled: isMentee,
+  })
+  const topicsQuery = useTopicsQuery()
+  const collegesQuery = useCollegesQuery()
+  const topics = topicsQuery.data ?? []
+  const visibleExpertiseOptions = topics.filter((area) =>
+    area
+      .toLowerCase()
+      .includes(filters.expertiseSearchText.trim().toLowerCase()),
+  )
+
+  return {
+    ...filters,
+    mentors: mentorsQuery.results,
+    hasNextPage: mentorsQuery.hasNextPage,
+    loading: mentorsQuery.loading,
+    error: mentorsQuery.error,
+    recommendations: recommendationsQuery.data ?? [],
+    recommendationsLoading: isMentee && recommendationsQuery.isPending,
+    recommendationsError: recommendationsQuery.isError
+      ? 'We could not load your recommendations right now.'
+      : '',
+    colleges: collegesQuery.data ?? [],
+    collegesLoading: collegesQuery.isPending,
+    collegesError: collegesQuery.isError
+      ? 'We could not load colleges. Please refresh and try again.'
+      : '',
+    topicsLoading: topicsQuery.isPending,
+    topicsError: topicsQuery.isError
+      ? 'We could not load expertise filters. Please refresh and try again.'
+      : '',
+    visibleExpertiseOptions,
+  }
+}

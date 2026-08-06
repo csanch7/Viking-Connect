@@ -59,3 +59,19 @@ test('requires confirmation before permanently deleting a mentor', async ({
   await expect(page.getByRole('link', { name: 'Alex Mentor' })).toBeHidden()
   expect(deleteRequests).toBe(1)
 })
+
+test('searches mentors without replacing the admin list', async ({ page }) => {
+  await page.goto('/admin/mentors')
+
+  const searchRequest = page.waitForRequest((request) => {
+    const url = new URL(request.url())
+    return url.searchParams.get('searchText') === 'Alex'
+  })
+  await page.getByLabel('Mentor name').fill('Alex')
+  await searchRequest
+
+  await expect(
+    page.getByRole('heading', { name: 'Manage mentors' }),
+  ).toBeVisible()
+  await expect(page.getByText('Gathering your information...')).toBeHidden()
+})

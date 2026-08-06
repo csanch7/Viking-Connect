@@ -73,6 +73,7 @@ const userService = {
     paginator: number,
     filter: string[] = [],
     searchText?: string,
+    college?: string,
   ) {
     const endpoint = `${backend}/mentors/${paginator}`
     const params = new URLSearchParams()
@@ -81,6 +82,10 @@ const userService = {
 
     if (searchText) {
       params.set('searchText', searchText)
+    }
+
+    if (college) {
+      params.set('college', college)
     }
 
     const response = await axios.get(endpoint, { params })

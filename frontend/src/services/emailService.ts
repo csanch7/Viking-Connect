@@ -1,5 +1,8 @@
-import axios from "axios"
-import { parseMessageResponse, type EmailRequest } from "../../../shared/contracts"
+import axios from 'axios'
+import {
+  parseMessageResponse,
+  type EmailRequest,
+} from '../../../shared/contracts'
 
 const backend = '/api'
 

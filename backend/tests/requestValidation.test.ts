@@ -11,10 +11,12 @@ import {
   normalizeBio,
 } from "../validation/profileValidation";
 import {
+  getCollegeFilterValidationError,
   getFilterValidationError,
   getIdParamValidationError,
   getSearchTextValidationError,
   normalizeFilterQuery,
+  normalizeCollegeFilter,
   normalizeIdParam,
   normalizePageParam,
   normalizeSearchText,
@@ -113,6 +115,19 @@ describe("route validation", () => {
     assert.equal(
       getSearchTextValidationError("x".repeat(101)),
       "Search text must be 100 characters or fewer",
+    );
+    assert.equal(
+      normalizeCollegeFilter("  DePaul University  "),
+      "DePaul University",
+    );
+    assert.equal(getCollegeFilterValidationError(undefined), null);
+    assert.equal(
+      getCollegeFilterValidationError(["DePaul University"]),
+      "Choose a valid college",
+    );
+    assert.equal(
+      getCollegeFilterValidationError("x".repeat(101)),
+      "Choose a valid college",
     );
   });
 });

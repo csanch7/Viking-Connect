@@ -16,6 +16,7 @@ export interface PublicUser {
   role: UserRole;
 }
 
+
 export type MentorDirectoryUser = Pick<
   PublicUser,
   "id" | "name" | "email" | "linkedin" | "areasOfExpertise" | "type"
