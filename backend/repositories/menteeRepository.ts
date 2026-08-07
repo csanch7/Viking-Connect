@@ -10,66 +10,63 @@ export type MenteeProfileUser = BaseUser;
 
 export async function getMenteesByPagination(
   paginator: number,
-  filter: string[] = [],
+  expertiseFilters: string[] = [],
   searchText?: string,
+  collegeFilter?: string,
 ): Promise<MenteeDirectoryUser[]> {
   const batchSize = 10;
   const fetchSize = batchSize + 1;
   const page = Math.max(0, Number.isFinite(paginator) ? paginator : 0);
+  const college = collegeFilter?.trim() ?? "";
   const trimmedSearchText = searchText?.trim() ?? "";
   const searchPattern = `%${trimmedSearchText}%`;
 
-  const rows =
-    filter.length > 0
-      ? await sql`
-          SELECT
-            id::text,
-            name,
-            email,
-            linkedin,
-            type,
-            COALESCE(
-              (SELECT ARRAY_AGG(topics.name ORDER BY topics.name)
-               FROM user_topics
-               JOIN topics ON topics.id = user_topics.topic_id
-               WHERE user_topics.user_id = users.id),
-              ARRAY[]::text[]
-            ) AS "areasOfExpertise"
-          FROM users
-          WHERE type = 'mentee'
-            AND status = 'approved'
-            AND EXISTS (
-              SELECT 1
-              FROM user_topics
-              JOIN topics ON topics.id = user_topics.topic_id
-              WHERE user_topics.user_id = users.id
-                AND topics.name = ANY(${filter})
-            )
-            AND (${trimmedSearchText === ""} OR name ILIKE ${searchPattern})
-          ORDER BY name ASC, id ASC
-          LIMIT ${fetchSize} OFFSET ${page * batchSize}
-        `
-      : await sql`
-          SELECT
-            id::text,
-            name,
-            email,
-            linkedin,
-            type,
-            COALESCE(
-              (SELECT ARRAY_AGG(topics.name ORDER BY topics.name)
-               FROM user_topics
-               JOIN topics ON topics.id = user_topics.topic_id
-               WHERE user_topics.user_id = users.id),
-              ARRAY[]::text[]
-            ) AS "areasOfExpertise"
-          FROM users
-          WHERE type = 'mentee'
-            AND status = 'approved'
-            AND (${trimmedSearchText === ""} OR name ILIKE ${searchPattern})
-          ORDER BY name ASC, id ASC
-          LIMIT ${fetchSize} OFFSET ${page * batchSize}
-        `;
+  const rows = await sql`
+    SELECT
+      users.id::text,
+      users.name,
+      users.email,
+      users.linkedin,
+      users.type,
+      COALESCE(
+        (
+          SELECT ARRAY_AGG(topics.name ORDER BY topics.name)
+          FROM user_topics
+          JOIN topics ON topics.id = user_topics.topic_id
+          WHERE user_topics.user_id = users.id
+        ),
+        ARRAY[]::text[]
+      ) AS "areasOfExpertise"
+    FROM users
+    LEFT JOIN colleges ON colleges.id = users.college_id
+    WHERE users.type = 'mentee'
+      AND users.status = 'approved'
+
+      AND (
+        ${expertiseFilters.length === 0}
+        OR EXISTS (
+          SELECT 1
+          FROM user_topics
+          JOIN topics ON topics.id = user_topics.topic_id
+          WHERE user_topics.user_id = users.id
+            AND topics.name = ANY(${expertiseFilters})
+        )
+      )
+
+      AND (
+        ${college === ""}
+        OR colleges.name = ${college}
+      )
+
+      AND (
+        ${trimmedSearchText === ""}
+        OR users.name ILIKE ${searchPattern}
+      )
+
+    ORDER BY users.name, users.id
+    LIMIT ${fetchSize}
+    OFFSET ${page * batchSize}
+  `;
 
   return rows as MenteeDirectoryUser[];
 }

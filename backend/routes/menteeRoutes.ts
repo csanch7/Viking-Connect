@@ -6,9 +6,11 @@ import {
 import { asyncHandler } from "../middleware/asyncHandler";
 import { requireAuth } from "../middleware/auth";
 import {
+  getCollegeFilterValidationError,
   getFilterValidationError,
   getIdParamValidationError,
   getSearchTextValidationError,
+  normalizeCollegeFilter,
   normalizeFilterQuery,
   normalizeIdParam,
   normalizePageParam,
@@ -64,10 +66,22 @@ export function createMenteeRouter(
         return;
       }
 
+      const collegeFilterValidationError = getCollegeFilterValidationError(
+        req.query.collegeFilter,
+      );
+
+      if (collegeFilterValidationError) {
+        res.status(400).json({ message: collegeFilterValidationError });
+        return;
+      }
+
+      const collegeFilter = normalizeCollegeFilter(req.query.collegeFilter);
+
       const users = await getMenteesByPagination(
         page,
         filter,
         searchText,
+        collegeFilter,
       );
 
       res.json(users);

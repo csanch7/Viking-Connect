@@ -19,6 +19,10 @@ function MenteeDirectoryPage() {
     visibleExpertiseOptions,
     activeFilterCount,
     canClearFilters,
+    colleges,
+    collegesError,
+    collegesLoading,
+    draftCollege,
   } = directory
 
   function handleFilter(event: React.SubmitEvent<HTMLFormElement>) {
@@ -76,21 +80,65 @@ function MenteeDirectoryPage() {
 
           {filterPanelOpen && (
             <div className="directory-filter-panel" id="directory-filter-panel">
-              <label
-                className="directory-filter-search"
-                htmlFor="interest-search"
-              >
-                <span>Search interests</span>
-                <input
-                  id="interest-search"
-                  type="search"
-                  value={expertiseSearchText}
-                  onChange={(event) =>
-                    directory.changeExpertiseSearch(event.target.value)
-                  }
-                  placeholder="Find a filter"
-                />
-              </label>
+              <div className="directory-filter-fields">
+                <label
+                  className="directory-filter-search"
+                  htmlFor="interest-search"
+                >
+                  <span>Search interests</span>
+                  <input
+                    id="interest-search"
+                    type="search"
+                    value={expertiseSearchText}
+                    onChange={(event) =>
+                      directory.changeExpertiseSearch(event.target.value)
+                    }
+                    placeholder="Find a filter"
+                  />
+                </label>
+
+                <label
+                  className="directory-filter-select"
+                  htmlFor="college-filter"
+                >
+                  <span>College</span>
+                  <div className="directory-filter-select-shell">
+                    <select
+                      id="college-filter"
+                      value={draftCollege}
+                      onChange={(event) =>
+                        directory.changeCollege(event.target.value)
+                      }
+                      disabled={collegesLoading || Boolean(collegesError)}
+                    >
+                      <option value="">
+                        {collegesLoading
+                          ? 'Loading colleges...'
+                          : 'Any college'}
+                      </option>
+                      {colleges.map((college) => (
+                        <option key={college} value={college}>
+                          {college}
+                        </option>
+                      ))}
+                    </select>
+                    <svg
+                      className="directory-filter-select-icon"
+                      aria-hidden="true"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                    >
+                      <path d="m6 8 4 4 4-4" />
+                    </svg>
+                  </div>
+                </label>
+              </div>
+
+              {collegesError && (
+                <p className="directory-filter-empty" role="alert">
+                  {collegesError}
+                </p>
+              )}
 
               <fieldset className="directory-filter-options">
                 <legend className="sr-only">Areas of interest</legend>

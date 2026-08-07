@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test'
 import {
   fulfillJson,
   mockAuthenticatedSession,
+  mockColleges,
   mockTopics,
 } from './support/mockApi'
 
@@ -18,6 +19,7 @@ const mentee = {
 test('loads approved mentees for an authenticated mentee', async ({ page }) => {
   await mockAuthenticatedSession(page, false, true)
   await mockTopics(page, ['Career Planning'])
+  await mockColleges(page)
   await page.route('**/api/mentees/**', async (route) => {
     await fulfillJson(route, [mentee])
   })
@@ -43,6 +45,7 @@ test('applies interest filters without replacing the directory', async ({
 
   await mockAuthenticatedSession(page, false, true)
   await mockTopics(page, ['Career Planning', 'Data Ethics'])
+  await mockColleges(page)
   await page.route('**/api/mentees/**', async (route) => {
     const isFiltered = new URL(route.request().url()).searchParams.has('filter')
 
@@ -71,4 +74,42 @@ test('applies interest filters without replacing the directory', async ({
   await expect(page.getByText('Gathering your information...')).toBeHidden()
 
   releaseFilteredResponse?.()
+})
+
+test('applies and clears a college filter', async ({ page }) => {
+  await mockAuthenticatedSession(page, false, true)
+  await mockTopics(page, ['Career Planning'])
+  await mockColleges(page)
+  await page.route('**/api/mentees/**', async (route) => {
+    await fulfillJson(route, [mentee])
+  })
+
+  await page.goto('/mentees/directory')
+  await page.getByRole('button', { name: /Filters/ }).click()
+  await page
+    .getByLabel('College')
+    .selectOption('University of Illinois Chicago')
+
+  const filteredRequest = page.waitForRequest((request) => {
+    const url = new URL(request.url())
+    return (
+      url.pathname === '/api/mentees/0' &&
+      url.searchParams.get('collegeFilter') === 'University of Illinois Chicago'
+    )
+  })
+
+  await page.getByRole('button', { name: 'Apply filters' }).click()
+  await filteredRequest
+
+  const clearedRequest = page.waitForRequest((request) => {
+    const url = new URL(request.url())
+    return (
+      url.pathname === '/api/mentees/0' &&
+      !url.searchParams.has('collegeFilter')
+    )
+  })
+
+  await page.getByRole('button', { name: 'Clear', exact: true }).click()
+  await clearedRequest
+  await expect(page.getByLabel('College')).toHaveValue('')
 })
