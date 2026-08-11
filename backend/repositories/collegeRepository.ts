@@ -29,3 +29,4 @@ export async function updateCollege(college: string | null, userId: string) {
 
   return rows[0] as { college: string | null } | undefined;
 }
+

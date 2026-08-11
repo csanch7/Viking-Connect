@@ -1262,6 +1262,11 @@
   background: #8d3216;
 }
 
+.confirmation-dialog--neutral .confirmation-dialog-icon {
+  color: #4c3a00;
+  background: #fff3c0;
+}
+
 .confirmation-dialog h2 {
   margin: 0 0 8px;
   font-size: 21px;
@@ -1323,6 +1328,11 @@
   background: #8d3216;
 }
 
+.confirmation-dialog--neutral .confirmation-dialog-confirm {
+  border-color: #191919;
+  background: #191919;
+}
+
 .confirmation-dialog-cancel:hover:not(:disabled) {
   border-color: #c7beb0;
   background: #f7f3eb;
@@ -1330,6 +1340,11 @@
 
 .confirmation-dialog-confirm:hover:not(:disabled) {
   background: #722712;
+}
+
+.confirmation-dialog--neutral
+  .confirmation-dialog-confirm:hover:not(:disabled) {
+  background: #2a2926;
 }
 
 .confirmation-dialog-actions button:disabled {

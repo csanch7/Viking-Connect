@@ -5,6 +5,7 @@ import './styles/member.css'
 import './styles/responsive.css'
 import './styles/refresh.css'
 import './styles/memberProfile.css'
+import './styles/adminTopics.css'
 import AppNav from './components/AppNav'
 import VerificationPage from './pages/VerificationPage'
 import ProfilePage from './pages/ProfilePage'
@@ -24,6 +25,7 @@ import MentorListPage from './pages/MentorListPage'
 import MenteeDirectoryPage from './pages/MenteeDirectoryPage'
 import MenteeListPage from './pages/MenteeListPage'
 import MenteePage from './pages/MenteeProfilePage'
+import AdminTopicsPage from './pages/AdminTopicsPage'
 
 function App() {
   const { authenticated, admin, mentee } = useAuth()
@@ -37,6 +39,7 @@ function App() {
         location.pathname === '/admin/pending-users' ||
         location.pathname === '/admin/mentors' ||
         location.pathname === '/admin/mentees' ||
+        location.pathname === '/admin/topics' ||
         location.pathname === '/mentees/directory' ||
         location.pathname.startsWith('/mentor/') ||
         location.pathname.startsWith('/mentee/')))
@@ -132,6 +135,14 @@ function App() {
           element={
             <ProtectedRoute menteeRoute>
               <MenteePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/topics"
+          element={
+            <ProtectedRoute adminOnly>
+              <AdminTopicsPage />
             </ProtectedRoute>
           }
         />

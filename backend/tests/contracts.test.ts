@@ -5,6 +5,7 @@ import {
   parseMentorRecommendationsResponse,
   parsePublicUser,
   parseSessionResponse,
+  parseTopicEnvelope,
   parseTopicsEnvelope,
 } from "../../shared/contracts";
 
@@ -29,6 +30,9 @@ describe("shared API contracts", () => {
     );
     assert.deepEqual(parseTopicsEnvelope({ topics: ["Finance"] }), {
       topics: ["Finance"],
+    });
+    assert.deepEqual(parseTopicEnvelope({ topic: "Leadership" }), {
+      topic: "Leadership",
     });
     assert.deepEqual(
       parseMentorRecommendationsResponse({

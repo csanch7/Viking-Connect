@@ -27,6 +27,7 @@ describe("database migrations", () => {
       "006_allow_duplicate_display_names.sql",
       "007_password_reset_tokens.sql",
       "008_add_college_relationship.sql",
+      "009_enforce_case_insensitive_topic_names.sql",
     ]);
   });
 
@@ -111,5 +112,18 @@ describe("database migrations", () => {
     assert.match(sql, /jsonb_array_elements_text\(users\.aoe_list\)/);
     assert.match(sql, /INSERT INTO user_topics/);
     assert.match(sql, /DROP COLUMN aoe_list/);
+  });
+
+  it("enforces case-insensitive topic names", async () => {
+    const sql = await fs.readFile(
+      path.join(
+        migrationsDirectory,
+        "009_enforce_case_insensitive_topic_names.sql",
+      ),
+      "utf8",
+    );
+
+    assert.match(sql, /PARTITION BY LOWER\(name\)/);
+    assert.match(sql, /ON topics \(LOWER\(name\)\)/);
   });
 });

@@ -101,6 +101,19 @@ function AdminPage() {
           View pending users
         </Link>
       </section>
+      <section className="admin-card" aria-labelledby="topics-title">
+        <div>
+          <span className="admin-card-kicker">Program settings</span>
+          <h2 id="topics-title">Manage topics</h2>
+          <p>
+            Review and add the interests members can select throughout the
+            program.
+          </p>
+        </div>
+        <Link className="admin-primary-link" to="/admin/topics">
+          View topics
+        </Link>
+      </section>
     </main>
   )
 }

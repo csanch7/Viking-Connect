@@ -8,6 +8,7 @@ import collegeService from '../services/collegeService'
 import topicService from '../services/topicService'
 
 const pageSize = 10
+export const topicsQueryKey = ['topics'] as const
 
 export function useDebouncedValue(value: string, delay = 400) {
   const [debouncedValue, setDebouncedValue] = useState(value)
@@ -50,7 +51,7 @@ export function usePaginatedDirectoryQuery<T>({
 
 export function useTopicsQuery() {
   return useQuery({
-    queryKey: ['topics'],
+    queryKey: topicsQueryKey,
     queryFn: topicService.getTopics,
   })
 }

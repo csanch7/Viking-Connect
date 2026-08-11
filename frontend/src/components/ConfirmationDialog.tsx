@@ -8,6 +8,8 @@ interface ConfirmationDialogProps {
   pendingLabel: string
   pending: boolean
   error?: string
+  icon?: ReactNode
+  tone?: 'danger' | 'neutral'
   onCancel: () => void
   onConfirm: () => void
 }
@@ -20,6 +22,8 @@ function ConfirmationDialog({
   pendingLabel,
   pending,
   error,
+  icon = '!',
+  tone = 'danger',
   onCancel,
   onConfirm,
 }: ConfirmationDialogProps) {
@@ -38,7 +42,7 @@ function ConfirmationDialog({
   return (
     <dialog
       ref={dialogRef}
-      className="confirmation-dialog"
+      className={`confirmation-dialog confirmation-dialog--${tone}`}
       aria-labelledby={titleId}
       aria-describedby={descriptionId}
       onCancel={(event) => {
@@ -51,7 +55,7 @@ function ConfirmationDialog({
     >
       <div className="confirmation-dialog-content">
         <div className="confirmation-dialog-icon" aria-hidden="true">
-          !
+          {icon}
         </div>
         <div>
           <h2 id={titleId}>{title}</h2>

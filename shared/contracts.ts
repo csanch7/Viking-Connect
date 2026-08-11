@@ -149,6 +149,14 @@ export function parseTopicsEnvelope(value: unknown) {
   return { topics: readStringArray(value, "topics") };
 }
 
+export function parseTopicEnvelope(value: unknown) {
+  if (!isRecord(value)) {
+    return contractError("topic envelope");
+  }
+
+  return { topic: readString(value, "topic") };
+}
+
 export function parseCollegesEnvelope(value: unknown) {
   if (!isRecord(value)) {
     return contractError("colleges envelope");

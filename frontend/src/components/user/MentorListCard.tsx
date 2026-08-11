@@ -50,7 +50,7 @@ function MentorListCard({
             onClick={() => onDelete(mentor.id)}
             disabled={actionsDisabled}
           >
-            Delete user
+            Delete {mentor.name}
           </button>
         </div>
       </dl>

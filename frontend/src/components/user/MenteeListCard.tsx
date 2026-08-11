@@ -50,7 +50,7 @@ function MenteeListCard({
             onClick={() => onDelete(mentee.id)}
             disabled={actionsDisabled}
           >
-            Delete user
+            Delete {mentee.name}
           </button>
         </div>
       </dl>

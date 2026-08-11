@@ -2,7 +2,8 @@
 
 An alumni mentorship platform for connecting St. Laurence students and alumni
 with approved mentors. The application includes member registration, admin
-approval, mentor discovery, profile management, and email notifications.
+approval, mentor and mentee directories, profile management, password recovery,
+mentorship topics, and email notifications.
 
 ## Architecture
 

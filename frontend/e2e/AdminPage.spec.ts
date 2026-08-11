@@ -21,6 +21,15 @@ test('shows directory totals and the pending-user queue link', async ({
   await expect(
     page.getByRole('link', { name: 'View pending users' }),
   ).toHaveAttribute('href', '/admin/pending-users')
+  await expect(
+    page.getByRole('heading', { name: 'Manage topics' }),
+  ).toBeVisible()
+  await expect(page.getByRole('link', { name: 'View topics' })).toHaveAttribute(
+    'href',
+    '/admin/topics',
+  )
+  await expect(page.locator('#pending-users-title')).toHaveCount(1)
+  await expect(page.locator('#topics-title')).toHaveCount(1)
   const approvedMembers = page.getByRole('region', {
     name: 'Approved members',
   })

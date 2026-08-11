@@ -73,12 +73,15 @@ let receivedMenteeQuery:
     }
   | undefined;
 
+let receivedTopic: string | undefined;
+
 function buildApiApp(
   role: "admin" | "user" = "user",
   sendContactUsEmail: (
     request: import("../../shared/contracts").EmailRequest,
   ) => Promise<void> = async () => undefined,
   type: "mentor" | "mentee" = "mentee",
+  addTopicResult?: string | null,
 ) {
   const authenticatedUser = { ...baseUser, role, type };
 
@@ -93,6 +96,10 @@ function buildApiApp(
       },
       topicDependencies: {
         getTopics: async () => ["Career Planning", "Finance", "Technology"],
+        addTopic: async (topic) => {
+          receivedTopic = topic;
+          return addTopicResult === undefined ? topic : addTopicResult;
+        },
       },
       collegeDependencies: {
         getColleges: async () => [
@@ -251,6 +258,46 @@ describe("API routes", () => {
     assert.deepEqual(response.body, {
       topics: ["Career Planning", "Finance", "Technology"],
     });
+    assert.equal(response.headers["cache-control"], "no-store");
+  });
+
+  it("allows an admin to add a trimmed topic", async () => {
+    receivedTopic = undefined;
+    const agent = await login(buildApiApp("admin"));
+
+    const response = await agent
+      .post("/api/topics")
+      .send({ topic: "  Leadership  " });
+
+    assert.equal(response.status, 201);
+    assert.deepEqual(response.body, { topic: "Leadership" });
+    assert.equal(receivedTopic, "Leadership");
+  });
+
+  it("reports a conflict when a topic already exists", async () => {
+    const agent = await login(
+      buildApiApp("admin", undefined, "mentee", null),
+    );
+
+    const response = await agent
+      .post("/api/topics")
+      .send({ topic: "leadership" });
+
+    assert.equal(response.status, 409);
+    assert.deepEqual(response.body, { message: "Topic already exists" });
+  });
+
+  it("rejects invalid and unauthorized topic creation", async () => {
+    const unauthorizedResponse = await request(buildApiApp("admin"))
+      .post("/api/topics")
+      .send({ topic: "Leadership" });
+    assert.equal(unauthorizedResponse.status, 403);
+
+    const agent = await login(buildApiApp("admin"));
+    const invalidResponse = await agent
+      .post("/api/topics")
+      .send({ topic: "   " });
+    assert.equal(invalidResponse.status, 400);
   });
 
   it("serves colleges for registration and profile forms", async () => {
