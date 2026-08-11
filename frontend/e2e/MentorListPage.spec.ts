@@ -33,7 +33,7 @@ test('requires confirmation before permanently deleting a mentor', async ({
   await expect(
     page.getByRole('button', { name: 'Back to admin page' }),
   ).toBeVisible()
-  await page.getByRole('button', { name: 'Delete user' }).click()
+  await page.getByRole('button', { name: 'Delete Alex Mentor' }).click()
   await expect(
     page.getByRole('dialog', { name: 'Delete mentor account?' }),
   ).toBeVisible()
@@ -50,7 +50,7 @@ test('requires confirmation before permanently deleting a mentor', async ({
   ).toBeHidden()
   expect(deleteRequests).toBe(0)
 
-  await page.getByRole('button', { name: 'Delete user' }).click()
+  await page.getByRole('button', { name: 'Delete Alex Mentor' }).click()
   await page.getByRole('button', { name: 'Delete account' }).click()
 
   await expect(page.getByRole('status')).toHaveText(

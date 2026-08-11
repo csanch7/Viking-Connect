@@ -25,7 +25,7 @@ test('requires confirmation before permanently deleting a mentee', async ({
 
   await page.goto('/admin/mentees')
 
-  await page.getByRole('button', { name: 'Delete user' }).click()
+  await page.getByRole('button', { name: 'Delete Jordan Mentee' }).click()
   await expect(
     page.getByRole('dialog', { name: 'Delete mentee account?' }),
   ).toBeVisible()
