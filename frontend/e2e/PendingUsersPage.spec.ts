@@ -41,8 +41,13 @@ test('approves a pending user and removes them from the queue', async ({
   await page.goto('/admin/pending-users')
 
   await page.getByRole('button', { name: 'Approve' }).click()
+  await page
+    .getByRole('button', { name: "Confirm Pat Mentor's approval" })
+    .click()
 
-  await expect(page.getByRole('status')).toHaveText('User approved')
+  await expect(page.getByRole('status')).toHaveText(
+    'Pat Mentor was approved for Viking Connect.',
+  )
   await expect(page.getByRole('heading', { name: 'Pat Mentor' })).toBeHidden()
   await expect(
     page.getByRole('heading', { name: 'No pending users' }),
@@ -61,7 +66,9 @@ test('denies a pending user and removes them from the queue', async ({
 
   await page.getByRole('button', { name: 'Confirm denial' }).click()
 
-  await expect(page.getByRole('status')).toHaveText('User denied')
+  await expect(page.getByRole('status')).toHaveText(
+    "Pat Mentor's registration was denied.",
+  )
   await expect(
     page.getByRole('heading', { name: 'No pending users' }),
   ).toBeVisible()

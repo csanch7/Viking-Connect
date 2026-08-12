@@ -46,7 +46,7 @@ function RegisterPage() {
   return (
     <main className="register-page">
       <section className="register-hero" aria-labelledby="register-title">
-        <p className="register-kicker">STL Mentorship Program</p>
+        <p className="register-kicker">Viking Connect</p>
         <h1 id="register-title">Create your member profile</h1>
         <p className="register-intro">
           Join as a mentor or mentee so the program team can review your profile
@@ -56,7 +56,7 @@ function RegisterPage() {
 
       <form className="register-card" onSubmit={submit}>
         {error && (
-          <div className="register-alert" role="alert">
+          <div className="register-alert" id="registration-error" role="alert">
             {error}
           </div>
         )}
@@ -80,10 +80,6 @@ function RegisterPage() {
                 placeholder="Jane Mentor"
                 required
               />
-              <small id="linkedin-help">
-                Use your personal LinkedIn profile URL. This is shown only to
-                approved program members.
-              </small>
             </label>
 
             <label className="register-field" htmlFor="email">
@@ -204,6 +200,10 @@ function RegisterPage() {
                 aria-invalid={linkedin.length > 0 && !linkedinIsValid}
                 required
               />
+              <small id="linkedin-help">
+                Use your personal LinkedIn profile URL. Your profile and contact
+                details are shown only to approved Viking Connect members.
+              </small>
             </label>
 
             <label className="register-field" htmlFor="graduationYear">

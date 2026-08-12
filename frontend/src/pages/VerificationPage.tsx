@@ -10,16 +10,28 @@ function VerificationPage() {
         <div className="verification-icon" aria-hidden="true">
           ✓
         </div>
-        <p className="verification-kicker">Registration received</p>
+        <p className="verification-kicker">Viking Connect registration</p>
         <h1 id="verification-title">Your account is pending review</h1>
         <p>
-          Thank you for your interest in the STL Mentorship Program. One of the
-          admins will review your registration and grant account access soon.
+          A program administrator will review your connection to the St.
+          Laurence community and the profile information you submitted. We will
+          email you when your account is approved.
         </p>
-        <Link className="verification-link" to="/login">
-          <span aria-hidden="true">←</span>
-          Back to sign in
-        </Link>
+        <div className="verification-next-step">
+          <strong>What happens next</strong>
+          <p>
+            You do not need to submit another registration. If you have a
+            question while you wait, use the contact form on the home page.
+          </p>
+        </div>
+        <div className="verification-actions">
+          <Link className="verification-primary-link" to="/">
+            Return home
+          </Link>
+          <Link className="verification-link" to="/login">
+            Sign in after approval
+          </Link>
+        </div>
       </section>
     </main>
   )

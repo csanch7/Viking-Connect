@@ -4,7 +4,9 @@ interface PendingUserCardProps {
   user: PendingUser
   onApprove: (userId: string) => void
   onDeny: (userId: string) => void
+  onCancelApprove: () => void
   onCancelDeny: () => void
+  confirmApprove: boolean
   confirmDeny: boolean
   activeAction?: 'approve' | 'deny'
 }
@@ -13,7 +15,9 @@ function PendingUserCard({
   user,
   onApprove,
   onDeny,
+  onCancelApprove,
   onCancelDeny,
+  confirmApprove,
   confirmDeny,
   activeAction,
 }: PendingUserCardProps) {
@@ -57,7 +61,38 @@ function PendingUserCard({
         </div>
       </dl>
 
-      {confirmDeny ? (
+      {confirmApprove ? (
+        <div
+          className="pending-user-confirmation pending-user-confirmation--approve"
+          role="group"
+          aria-label={`Confirm approval for ${user.name}`}
+        >
+          <p>
+            Approve {user.name} as a Viking Connect {user.type}? They will gain
+            access to the private member network.
+          </p>
+          <div className="pending-user-actions">
+            <button
+              className="pending-user-secondary"
+              type="button"
+              onClick={onCancelApprove}
+              disabled={Boolean(activeAction)}
+            >
+              Cancel
+            </button>
+            <button
+              className="pending-user-approve"
+              type="button"
+              onClick={() => onApprove(user.id)}
+              disabled={Boolean(activeAction)}
+            >
+              {activeAction === 'approve'
+                ? 'Approving...'
+                : `Confirm ${user.name}'s approval`}
+            </button>
+          </div>
+        </div>
+      ) : confirmDeny ? (
         <div
           className="pending-user-confirmation"
           role="group"
@@ -99,7 +134,7 @@ function PendingUserCard({
             onClick={() => onApprove(user.id)}
             disabled={Boolean(activeAction)}
           >
-            {activeAction === 'approve' ? 'Approving...' : 'Approve'}
+            Approve
           </button>
         </div>
       )}

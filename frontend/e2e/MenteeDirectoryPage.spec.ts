@@ -32,7 +32,10 @@ test('loads approved mentees for an authenticated mentee', async ({ page }) => {
   await expect(
     page.getByRole('link', { name: 'Jordan Mentee' }),
   ).toHaveAttribute('href', '/mentee/77')
-  await expect(page.getByText('jordan@example.com')).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Email' })).toHaveAttribute(
+    'href',
+    'mailto:jordan@example.com',
+  )
 })
 
 test('applies interest filters without replacing the directory', async ({
@@ -109,7 +112,8 @@ test('applies and clears a college filter', async ({ page }) => {
     )
   })
 
-  await page.getByRole('button', { name: 'Clear', exact: true }).click()
+  await page.getByRole('button', { name: 'Clear all filters' }).click()
   await clearedRequest
+  await page.getByRole('button', { name: /Filters/ }).click()
   await expect(page.getByLabel('College')).toHaveValue('')
 })

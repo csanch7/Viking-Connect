@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 import MemberProfileCardHeading from './MemberProfileCardHeading'
 
 interface MemberProfileSummaryProps {
-  user: Pick<PublicUser, 'gradYear' | 'id' | 'type' | 'college'>
+  user: Pick<PublicUser, 'gradYear' | 'type' | 'college'>
   collegeEditor?: ReactNode
 }
 
@@ -25,10 +25,6 @@ function MemberProfileSummary({
           <div>
             <dt>Graduation year</dt>
             <dd>{user.gradYear}</dd>
-          </div>
-          <div>
-            <dt>Member</dt>
-            <dd>#{user.id}</dd>
           </div>
           {!collegeEditor && (
             <div>

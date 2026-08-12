@@ -10,8 +10,12 @@ test('confirms that registration is pending and links home', async ({
   await expect(
     page.getByRole('heading', { name: 'Your account is pending review' }),
   ).toBeVisible()
-  await expect(page.getByText('Registration received')).toBeVisible()
+  await expect(page.getByText('Viking Connect registration')).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Return home' })).toHaveAttribute(
+    'href',
+    '/',
+  )
   await expect(
-    page.getByRole('link', { name: 'Back to sign in' }),
+    page.getByRole('link', { name: 'Sign in after approval' }),
   ).toHaveAttribute('href', '/login')
 })

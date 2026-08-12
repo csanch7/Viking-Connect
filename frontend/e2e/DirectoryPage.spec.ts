@@ -39,7 +39,10 @@ test('shows the mentor directory and mentor contact details', async ({
     'href',
     '/mentor/42',
   )
-  await expect(page.getByText('alex@example.com')).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Email' })).toHaveAttribute(
+    'href',
+    'mailto:alex@example.com',
+  )
   await expect(page.getByText('Finance')).toBeVisible()
 })
 
@@ -66,12 +69,12 @@ test('shows personalized recommendations to mentees', async ({ page }) => {
   await expect(
     page.getByRole('heading', { name: 'Recommended for you' }),
   ).toBeVisible()
-  await expect(page.getByText('50% of your interests covered')).toBeVisible()
+  await expect(
+    page.getByText('You share a college connection and mentoring interests.'),
+  ).toBeVisible()
   await expect(page.getByText('2 shared topics')).toBeVisible()
   await expect(page.getByText('Same college')).toBeVisible()
-  await expect(
-    page.getByLabel('Recommendation score 60 out of 100'),
-  ).toBeVisible()
+  await expect(page.getByText('/100 match')).toBeHidden()
 })
 
 test('applies an expertise filter to the mentor request', async ({ page }) => {
@@ -93,6 +96,9 @@ test('applies an expertise filter to the mentor request', async ({ page }) => {
   await page.getByRole('button', { name: 'Apply filters' }).click()
 
   await filteredRequest
+  await expect(page.getByLabel('Active filters')).toContainText(
+    'Expertise: Data Ethics',
+  )
 })
 
 test('keeps the directory visible while filters are applied', async ({
@@ -156,8 +162,9 @@ test('applies and clears a separate college filter', async ({ page }) => {
     return url.pathname === '/api/mentors/0' && !url.searchParams.has('college')
   })
 
-  await page.getByRole('button', { name: 'Clear filters' }).click()
+  await page.getByRole('button', { name: 'Clear all filters' }).click()
   await clearedRequest
+  await page.getByRole('button', { name: /Filters/ }).click()
   await expect(page.getByLabel('College')).toHaveValue('')
 })
 

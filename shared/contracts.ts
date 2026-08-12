@@ -19,8 +19,14 @@ export interface PublicUser {
 
 export type MentorDirectoryUser = Pick<
   PublicUser,
-  "id" | "name" | "email" | "linkedin" | "areasOfExpertise" | "type"
-> & { gradYear?: number };
+  | "id"
+  | "name"
+  | "email"
+  | "linkedin"
+  | "areasOfExpertise"
+  | "type"
+  | "gradYear"
+>;
 
 export type MenteeDirectoryUser = MentorDirectoryUser;
 
@@ -205,11 +211,8 @@ export function parseMentor(value: unknown): MentorDirectoryUser {
     linkedin: readString(value, "linkedin"),
     type: parseUserType(value.type),
     areasOfExpertise: readStringArray(value, "areasOfExpertise"),
+    gradYear: readNumber(value, "gradYear"),
   };
-
-  if (value.gradYear !== undefined) {
-    parsed.gradYear = readNumber(value, "gradYear");
-  }
 
   return parsed;
 }
@@ -226,11 +229,8 @@ export function parseMentee(value: unknown): MenteeDirectoryUser {
     linkedin: readString(value, "linkedin"),
     areasOfExpertise: readStringArray(value, "areasOfExpertise"),
     type: parseUserType(value.type),
+    gradYear: readNumber(value, "gradYear"),
   };
-
-  if (value.gradYear !== undefined) {
-    parsed.gradYear = readNumber(value, "gradYear");
-  }
 
   return parsed;
 }

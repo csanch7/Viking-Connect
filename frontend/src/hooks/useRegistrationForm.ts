@@ -67,8 +67,14 @@ export function useRegistrationForm() {
         ? 'register-field register-field--valid'
         : 'register-field register-field--invalid'
 
-  function showError(value: string) {
+  function showError(value: string, fieldId?: string) {
     setError(value)
+    if (fieldId) {
+      window.requestAnimationFrame(() => {
+        document.getElementById(fieldId)?.focus()
+      })
+      return
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -81,6 +87,7 @@ export function useRegistrationForm() {
         type === 'mentor'
           ? 'Choose at least one area of expertise'
           : 'Choose at least one area of interest',
+        'expertiseSelect',
       )
       return
     }
@@ -89,19 +96,19 @@ export function useRegistrationForm() {
       gradYear < earliestGraduationYear ||
       gradYear > latestGraduationYear
     ) {
-      showError('Select a valid graduation year')
+      showError('Select a valid graduation year', 'graduationYear')
       return
     }
     if (!passwordIsValid) {
-      showError('Password does not meet the requirements')
+      showError('Password does not meet the requirements', 'password')
       return
     }
     if (password !== confirmPassword) {
-      showError('Make sure passwords match')
+      showError('Make sure passwords match', 'confirmPassword')
       return
     }
     if (!linkedinIsValid) {
-      showError('Enter a valid LinkedIn profile URL')
+      showError('Enter a valid LinkedIn profile URL', 'linkedin')
       return
     }
 

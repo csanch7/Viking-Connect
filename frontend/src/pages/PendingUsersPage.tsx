@@ -17,6 +17,9 @@ function PendingUsersPage() {
   const [denyConfirmationId, setDenyConfirmationId] = useState<string | null>(
     null,
   )
+  const [approveConfirmationId, setApproveConfirmationId] = useState<
+    string | null
+  >(null)
 
   const navigate = useNavigate()
 
@@ -39,6 +42,7 @@ function PendingUsersPage() {
 
     if (denyConfirmationId !== userId) {
       setDenyConfirmationId(userId)
+      setApproveConfirmationId(null)
       return
     }
 
@@ -49,7 +53,12 @@ function PendingUsersPage() {
       setUsers((currentUsers) =>
         currentUsers.filter((user) => user.id !== userId),
       )
-      setMessage('User denied')
+      const deniedUser = users.find((user) => user.id === userId)
+      setMessage(
+        deniedUser
+          ? `${deniedUser.name}'s registration was denied.`
+          : 'Registration denied.',
+      )
       setDenyConfirmationId(null)
       setError('')
     } catch {
@@ -63,6 +72,12 @@ function PendingUsersPage() {
   async function approveUser(userId: string) {
     if (activeUserId) return
 
+    if (approveConfirmationId !== userId) {
+      setApproveConfirmationId(userId)
+      setDenyConfirmationId(null)
+      return
+    }
+
     setActiveUserId(userId)
     setActiveAction('approve')
     try {
@@ -70,7 +85,13 @@ function PendingUsersPage() {
       setUsers((currentUsers) =>
         currentUsers.filter((user) => user.id !== userId),
       )
-      setMessage('User approved')
+      const approvedUser = users.find((user) => user.id === userId)
+      setMessage(
+        approvedUser
+          ? `${approvedUser.name} was approved for Viking Connect.`
+          : 'Member approved for Viking Connect.',
+      )
+      setApproveConfirmationId(null)
       setError('')
     } catch {
       setError('We could not approve this user. Please try again.')
@@ -127,7 +148,9 @@ function PendingUsersPage() {
               user={user}
               onApprove={approveUser}
               onDeny={denyUser}
+              onCancelApprove={() => setApproveConfirmationId(null)}
               onCancelDeny={() => setDenyConfirmationId(null)}
+              confirmApprove={approveConfirmationId === user.id}
               confirmDeny={denyConfirmationId === user.id}
               activeAction={
                 activeUserId === user.id

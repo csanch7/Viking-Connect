@@ -4,6 +4,7 @@ import UserDirectoryCard from '../components/user/UserDirectoryCard'
 import RecommendedMentorCard from '../components/user/RecommendedMentorCard'
 import { useAuth } from '../auth/useAuth'
 import { useMentorDirectory } from '../hooks/useMentorDirectory'
+import DirectoryAppliedFilters from '../components/user/DirectoryAppliedFilters'
 
 function DirectoryPage() {
   const { mentee: isMentee } = useAuth()
@@ -13,7 +14,9 @@ function DirectoryPage() {
     searchText,
     expertiseSearchText,
     draftExpertise,
+    appliedExpertise,
     draftCollege,
+    appliedCollege,
     filterPanelOpen,
     mentors,
     hasNextPage,
@@ -29,6 +32,7 @@ function DirectoryPage() {
     visibleExpertiseOptions,
     activeFilterCount,
     canClearFilters,
+    hasActiveFilters,
   } = directory
 
   function handleFilter(event: React.SubmitEvent<HTMLFormElement>) {
@@ -121,7 +125,7 @@ function DirectoryPage() {
               onClick={directory.toggleFilterPanel}
             >
               Filters
-              <span>{activeFilterCount}</span>
+              {activeFilterCount > 0 && <span>{activeFilterCount}</span>}
             </button>
           </div>
 
@@ -182,9 +186,17 @@ function DirectoryPage() {
               </div>
 
               {collegesError && (
-                <p className="directory-filter-empty" role="alert">
-                  {collegesError}
-                </p>
+                <div className="directory-filter-recovery">
+                  <p className="directory-filter-empty" role="alert">
+                    {collegesError}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => directory.retryColleges()}
+                  >
+                    Try again
+                  </button>
+                </div>
               )}
 
               <fieldset className="directory-filter-options">
@@ -194,9 +206,17 @@ function DirectoryPage() {
                     Loading expertise filters...
                   </p>
                 ) : topicsError ? (
-                  <p className="directory-filter-empty" role="alert">
-                    {topicsError}
-                  </p>
+                  <div className="directory-filter-recovery">
+                    <p className="directory-filter-empty" role="alert">
+                      {topicsError}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => directory.retryTopics()}
+                    >
+                      Try again
+                    </button>
+                  </div>
                 ) : visibleExpertiseOptions.length > 0 ? (
                   visibleExpertiseOptions.map((area) => (
                     <label className="directory-filter-chip" key={area}>
@@ -236,6 +256,14 @@ function DirectoryPage() {
           )}
         </form>
 
+        <DirectoryAppliedFilters
+          searchText={searchText}
+          expertise={appliedExpertise}
+          college={appliedCollege}
+          topicLabel="Expertise"
+          onClear={directory.clearFilters}
+        />
+
         {mentors.length > 0 ? (
           <section className="directory-directory" aria-label="Mentor list">
             <div className="directory-directory-header">
@@ -254,11 +282,25 @@ function DirectoryPage() {
           <section className="directory-empty" aria-live="polite">
             <h2>Unable to load mentors</h2>
             <p>{error}</p>
+            <button type="button" onClick={() => directory.retryMentors()}>
+              Try loading mentors again
+            </button>
           </section>
         ) : (
           <section className="directory-empty" aria-live="polite">
-            <h2>No mentors found</h2>
-            <p>There are no mentors to show on this page yet.</p>
+            <h2>
+              {hasActiveFilters ? 'No matching mentors' : 'No mentors yet'}
+            </h2>
+            <p>
+              {hasActiveFilters
+                ? 'Try removing a filter or searching for another name.'
+                : 'There are no approved mentors to show yet.'}
+            </p>
+            {hasActiveFilters && (
+              <button type="button" onClick={directory.clearFilters}>
+                Clear all filters
+              </button>
+            )}
           </section>
         )}
         <div className="directory-pagination">

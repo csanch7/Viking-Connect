@@ -21,7 +21,7 @@ function UserDirectoryCard({ user }: UserDirectoryCardProps) {
               <Link to={`/mentee/${user.id}`}>{user.name}</Link>
             )}
           </h3>
-          <p>{user.email}</p>
+          <p>St. Laurence class of {user.gradYear}</p>
         </div>
       </div>
 
@@ -46,11 +46,13 @@ function UserDirectoryCard({ user }: UserDirectoryCardProps) {
           </dd>
         </div>
         <div>
-          <dt>LinkedIn</dt>
+          <dt>Connect</dt>
           <dd>
-            <a href={user.linkedin} target="_blank" rel="noreferrer">
-              View profile <span aria-hidden="true">↗</span>
-            </a>
+            <span className="directory-contact-links">
+              <a href={user.linkedin} target="_blank" rel="noreferrer">
+                LinkedIn <span aria-hidden="true">↗</span>
+              </a>
+            </span>
           </dd>
         </div>
       </dl>

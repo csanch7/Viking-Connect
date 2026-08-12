@@ -3,7 +3,13 @@ import type { BaseUser } from "./userRepository";
 
 export type MenteeDirectoryUser = Pick<
   BaseUser,
-  "id" | "name" | "email" | "linkedin" | "type" | "areasOfExpertise"
+  | "id"
+  | "name"
+  | "email"
+  | "linkedin"
+  | "type"
+  | "areasOfExpertise"
+  | "gradYear"
 >;
 
 export type MenteeProfileUser = BaseUser;
@@ -28,6 +34,7 @@ export async function getMenteesByPagination(
       users.email,
       users.linkedin,
       users.type,
+      users.grad_year AS "gradYear",
       COALESCE(
         (
           SELECT ARRAY_AGG(topics.name ORDER BY topics.name)

@@ -46,6 +46,7 @@ export function usePaginatedDirectoryQuery<T>({
     hasNextPage: results.length > pageSize,
     loading: query.isPending,
     error: query.isError ? errorMessage : '',
+    retry: query.refetch,
   }
 }
 

@@ -86,12 +86,12 @@ function HomePage({ isAuthenticated = false }: HomePageProps) {
             <strong>Sign up</strong>
           </Link>
 
-          <p>Sign up and complete your profile (takes less than 5 minutes)</p>
+          <p>Create a profile that explains your background and goals</p>
         </div>
         <div>
           <span className="home-block-header">Step 2</span>
           <strong>Get approved</strong>
-          <p>Takes less than 24 hours</p>
+          <p>An administrator reviews every request before access is granted</p>
         </div>
         <div>
           <span className="home-block-header">Step 3</span>

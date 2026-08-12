@@ -16,6 +16,7 @@ test.beforeEach(async ({ page }) => {
 test('shows the fields that match the selected program role', async ({
   page,
 }) => {
+  await expect(page.getByLabel('Name', { exact: true })).toBeVisible()
   await page.getByRole('radio', { name: /Mentor/ }).check()
   await expect(page.getByLabel('Graduation year')).toHaveAttribute(
     'type',
@@ -27,6 +28,9 @@ test('shows the fields that match the selected program role', async ({
     page.getByRole('heading', { name: 'Areas of expertise' }),
   ).toBeVisible()
   await expect(page.getByLabel('Select an area')).toBeVisible()
+  await expect(page.locator('#linkedin-help')).toContainText(
+    'shown only to approved Viking Connect members',
+  )
 
   await page.getByRole('radio', { name: /Mentee/ }).check()
   await expect(page.getByRole('heading', { name: 'About you' })).toBeVisible()
