@@ -4,3 +4,9 @@ node_modules
 .agents
 dist/
 backend/build/
+.impeccable
+.codex
+.vscode
+PRODUCT.md
+UI_UX_REVIEW_CHECKLIST.md
+DESIGN_GUIDE.md

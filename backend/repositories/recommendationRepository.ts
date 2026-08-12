@@ -35,6 +35,7 @@ export async function getMentorRecommendations(
         mentors.email,
         mentors.linkedin,
         mentors.type,
+        mentors.grad_year AS "gradYear",
         COALESCE(
           ARRAY_AGG(topics.name ORDER BY topics.name)
             FILTER (WHERE topics.id IS NOT NULL),
@@ -66,6 +67,7 @@ export async function getMentorRecommendations(
         mentors.email,
         mentors.linkedin,
         mentors.type,
+        mentors.grad_year,
         mentee.college_id
     )
     SELECT
@@ -74,6 +76,7 @@ export async function getMentorRecommendations(
       email,
       linkedin,
       type,
+      "gradYear",
       "areasOfExpertise",
       "matchedTopics",
       "sharedTopicCount",
@@ -101,6 +104,7 @@ export async function getMentorRecommendations(
       email: row.email,
       linkedin: row.linkedin,
       type: row.type,
+      gradYear: row.gradYear,
       areasOfExpertise: row.areasOfExpertise,
     },
     recommendationScore: row.recommendationScore,

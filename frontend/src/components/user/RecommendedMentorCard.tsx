@@ -7,14 +7,13 @@ interface RecommendedMentorCardProps {
 }
 
 function RecommendedMentorCard({ recommendation }: RecommendedMentorCardProps) {
-  const {
-    mentor,
-    recommendationScore,
-    coveragePercentage,
-    sharedTopicCount,
-    matchedTopics,
-    sameCollege,
-  } = recommendation
+  const { mentor, sharedTopicCount, matchedTopics, sameCollege } =
+    recommendation
+  const connectionReason = sameCollege
+    ? 'You share a college connection and mentoring interests.'
+    : sharedTopicCount > 0
+      ? `You share ${sharedTopicCount} mentoring ${sharedTopicCount === 1 ? 'interest' : 'interests'}.`
+      : 'This mentor may complement the goals in your profile.'
 
   return (
     <article className="recommendation-card">
@@ -23,28 +22,26 @@ function RecommendedMentorCard({ recommendation }: RecommendedMentorCardProps) {
           <h3>
             <Link to={`/mentor/${mentor.id}`}>{mentor.name}</Link>
           </h3>
-          <p>{mentor.email}</p>
+          <p>St. Laurence class of {mentor.gradYear}</p>
         </div>
-        <span
-          className="recommendation-score"
-          aria-label={`Recommendation score ${recommendationScore} out of 100`}
-        >
-          <strong>{recommendationScore}</strong>
-          <small>/100 match</small>
-        </span>
       </div>
 
+      <p className="recommendation-reason">{connectionReason}</p>
+
       <div className="recommendation-signals">
-        <span>{coveragePercentage}% of your interests covered</span>
-        <span>
-          {sharedTopicCount} shared{' '}
-          {sharedTopicCount === 1 ? 'topic' : 'topics'}
-        </span>
+        {sharedTopicCount > 0 && (
+          <span>
+            {sharedTopicCount} shared{' '}
+            {sharedTopicCount === 1 ? 'topic' : 'topics'}
+          </span>
+        )}
         {sameCollege && <span>Same college</span>}
       </div>
 
       <div className="recommendation-topics">
-        <p>Shared interests</p>
+        <p>
+          {matchedTopics.length > 0 ? 'Shared interests' : 'Mentor expertise'}
+        </p>
         {matchedTopics.length > 0 ? (
           <ExpertiseChips
             areas={matchedTopics}

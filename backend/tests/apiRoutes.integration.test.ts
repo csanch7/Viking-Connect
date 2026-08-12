@@ -35,6 +35,7 @@ const mentor = {
   linkedin: "https://www.linkedin.com/in/alex-mentor",
   type: "mentor" as const,
   areasOfExpertise: ["Finance"],
+  gradYear: 2012,
 };
 
 const mentorRecommendation = {
@@ -459,6 +460,7 @@ describe("API routes", () => {
     );
     assert.equal(directory.status, 200);
     assert.equal(directory.body[0].name, "Alex Mentor");
+    assert.equal(directory.body[0].gradYear, 2012);
     assert.deepEqual(receivedMentorQuery, {
       page: 0,
       filters: ["Finance"],
@@ -510,6 +512,7 @@ describe("API routes", () => {
     );
     assert.equal(directory.status, 200);
     assert.equal(directory.body[0].name, mentee.name);
+    assert.equal(directory.body[0].gradYear, 2027);
     assert.deepEqual(receivedMenteeQuery, {
       page: 0,
       filters: ["Career Planning"],

@@ -8,6 +8,8 @@ interface ExpertiseSelectorProps {
   onSelectedAreaChange: (area: string) => void
   onAddArea: () => void
   onRemoveArea: (area: string) => void
+  label?: string
+  className?: string
 }
 
 function ExpertiseSelector({
@@ -17,10 +19,13 @@ function ExpertiseSelector({
   onSelectedAreaChange,
   onAddArea,
   onRemoveArea,
+  label = 'Select an area',
+  className,
 }: ExpertiseSelectorProps) {
   const [topics, setTopics] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState('')
+  const [loadAttempt, setLoadAttempt] = useState(0)
 
   useEffect(() => {
     let isCurrent = true
@@ -36,9 +41,7 @@ function ExpertiseSelector({
       .catch(() => {
         if (isCurrent) {
           setTopics([])
-          setLoadError(
-            'We could not load topics. Please refresh and try again.',
-          )
+          setLoadError('We could not load mentorship topics.')
         }
       })
       .finally(() => {
@@ -48,12 +51,20 @@ function ExpertiseSelector({
     return () => {
       isCurrent = false
     }
-  }, [])
+  }, [loadAttempt])
+
+  function retryLoadingTopics() {
+    setLoading(true)
+    setLoadError('')
+    setLoadAttempt((attempt) => attempt + 1)
+  }
   return (
     <>
-      <div className="register-expertise-row">
+      <div
+        className={`register-expertise-row${className ? ` ${className}` : ''}`}
+      >
         <label className="register-field" htmlFor={selectId}>
-          <span>Select an area</span>
+          <span>{label}</span>
           <div className="register-expertise-control">
             <select
               id={selectId}
@@ -70,11 +81,13 @@ function ExpertiseSelector({
                     ? 'Topics unavailable'
                     : 'Choose a topic'}
               </option>
-              {topics.map((area) => (
-                <option key={area} value={area}>
-                  {area}
-                </option>
-              ))}
+              {topics
+                .filter((area) => !selectedAreas.includes(area))
+                .map((area) => (
+                  <option key={area} value={area}>
+                    {area}
+                  </option>
+                ))}
             </select>
 
             <button
@@ -87,9 +100,18 @@ function ExpertiseSelector({
             </button>
           </div>
           {loadError && (
-            <small id={`${selectId}-error`} role="alert">
-              {loadError}
-            </small>
+            <div className="register-field-recovery" id={`${selectId}-error`}>
+              <small role="alert">
+                {loadError} Topics are required to complete your profile.
+              </small>
+              <button
+                className="inline-retry-button"
+                type="button"
+                onClick={retryLoadingTopics}
+              >
+                Try loading topics again
+              </button>
+            </div>
           )}
         </label>
       </div>
@@ -104,7 +126,9 @@ function ExpertiseSelector({
                 onClick={() => onRemoveArea(area)}
                 aria-label={`Remove ${area}`}
               >
-                <span aria-hidden="true">×</span>
+                <svg aria-hidden="true" viewBox="0 0 20 20" fill="none">
+                  <path d="m6 6 8 8M14 6l-8 8" />
+                </svg>
               </button>
             </li>
           ))}

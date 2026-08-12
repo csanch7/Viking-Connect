@@ -67,15 +67,21 @@ test('edits and saves the complete profile from one action', async ({
   await page.goto('/profile')
 
   await page.getByRole('button', { name: 'Edit profile' }).click()
+  await expect(
+    page.getByRole('heading', { name: 'Edit your profile' }),
+  ).toBeVisible()
+  await expect(page.getByText('No changes yet')).toBeVisible()
   await page
-    .getByLabel('Bio')
+    .getByLabel('About you')
     .fill('I am looking for resume review and interview preparation.')
   await page
     .getByLabel('College')
     .selectOption('University of Illinois Chicago')
-  await page.getByLabel('Select an area').selectOption('Career Planning')
+  await page.getByLabel('Add an interest').selectOption('Career Planning')
   await page.getByRole('button', { name: 'Add' }).click()
+  await expect(page.getByText('Unsaved changes')).toBeVisible()
   await page.getByRole('button', { name: 'Save changes' }).click()
+  await expect(page.getByRole('button', { name: 'Edit profile' })).toBeVisible()
 
   await expect(
     page.getByText('I am looking for resume review and interview preparation.'),
@@ -86,7 +92,25 @@ test('edits and saves the complete profile from one action', async ({
   await expect(
     page.getByRole('listitem').filter({ hasText: /^Career Planning$/ }),
   ).toBeVisible()
+  await expect(
+    page.getByText('Your profile is updated and visible to the community.'),
+  ).toBeVisible()
+})
+
+test('warns before discarding unsaved profile changes', async ({ page }) => {
+  await page.goto('/profile')
+
+  await page.getByRole('button', { name: 'Edit profile' }).click()
+  await page.getByLabel('About you').fill('A changed introduction')
+  await page.getByRole('button', { name: 'Cancel' }).click()
+
+  await expect(
+    page.getByRole('heading', { name: 'Discard your profile changes?' }),
+  ).toBeVisible()
+  await page.getByRole('button', { name: 'Discard changes' }).click()
+
   await expect(page.getByRole('button', { name: 'Edit profile' })).toBeVisible()
+  await expect(page.getByText('A changed introduction')).toBeHidden()
 })
 
 test('signs out and returns to the sign-in page', async ({ page }) => {

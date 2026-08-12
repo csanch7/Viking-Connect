@@ -24,6 +24,7 @@ describe("shared API contracts", () => {
           linkedin: "https://www.linkedin.com/in/alex-mentor",
           type: "mentor",
           areasOfExpertise: ["Finance"],
+          gradYear: 2012,
         },
       ])[0].id,
       "42",
@@ -45,6 +46,7 @@ describe("shared API contracts", () => {
               linkedin: "https://www.linkedin.com/in/alex-mentor",
               type: "mentor",
               areasOfExpertise: ["Career Planning", "Finance"],
+              gradYear: 2012,
             },
             recommendationScore: 60,
             coveragePercentage: 50,
@@ -62,6 +64,7 @@ describe("shared API contracts", () => {
           linkedin: "https://www.linkedin.com/in/alex-mentor",
           type: "mentor",
           areasOfExpertise: ["Career Planning", "Finance"],
+          gradYear: 2012,
         },
         recommendationScore: 60,
         coveragePercentage: 50,
@@ -76,6 +79,20 @@ describe("shared API contracts", () => {
     assert.throws(
       () => parseSessionResponse({ authenticated: "yes", admin: false }),
       /Invalid API response/,
+    );
+    assert.throws(
+      () =>
+        parseMentorList([
+          {
+            id: "42",
+            name: "Alex Mentor",
+            email: "alex@example.com",
+            linkedin: "https://www.linkedin.com/in/alex-mentor",
+            type: "mentor",
+            areasOfExpertise: ["Finance"],
+          },
+        ]),
+      /Invalid API response: gradYear/,
     );
     assert.throws(
       () =>

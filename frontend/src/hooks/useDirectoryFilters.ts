@@ -58,6 +58,7 @@ function directoryFilterReducer(
         appliedExpertise: state.draftExpertise,
         appliedCollege: state.draftCollege,
         page: 0,
+        filterPanelOpen: false,
       }
     case 'filtersCleared':
       return {
@@ -83,7 +84,17 @@ export function useDirectoryFilters() {
   return {
     ...state,
     activeFilterCount:
-      state.draftExpertise.length + (state.draftCollege ? 1 : 0),
+      state.appliedExpertise.length + (state.appliedCollege ? 1 : 0),
+    hasActiveFilters:
+      state.searchText.trim().length > 0 ||
+      state.appliedExpertise.length > 0 ||
+      state.appliedCollege.length > 0,
+    hasPendingFilterChanges:
+      state.draftCollege !== state.appliedCollege ||
+      state.draftExpertise.length !== state.appliedExpertise.length ||
+      state.draftExpertise.some(
+        (area) => !state.appliedExpertise.includes(area),
+      ),
     canClearFilters:
       state.draftExpertise.length > 0 ||
       state.appliedExpertise.length > 0 ||

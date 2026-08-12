@@ -774,6 +774,88 @@
   font-weight: 680;
 }
 
+.college-field-recovery,
+.register-field-recovery {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+}
+
+.inline-retry-button {
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--surface-border-strong, #d7cfc2);
+  border-radius: 6px;
+  color: var(--surface-ink, #191919);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 720;
+  cursor: pointer;
+  background: var(--surface-card, #fffefa);
+}
+
+.inline-retry-button:hover {
+  border-color: #191919;
+  background: var(--surface-card-muted, #f7f3eb);
+}
+
+.inline-retry-button:focus-visible {
+  outline: 3px solid rgba(255, 199, 44, 0.5);
+  outline-offset: 3px;
+}
+
+.verification-next-step {
+  display: grid;
+  gap: 6px;
+  margin-top: 18px;
+  padding: 14px;
+  border-radius: 8px;
+  color: var(--surface-ink);
+  background: var(--surface-gold-soft);
+}
+
+.verification-next-step strong {
+  font-size: 13px;
+}
+
+.verification-next-step p {
+  font-size: 13px !important;
+}
+
+.verification-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  margin-top: 20px;
+}
+
+.verification-primary-link,
+.verification-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.verification-primary-link {
+  padding: 0 14px;
+  border-radius: 6px;
+  color: #fffefa;
+  font-size: 13px;
+  font-weight: 720;
+  text-decoration: none;
+  background: #191919;
+}
+
+.verification-primary-link:hover {
+  background: #2a2926;
+}
+
+.verification-primary-link:focus-visible {
+  outline: 3px solid rgba(255, 199, 44, 0.55);
+  outline-offset: 3px;
+}
+
 .profile-secondary-button {
   min-height: 34px;
   padding: 0 12px;
@@ -1553,4 +1635,27 @@
     flex-direction: column;
     gap: 4px;
   }
+}
+
+/* Shared interaction floor: comfortable by touch, keyboard, and zoom. */
+.app-nav-brand,
+.app-nav-button,
+.login-submit-button,
+.register-submit-button,
+.register-secondary-button,
+.register-back-link,
+.profile-primary-button,
+.profile-secondary-button,
+.profile-secondary-link,
+.member-profile-primary-action,
+.member-profile-secondary-action,
+.pending-user-actions button,
+.confirmation-dialog-actions button,
+.directory-pagination-actions button {
+  min-height: 44px;
+}
+
+.register-chip-list button {
+  min-width: 44px;
+  min-height: 44px;
 }

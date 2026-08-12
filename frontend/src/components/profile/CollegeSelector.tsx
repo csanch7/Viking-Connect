@@ -19,6 +19,7 @@ function CollegeSelector({
   const [colleges, setColleges] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState('')
+  const [loadAttempt, setLoadAttempt] = useState(0)
 
   useEffect(() => {
     let isCurrent = true
@@ -34,7 +35,7 @@ function CollegeSelector({
       .catch(() => {
         if (isCurrent) {
           setColleges([])
-          setLoadError('We could not load colleges. Please try again.')
+          setLoadError('We could not load colleges.')
         }
       })
       .finally(() => {
@@ -44,7 +45,13 @@ function CollegeSelector({
     return () => {
       isCurrent = false
     }
-  }, [])
+  }, [loadAttempt])
+
+  function retryLoadingColleges() {
+    setLoading(true)
+    setLoadError('')
+    setLoadAttempt((attempt) => attempt + 1)
+  }
 
   return (
     <div className="college-field">
@@ -84,13 +91,21 @@ function CollegeSelector({
         </svg>
       </div>
       {loadError ? (
-        <p
-          className="college-field-message college-field-message--error"
-          id={`${selectId}-error`}
-          role="alert"
-        >
-          {loadError}
-        </p>
+        <div className="college-field-recovery" id={`${selectId}-error`}>
+          <p
+            className="college-field-message college-field-message--error"
+            role="alert"
+          >
+            {loadError} College is optional, so you can continue without it.
+          </p>
+          <button
+            className="inline-retry-button"
+            type="button"
+            onClick={retryLoadingColleges}
+          >
+            Try loading colleges again
+          </button>
+        </div>
       ) : (
         <p className="college-field-message" id={`${selectId}-help`}>
           {supportingText}

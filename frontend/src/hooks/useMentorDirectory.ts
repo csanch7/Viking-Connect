@@ -48,6 +48,7 @@ export function useMentorDirectory(isMentee: boolean) {
     hasNextPage: mentorsQuery.hasNextPage,
     loading: mentorsQuery.loading,
     error: mentorsQuery.error,
+    retryMentors: mentorsQuery.retry,
     recommendations: recommendationsQuery.data ?? [],
     recommendationsLoading: isMentee && recommendationsQuery.isPending,
     recommendationsError: recommendationsQuery.isError
@@ -55,13 +56,13 @@ export function useMentorDirectory(isMentee: boolean) {
       : '',
     colleges: collegesQuery.data ?? [],
     collegesLoading: collegesQuery.isPending,
-    collegesError: collegesQuery.isError
-      ? 'We could not load colleges. Please refresh and try again.'
-      : '',
+    collegesError: collegesQuery.isError ? 'We could not load colleges.' : '',
+    retryColleges: collegesQuery.refetch,
     topicsLoading: topicsQuery.isPending,
     topicsError: topicsQuery.isError
-      ? 'We could not load expertise filters. Please refresh and try again.'
+      ? 'We could not load expertise filters.'
       : '',
+    retryTopics: topicsQuery.refetch,
     visibleExpertiseOptions,
   }
 }

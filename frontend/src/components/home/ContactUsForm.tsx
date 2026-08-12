@@ -76,7 +76,10 @@ function ContactUsForm() {
         />
       </label>
       <label className="contact-form-field" htmlFor="contact-subject">
-        <span>Subject</span>
+        <span className="contact-form-label-row">
+          <span>Subject</span>
+          <small>{subject.length}/120</small>
+        </span>
         <input
           id="contact-subject"
           type="text"
@@ -87,7 +90,10 @@ function ContactUsForm() {
         />
       </label>
       <label className="contact-form-field" htmlFor="contact-message">
-        <span>Message</span>
+        <span className="contact-form-label-row">
+          <span>Message</span>
+          <small>{body.length}/5000</small>
+        </span>
         <textarea
           id="contact-message"
           value={body}

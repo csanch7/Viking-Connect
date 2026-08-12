@@ -22,7 +22,33 @@ export function useProfileEditor(
 ) {
   const [editor, setEditor] = useState<ProfileEditorState>(closedEditor)
   const [saveError, setSaveError] = useState('')
+  const [saveSuccess, setSaveSuccess] = useState('')
   const [isSaving, setIsSaving] = useState(false)
+
+  const expertiseUnchanged =
+    editor.mode !== 'profile' ||
+    (user !== null &&
+      user.areasOfExpertise.length === editor.areasOfExpertise.length &&
+      user.areasOfExpertise.every((area) =>
+        editor.areasOfExpertise.includes(area),
+      ))
+  const isDirty =
+    editor.mode === 'profile' &&
+    user !== null &&
+    (editor.bio !== user.bio ||
+      (editor.college || null) !== user.college ||
+      !expertiseUnchanged)
+  const bioError =
+    editor.mode === 'profile' && !editor.bio.trim()
+      ? 'Add a short introduction before saving.'
+      : ''
+  const expertiseError =
+    editor.mode === 'profile' && editor.areasOfExpertise.length === 0
+      ? user?.type === 'mentor'
+        ? 'Choose at least one area where you can help.'
+        : 'Choose at least one area where you would like support.'
+      : ''
+  const canSave = isDirty && !bioError && !expertiseError && !isSaving
 
   function getSaveError(error: unknown) {
     if (axios.isAxiosError<{ message?: string }>(error)) {
@@ -35,6 +61,7 @@ export function useProfileEditor(
     if (!user) return
 
     setSaveError('')
+    setSaveSuccess('')
     setEditor({
       mode: 'profile',
       bio: user.bio,
@@ -119,9 +146,6 @@ export function useProfileEditor(
       return
     }
 
-    const expertiseUnchanged =
-      user.areasOfExpertise.length === areasOfExpertise.length &&
-      user.areasOfExpertise.every((area) => areasOfExpertise.includes(area))
     if (
       bio === user.bio.trim() &&
       college === user.college &&
@@ -144,7 +168,9 @@ export function useProfileEditor(
         college: response.college,
         areasOfExpertise: response.areasOfExpertise,
       })
-      cancelEditing()
+      setEditor(closedEditor)
+      setSaveError('')
+      setSaveSuccess('Your profile is updated and visible to the community.')
     } catch (error) {
       setSaveError(getSaveError(error))
     } finally {
@@ -155,7 +181,12 @@ export function useProfileEditor(
   return {
     editor,
     saveError,
+    saveSuccess,
     isSaving,
+    isDirty,
+    bioError,
+    expertiseError,
+    canSave,
     startEditing,
     cancelEditing,
     updateBio,
