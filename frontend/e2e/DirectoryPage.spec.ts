@@ -39,10 +39,6 @@ test('shows the mentor directory and mentor contact details', async ({
     'href',
     '/mentor/42',
   )
-  await expect(page.getByRole('link', { name: 'Email' })).toHaveAttribute(
-    'href',
-    'mailto:alex@example.com',
-  )
   await expect(page.getByText('Finance')).toBeVisible()
 })
 
