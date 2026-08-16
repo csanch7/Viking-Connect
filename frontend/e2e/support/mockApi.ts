@@ -33,6 +33,19 @@ export async function mockTopics(
   page: Page,
   topics = ['Career Planning', 'Finance', 'Technology'],
 ) {
+  await page.route('**/api/active-topics', async (route) => {
+    await fulfillJson(route, { topics })
+  })
+}
+
+export async function mockAllTopics(
+  page: Page,
+  topics = [
+    { id: '1', name: 'Career Planning', is_active: true },
+    { id: '2', name: 'Finance', is_active: true },
+    { id: '3', name: 'Technology', is_active: true },
+  ],
+) {
   await page.route('**/api/topics', async (route) => {
     await fulfillJson(route, { topics })
   })

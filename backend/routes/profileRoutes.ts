@@ -17,7 +17,7 @@ import {
   getIdParamValidationError,
   normalizeIdParam,
 } from "../validation/routeValidation";
-import { getTopics } from "../repositories/topicRepository";
+import { getActiveTopics } from "../repositories/topicRepository";
 import { getColleges, updateCollege } from "../repositories/collegeRepository";
 
 export interface ProfileRouterDependencies {
@@ -25,7 +25,7 @@ export interface ProfileRouterDependencies {
   updateBio: typeof updateBio;
   updateCollege: typeof updateCollege;
   updateProfile: typeof updateProfile;
-  getTopics: typeof getTopics;
+  getTopics: typeof getActiveTopics;
   getColleges: typeof getColleges;
 }
 
@@ -34,7 +34,7 @@ const defaultDependencies: ProfileRouterDependencies = {
   updateBio,
   updateCollege,
   updateProfile,
-  getTopics,
+  getTopics: getActiveTopics,
   getColleges,
 };
 

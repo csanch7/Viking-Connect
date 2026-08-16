@@ -3,13 +3,23 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import ConfirmationDialog from '../components/ConfirmationDialog'
 import LoadingPage from '../components/LoadingPage'
-import { topicsQueryKey, useTopicsQuery } from '../hooks/useDirectoryQueries'
+import {
+  activeTopicsQueryKey,
+  topicsQueryKey,
+  useTopicsQuery,
+} from '../hooks/useDirectoryQueries'
 import topicService from '../services/topicService'
+import type { Topic } from '../../../shared/contracts'
 
 function AdminTopicsPage() {
   const [topicText, setTopicText] = useState('')
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
+  const [topicStatusMessage, setTopicStatusMessage] = useState('')
+  const [topicUpdateError, setTopicUpdateError] = useState<{
+    id: string
+    message: string
+  } | null>(null)
   const [confirmationTopic, setConfirmationTopic] = useState<string | null>(
     null,
   )
@@ -21,16 +31,52 @@ function AdminTopicsPage() {
   const addTopicMutation = useMutation({
     mutationFn: topicService.addTopic,
     onSuccess: (createdTopic) => {
-      queryClient.setQueryData<string[]>(topicsQueryKey, (currentTopics = []) =>
-        Array.from(new Set([...currentTopics, createdTopic])).sort((a, b) =>
-          a.localeCompare(b),
+      queryClient.setQueryData<Topic[]>(topicsQueryKey, (currentTopics = []) =>
+        [...currentTopics, createdTopic].sort((a, b) =>
+          a.name.localeCompare(b.name),
         ),
       )
+      void queryClient.invalidateQueries({ queryKey: activeTopicsQueryKey })
       setTopicText('')
       setError('')
-      setMessage(`${createdTopic} was added to the topic library.`)
+      setMessage(`${createdTopic.name} was added to the topic library.`)
       setConfirmationTopic(null)
       setConfirmationError('')
+    },
+  })
+
+  const updateTopicMutation = useMutation({
+    mutationFn: (id: string) => topicService.updateTopic(id),
+    onMutate: (id) => {
+      setTopicStatusMessage('')
+      setTopicUpdateError((currentError) =>
+        currentError?.id === id ? null : currentError,
+      )
+    },
+    onSuccess: (isActive, id) => {
+      const updatedTopic = topics.find((topic) => topic.id === id)
+
+      queryClient.setQueryData<Topic[]>(topicsQueryKey, (currentTopics = []) =>
+        currentTopics.map((topic) =>
+          topic.id === id ? { ...topic, is_active: isActive } : topic,
+        ),
+      )
+      void queryClient.invalidateQueries({ queryKey: activeTopicsQueryKey })
+      setTopicUpdateError(null)
+      setTopicStatusMessage(
+        `${updatedTopic?.name ?? 'Topic'} is now ${
+          isActive
+            ? 'available in registration and filters'
+            : 'hidden from registration and filters'
+        }.`,
+      )
+    },
+    onError: (_mutationError, id) => {
+      const topicName = topics.find((topic) => topic.id === id)?.name ?? 'topic'
+      setTopicUpdateError({
+        id,
+        message: `We could not update ${topicName}. Try again.`,
+      })
     },
   })
 
@@ -51,7 +97,8 @@ function AdminTopicsPage() {
 
     if (
       topics.some(
-        (existingTopic) => existingTopic.toLowerCase() === topic.toLowerCase(),
+        (existingTopic) =>
+          existingTopic.name.toLowerCase() === topic.toLowerCase(),
       )
     ) {
       setError('That topic is already in the library.')
@@ -183,12 +230,47 @@ function AdminTopicsPage() {
 
             {topics.length > 0 ? (
               <ol className="admin-topic-list" aria-label="Available topics">
-                {topics.map((topic) => (
-                  <li className="admin-topic-row" key={topic}>
-                    <span className="admin-topic-marker" aria-hidden="true" />
-                    <h3>{topic}</h3>
-                  </li>
-                ))}
+                {topics.map((topic) => {
+                  const isUpdating =
+                    updateTopicMutation.isPending &&
+                    updateTopicMutation.variables === topic.id
+                  const updateError =
+                    topicUpdateError?.id === topic.id
+                      ? topicUpdateError.message
+                      : null
+
+                  return (
+                    <li
+                      className={`admin-topic-row${topic.is_active ? '' : ' admin-topic-row--inactive'}`}
+                      key={topic.id}
+                      aria-busy={isUpdating}
+                    >
+                      <span className="admin-topic-marker" aria-hidden="true" />
+                      <div className="admin-topic-copy">
+                        <h3>{topic.name}</h3>
+                        {updateError && (
+                          <p className="admin-topic-update-error" role="alert">
+                            {updateError}
+                          </p>
+                        )}
+                      </div>
+                      <button
+                        className="admin-topic-status"
+                        type="button"
+                        aria-pressed={topic.is_active}
+                        aria-label={`${topic.name} availability`}
+                        disabled={updateTopicMutation.isPending}
+                        onClick={() => updateTopicMutation.mutate(topic.id)}
+                      >
+                        {isUpdating
+                          ? 'Updating…'
+                          : topic.is_active
+                            ? 'Active'
+                            : 'Inactive'}
+                      </button>
+                    </li>
+                  )
+                })}
               </ol>
             ) : (
               <div className="admin-topics-empty" aria-live="polite">
@@ -223,6 +305,10 @@ function AdminTopicsPage() {
           </aside>
         </div>
       )}
+
+      <p className="sr-only" aria-live="polite">
+        {topicStatusMessage}
+      </p>
 
       <ConfirmationDialog
         open={Boolean(confirmationTopic)}

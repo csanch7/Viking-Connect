@@ -1,8 +1,8 @@
 import { expect, test } from '@playwright/test'
 import {
   fulfillJson,
+  mockAllTopics,
   mockAuthenticatedSession,
-  mockTopics,
 } from './support/mockApi'
 
 test.beforeEach(async ({ page }) => {
@@ -10,7 +10,7 @@ test.beforeEach(async ({ page }) => {
 })
 
 test('shows the topic library and its program context', async ({ page }) => {
-  await mockTopics(page, ['Career Planning', 'Finance', 'Technology'])
+  await mockAllTopics(page)
   await page.goto('/admin/topics')
 
   await expect(
@@ -30,7 +30,7 @@ test('shows the topic library and its program context', async ({ page }) => {
 })
 
 test('shows an empty state when no topics are available', async ({ page }) => {
-  await mockTopics(page, [])
+  await mockAllTopics(page, [])
   await page.goto('/admin/topics')
 
   await expect(
@@ -39,17 +39,85 @@ test('shows an empty state when no topics are available', async ({ page }) => {
   await expect(page.getByLabel('Add a topic')).toBeVisible()
 })
 
+test('changes topic availability with clear pending and success feedback', async ({
+  page,
+}) => {
+  let releaseUpdate!: () => void
+  const updateReleased = new Promise<void>((resolve) => {
+    releaseUpdate = resolve
+  })
+
+  await page.route('**/api/topics/**', async (route) => {
+    await updateReleased
+    await fulfillJson(route, { is_active: true })
+  })
+  await mockAllTopics(page, [{ id: '2', name: 'Finance', is_active: false }])
+  await page.goto('/admin/topics')
+
+  const topicRow = page
+    .getByRole('list', { name: 'Available topics' })
+    .getByRole('listitem')
+  const availabilityButton = topicRow.getByRole('button', {
+    name: 'Finance availability',
+  })
+
+  await expect(availabilityButton).toHaveAttribute('aria-pressed', 'false')
+  await expect(availabilityButton).toHaveText('Inactive')
+  await availabilityButton.click()
+  await expect(topicRow).toContainText('Updating…')
+  await expect(availabilityButton).toBeDisabled()
+
+  releaseUpdate()
+
+  await expect(availabilityButton).toHaveAttribute('aria-pressed', 'true')
+  await expect(availabilityButton).toHaveText('Active')
+  await expect(page.getByText(/Finance is now available in/)).toHaveText(
+    'Finance is now available in registration and filters.',
+  )
+})
+
+test('keeps the previous topic state when an update fails', async ({
+  page,
+}) => {
+  await page.route('**/api/topics/**', async (route) => {
+    await fulfillJson(route, { message: 'Unavailable' }, 500)
+  })
+  await mockAllTopics(page, [
+    { id: '1', name: 'Career Planning', is_active: true },
+  ])
+  await page.goto('/admin/topics')
+
+  const availabilityButton = page.getByRole('button', {
+    name: 'Career Planning availability',
+  })
+  await availabilityButton.click()
+
+  await expect(availabilityButton).toHaveAttribute('aria-pressed', 'true')
+  await expect(availabilityButton).toHaveText('Active')
+  await expect(page.getByRole('alert')).toHaveText(
+    'We could not update Career Planning. Try again.',
+  )
+})
+
 test('adds a topic and updates the shared topic list', async ({ page }) => {
   let submittedBody: unknown
   await page.route('**/api/topics', async (route) => {
     if (route.request().method() === 'POST') {
       submittedBody = route.request().postDataJSON()
-      await fulfillJson(route, { topic: 'Leadership' }, 201)
+      await fulfillJson(
+        route,
+        { topic: { id: '4', name: 'Leadership', is_active: true } },
+        201,
+      )
       return
     }
 
     await fulfillJson(route, {
-      topics: ['Career Planning', 'Finance', 'Technology'],
+      topics: [
+        { id: '1', name: 'Career Planning', is_active: true },
+        { id: '2', name: 'Finance', is_active: false },
+        { id: '3', name: 'Technology', is_active: true },
+      ],
     })
   })
   await page.goto('/admin/topics')
@@ -88,7 +156,9 @@ test('allows an admin to retry after topics fail to load', async ({ page }) => {
       await fulfillJson(route, { error: 'Unavailable' }, 500)
       return
     }
-    await fulfillJson(route, { topics: ['Leadership'] })
+    await fulfillJson(route, {
+      topics: [{ id: '4', name: 'Leadership', is_active: true }],
+    })
   })
   await page.goto('/admin/topics')
 

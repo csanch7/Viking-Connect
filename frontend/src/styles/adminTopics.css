@@ -194,6 +194,11 @@
   box-shadow: 0 0 0 3px var(--surface-gold-soft);
 }
 
+.admin-topic-copy {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
 .admin-topic-row h3,
 .admin-topics-empty h3 {
   margin: 0;
@@ -202,6 +207,64 @@
   font-weight: 720;
   line-height: 1.35;
   overflow-wrap: anywhere;
+}
+
+.admin-topic-update-error {
+  margin: 3px 0 0;
+  color: var(--surface-danger);
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.admin-topic-status {
+  flex: 0 0 auto;
+  margin-inline-start: auto;
+  min-height: 30px;
+  padding: 5px 10px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: #4b3b05;
+  font-size: 11px;
+  font-weight: 750;
+  line-height: 1.4;
+  background: var(--surface-gold-soft);
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.admin-topic-status:hover:not(:disabled) {
+  border-color: #dfc25c;
+  background: #f5e4a7;
+}
+
+.admin-topic-status:focus-visible {
+  outline: 3px solid rgba(255, 199, 44, 0.55);
+  outline-offset: 3px;
+}
+
+.admin-topic-status:disabled {
+  cursor: wait;
+  opacity: 0.68;
+}
+
+.admin-topic-row--inactive .admin-topic-marker {
+  background: var(--surface-muted);
+  box-shadow: 0 0 0 3px var(--surface-border);
+}
+
+.admin-topic-row--inactive .admin-topic-status {
+  color: var(--surface-muted);
+  background: #f1eee8;
+}
+
+.admin-topic-row--inactive .admin-topic-status:hover:not(:disabled) {
+  border-color: #d1ccc3;
+  color: var(--surface-ink);
+  background: #e8e4dc;
 }
 
 .admin-topics-context p,

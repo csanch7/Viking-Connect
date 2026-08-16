@@ -31,7 +31,7 @@ function ExpertiseSelector({
     let isCurrent = true
 
     void topicService
-      .getTopics()
+      .getActiveTopics()
       .then((nextTopics) => {
         if (isCurrent) {
           setTopics(nextTopics)

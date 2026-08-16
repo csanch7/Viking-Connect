@@ -46,14 +46,14 @@ test('shows the fields that match the selected program role', async ({
 test('shows a loading state before database topics arrive', async ({
   page,
 }) => {
-  await page.unroute('**/api/topics')
+  await page.unroute('**/api/active-topics')
 
   let releaseTopics!: () => void
   const waitForRelease = new Promise<void>((resolve) => {
     releaseTopics = resolve
   })
 
-  await page.route('**/api/topics', async (route) => {
+  await page.route('**/api/active-topics', async (route) => {
     await waitForRelease
     await fulfillJson(route, { topics: ['Career Planning', 'Finance'] })
   })
@@ -97,6 +97,16 @@ test('validates and submits a complete mentee registration', async ({
     .fill('I am interested in interview preparation and career planning.')
   await page.getByLabel('Select an area').selectOption('Career Planning')
   await page.getByRole('button', { name: 'Add' }).click()
+
+  const selectedTopic = page
+    .getByRole('list', { name: 'Selected topics' })
+    .getByRole('listitem')
+  await expect(selectedTopic).toHaveCSS('border-radius', '999px')
+  await expect(selectedTopic).toHaveCSS(
+    'background-color',
+    'rgb(255, 247, 217)',
+  )
+
   await page.getByRole('button', { name: 'Submit registration' }).click()
 
   await expect(page).toHaveURL('/verification')

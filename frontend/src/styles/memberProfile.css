@@ -415,12 +415,14 @@
   opacity: 1;
 }
 
-.profile-topic-selector + .register-chip-list {
+.profile-topic-selector + .register-chip-list,
+.register-page .register-chip-list {
   gap: 10px;
   margin: 16px 0 0;
 }
 
-.profile-topic-selector + .register-chip-list li {
+.profile-topic-selector + .register-chip-list li,
+.register-page .register-chip-list li {
   min-height: 44px;
   padding: 0 3px 0 14px;
   border: 1px solid #d9cfb7;
@@ -430,7 +432,8 @@
   background: #fff7d9;
 }
 
-.profile-topic-selector + .register-chip-list button {
+.profile-topic-selector + .register-chip-list button,
+.register-page .register-chip-list button {
   width: 44px;
   height: 44px;
   min-width: 44px;
@@ -440,12 +443,14 @@
   background: transparent;
 }
 
-.profile-topic-selector + .register-chip-list button:hover {
+.profile-topic-selector + .register-chip-list button:hover,
+.register-page .register-chip-list button:hover {
   color: var(--member-profile-ink);
   background: rgba(25, 25, 25, 0.07);
 }
 
-.profile-topic-selector + .register-chip-list button svg {
+.profile-topic-selector + .register-chip-list button svg,
+.register-page .register-chip-list button svg {
   width: 16px;
   height: 16px;
   stroke: currentColor;

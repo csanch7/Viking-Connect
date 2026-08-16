@@ -28,6 +28,7 @@ describe("database migrations", () => {
       "007_password_reset_tokens.sql",
       "008_add_college_relationship.sql",
       "009_enforce_case_insensitive_topic_names.sql",
+      "010_add_is_active_to_topics.sql",
     ]);
   });
 
@@ -125,5 +126,14 @@ describe("database migrations", () => {
 
     assert.match(sql, /PARTITION BY LOWER\(name\)/);
     assert.match(sql, /ON topics \(LOWER\(name\)\)/);
+  });
+
+  it("tracks whether topics are available for member selection", async () => {
+    const sql = await fs.readFile(
+      path.join(migrationsDirectory, "010_add_is_active_to_topics.sql"),
+      "utf8",
+    );
+
+    assert.match(sql, /ADD is_active BOOLEAN NOT NULL DEFAULT TRUE/);
   });
 });

@@ -5,6 +5,7 @@ import {
   parseMentorRecommendationsResponse,
   parsePublicUser,
   parseSessionResponse,
+  parseActiveTopicsEnvelope,
   parseTopicEnvelope,
   parseTopicsEnvelope,
 } from "../../shared/contracts";
@@ -29,12 +30,21 @@ describe("shared API contracts", () => {
       ])[0].id,
       "42",
     );
-    assert.deepEqual(parseTopicsEnvelope({ topics: ["Finance"] }), {
+    assert.deepEqual(parseActiveTopicsEnvelope({ topics: ["Finance"] }), {
       topics: ["Finance"],
     });
-    assert.deepEqual(parseTopicEnvelope({ topic: "Leadership" }), {
-      topic: "Leadership",
-    });
+    assert.deepEqual(
+      parseTopicsEnvelope({
+        topics: [{ id: "2", name: "Finance", is_active: false }],
+      }),
+      { topics: [{ id: "2", name: "Finance", is_active: false }] },
+    );
+    assert.deepEqual(
+      parseTopicEnvelope({
+        topic: { id: "4", name: "Leadership", is_active: true },
+      }),
+      { topic: { id: "4", name: "Leadership", is_active: true } },
+    );
     assert.deepEqual(
       parseMentorRecommendationsResponse({
         recommendations: [
@@ -100,6 +110,10 @@ describe("shared API contracts", () => {
           recommendations: [{ recommendationScore: "high" }],
         }),
       /Invalid API response/,
+    );
+    assert.throws(
+      () => parseTopicsEnvelope({ topics: [null] }),
+      /Invalid API response: topics/,
     );
     assert.throws(
       () =>

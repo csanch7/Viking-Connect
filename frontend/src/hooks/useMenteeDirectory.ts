@@ -4,7 +4,7 @@ import {
   useCollegesQuery,
   useDebouncedValue,
   usePaginatedDirectoryQuery,
-  useTopicsQuery,
+  useActiveTopicsQuery,
 } from './useDirectoryQueries'
 
 export function useMenteeDirectory() {
@@ -27,7 +27,7 @@ export function useMenteeDirectory() {
       ),
     errorMessage: 'We could not load mentees right now. Please try again.',
   })
-  const topicsQuery = useTopicsQuery()
+  const topicsQuery = useActiveTopicsQuery()
   const collegesQuery = useCollegesQuery()
   const topics = topicsQuery.data ?? []
   const visibleExpertiseOptions = topics.filter((area) =>

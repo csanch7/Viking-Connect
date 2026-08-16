@@ -5,7 +5,7 @@ import {
   useCollegesQuery,
   useDebouncedValue,
   usePaginatedDirectoryQuery,
-  useTopicsQuery,
+  useActiveTopicsQuery,
 } from './useDirectoryQueries'
 
 export function useMentorDirectory(isMentee: boolean) {
@@ -33,7 +33,7 @@ export function useMentorDirectory(isMentee: boolean) {
     queryFn: userService.getMentorRecommendations,
     enabled: isMentee,
   })
-  const topicsQuery = useTopicsQuery()
+  const topicsQuery = useActiveTopicsQuery()
   const collegesQuery = useCollegesQuery()
   const topics = topicsQuery.data ?? []
   const visibleExpertiseOptions = topics.filter((area) =>

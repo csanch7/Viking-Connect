@@ -14,7 +14,7 @@ import {
   normalizeRegistrationUser,
 } from "../validation/registrationValidation";
 import type { UserType } from "../../shared/contracts";
-import { getTopics } from "../repositories/topicRepository";
+import { getActiveTopics } from "../repositories/topicRepository";
 import { getColleges } from "../repositories/collegeRepository";
 
 export interface RegistrationRouterDependencies {
@@ -22,7 +22,7 @@ export interface RegistrationRouterDependencies {
   hashPassword: typeof hashPassword;
   isUniqueViolation: typeof isUniqueViolation;
   sendAdminRegistrationNotification: typeof sendAdminRegistrationNotification;
-  getTopics: typeof getTopics;
+  getTopics: typeof getActiveTopics;
   getColleges: typeof getColleges;
 }
 
@@ -31,7 +31,7 @@ const defaultDependencies: RegistrationRouterDependencies = {
   hashPassword,
   isUniqueViolation,
   sendAdminRegistrationNotification,
-  getTopics,
+  getTopics: getActiveTopics,
   getColleges,
 };
 

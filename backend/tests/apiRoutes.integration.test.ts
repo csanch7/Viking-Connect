@@ -82,7 +82,7 @@ function buildApiApp(
     request: import("../../shared/contracts").EmailRequest,
   ) => Promise<void> = async () => undefined,
   type: "mentor" | "mentee" = "mentee",
-  addTopicResult?: string | null,
+  addTopicResult?: import("../../shared/contracts").Topic | null,
 ) {
   const authenticatedUser = { ...baseUser, role, type };
 
@@ -96,11 +96,23 @@ function buildApiApp(
         sendContactUsEmail,
       },
       topicDependencies: {
-        getTopics: async () => ["Career Planning", "Finance", "Technology"],
+        getActiveTopics: async () => [
+          "Career Planning",
+          "Finance",
+          "Technology",
+        ],
+        getTopics: async () => [
+          { id: "1", name: "Career Planning", is_active: true },
+          { id: "2", name: "Finance", is_active: false },
+          { id: "3", name: "Technology", is_active: true },
+        ],
         addTopic: async (topic) => {
           receivedTopic = topic;
-          return addTopicResult === undefined ? topic : addTopicResult;
+          return addTopicResult === undefined
+            ? { id: "4", name: topic, is_active: true }
+            : addTopicResult;
         },
+        changeTopicActivity: async () => false,
       },
       collegeDependencies: {
         getColleges: async () => [
@@ -253,11 +265,30 @@ describe("API routes", () => {
   });
 
   it("serves topics for public registration forms", async () => {
-    const response = await request(buildApiApp()).get("/api/topics");
+    const response = await request(buildApiApp()).get("/api/active-topics");
 
     assert.equal(response.status, 200);
     assert.deepEqual(response.body, {
       topics: ["Career Planning", "Finance", "Technology"],
+    });
+    assert.equal(response.headers["cache-control"], "no-store");
+  });
+
+  it("serves the full topic inventory only to admins", async () => {
+    const unauthorizedResponse =
+      await request(buildApiApp()).get("/api/topics");
+    assert.equal(unauthorizedResponse.status, 403);
+
+    const agent = await login(buildApiApp("admin"));
+    const response = await agent.get("/api/topics");
+
+    assert.equal(response.status, 200);
+    assert.deepEqual(response.body, {
+      topics: [
+        { id: "1", name: "Career Planning", is_active: true },
+        { id: "2", name: "Finance", is_active: false },
+        { id: "3", name: "Technology", is_active: true },
+      ],
     });
     assert.equal(response.headers["cache-control"], "no-store");
   });
@@ -271,14 +302,14 @@ describe("API routes", () => {
       .send({ topic: "  Leadership  " });
 
     assert.equal(response.status, 201);
-    assert.deepEqual(response.body, { topic: "Leadership" });
+    assert.deepEqual(response.body, {
+      topic: { id: "4", name: "Leadership", is_active: true },
+    });
     assert.equal(receivedTopic, "Leadership");
   });
 
   it("reports a conflict when a topic already exists", async () => {
-    const agent = await login(
-      buildApiApp("admin", undefined, "mentee", null),
-    );
+    const agent = await login(buildApiApp("admin", undefined, "mentee", null));
 
     const response = await agent
       .post("/api/topics")

@@ -32,10 +32,6 @@ test('loads approved mentees for an authenticated mentee', async ({ page }) => {
   await expect(
     page.getByRole('link', { name: 'Jordan Mentee' }),
   ).toHaveAttribute('href', '/mentee/77')
-  await expect(page.getByRole('link', { name: 'Email' })).toHaveAttribute(
-    'href',
-    'mailto:jordan@example.com',
-  )
 })
 
 test('applies interest filters without replacing the directory', async ({

@@ -16,7 +16,6 @@ export interface PublicUser {
   role: UserRole;
 }
 
-
 export type MentorDirectoryUser = Pick<
   PublicUser,
   | "id"
@@ -73,6 +72,12 @@ export interface MessageResponse {
   message: string;
 }
 
+export interface Topic {
+  id: string;
+  name: string;
+  is_active: boolean;
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
@@ -86,6 +91,11 @@ function readString(record: Record<string, unknown>, key: string) {
   return typeof value === "string" ? value : contractError(key);
 }
 
+function readBoolean(record: Record<string, unknown>, key: string) {
+  const value = record[key];
+  return typeof value === "boolean" ? value : contractError(key);
+}
+
 function readCollege(value: unknown): string | null {
   return typeof value === "string" || value === null
     ? value
@@ -96,6 +106,25 @@ function readStringArray(record: Record<string, unknown>, key: string) {
   const value = record[key];
   return Array.isArray(value) && value.every((item) => typeof item === "string")
     ? value
+    : contractError(key);
+}
+
+function readTopic(value: unknown, key: string): Topic {
+  if (!isRecord(value)) {
+    return contractError(key);
+  }
+
+  return {
+    id: readString(value, "id"),
+    name: readString(value, "name"),
+    is_active: readBoolean(value, "is_active"),
+  };
+}
+
+function readTopicArray(record: Record<string, unknown>, key: string): Topic[] {
+  const value = record[key];
+  return Array.isArray(value)
+    ? value.map((item) => readTopic(item, key))
     : contractError(key);
 }
 
@@ -147,7 +176,7 @@ export function parseMessageResponse(value: unknown): MessageResponse {
   return { message: readString(value, "message") };
 }
 
-export function parseTopicsEnvelope(value: unknown) {
+export function parseActiveTopicsEnvelope(value: unknown) {
   if (!isRecord(value)) {
     return contractError("topics envelope");
   }
@@ -155,12 +184,28 @@ export function parseTopicsEnvelope(value: unknown) {
   return { topics: readStringArray(value, "topics") };
 }
 
+export function parseTopicsEnvelope(value: unknown) {
+  if (!isRecord(value)) {
+    return contractError("topics envelope");
+  }
+
+  return { topics: readTopicArray(value, "topics") };
+}
+
+export function parseIsActiveEnvelope(value: unknown) {
+  if (!isRecord(value)) {
+    return contractError("is_active envelope");
+  }
+
+  return { is_active: readBoolean(value, "is_active") };
+}
+
 export function parseTopicEnvelope(value: unknown) {
   if (!isRecord(value)) {
     return contractError("topic envelope");
   }
 
-  return { topic: readString(value, "topic") };
+  return { topic: readTopic(value.topic, "topic") };
 }
 
 export function parseCollegesEnvelope(value: unknown) {
