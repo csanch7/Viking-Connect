@@ -48,12 +48,12 @@ function HomePage({ isAuthenticated = false }: HomePageProps) {
         </div>
 
         <div className="home-hero-content">
-          <p className="home-kicker">St. Laurence alumni mentorship</p>
-          <h1 id="home-title">Turn school pride into career momentum.</h1>
+          <p className="home-kicker">St. Laurence Alumni Networking & Mentorship</p>
+          <h1 id="home-title">Viking Connect</h1>
           <p className="home-hero-copy">
-            A private alumni network for students and recent graduates who want
-            honest career advice, useful professional skills, and warm
-            connections from people who understand where they started.
+            One private community where every Viking can find mentors, meet
+              peers, share experience, and turn a familiar connection into a
+              useful next conversation.
           </p>
           <div className="home-hero-actions">
             {isAuthenticated ? (
@@ -96,7 +96,7 @@ function HomePage({ isAuthenticated = false }: HomePageProps) {
         <div>
           <span className="home-block-header">Step 3</span>
           <Link to="/directory">
-            <strong>Find a mentor</strong>
+            <strong>Find a connection</strong>
           </Link>
           <p>Reach out via email or LinkedIn</p>
         </div>

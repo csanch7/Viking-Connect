@@ -1,4 +1,4 @@
-import { Routes, Route, useLocation } from 'react-router-dom'
+import { Route, Routes, useLocation } from 'react-router-dom'
 import './styles/public.css'
 import './styles/directory.css'
 import './styles/member.css'
@@ -11,7 +11,6 @@ import VerificationPage from './pages/VerificationPage'
 import ProfilePage from './pages/ProfilePage'
 import AdminPage from './pages/AdminPage'
 import PendingUsersPage from './pages/PendingUsersPage'
-import DirectoryPage from './pages/MentorDirectoryPage'
 import MentorPage from './pages/MentorProfilePage'
 import LoginPage from './pages/LoginPage'
 import HomePage from './pages/HomePage'
@@ -22,13 +21,13 @@ import PageNotFound from './pages/PageNotFound'
 import ProtectedRoute from './components/auth/ProtectedRoute'
 import { useAuth } from './auth/useAuth'
 import MentorListPage from './pages/MentorListPage'
-import MenteeDirectoryPage from './pages/MenteeDirectoryPage'
 import MenteeListPage from './pages/MenteeListPage'
 import MenteePage from './pages/MenteeProfilePage'
 import AdminTopicsPage from './pages/AdminTopicsPage'
+import DirectoryPage from './pages/DirectoryPage'
 
 function App() {
-  const { authenticated, admin, mentee } = useAuth()
+  const { authenticated, admin } = useAuth()
   const location = useLocation()
   const showAppNav =
     location.pathname === '/' ||
@@ -46,13 +45,7 @@ function App() {
 
   return (
     <>
-      {showAppNav && (
-        <AppNav
-          isAuthenticated={authenticated}
-          isAdmin={admin}
-          isMentee={mentee}
-        />
-      )}
+      {showAppNav && <AppNav isAuthenticated={authenticated} isAdmin={admin} />}
       <Routes>
         <Route path="*" element={<PageNotFound />} />
         <Route
@@ -77,15 +70,6 @@ function App() {
           element={
             <ProtectedRoute adminOnly>
               <AdminPage />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/mentees/directory"
-          element={
-            <ProtectedRoute menteeRoute>
-              <MenteeDirectoryPage />
             </ProtectedRoute>
           }
         />
@@ -133,7 +117,7 @@ function App() {
         <Route
           path="/mentee/:id"
           element={
-            <ProtectedRoute menteeRoute>
+            <ProtectedRoute>
               <MenteePage />
             </ProtectedRoute>
           }

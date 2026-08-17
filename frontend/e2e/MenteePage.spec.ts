@@ -31,7 +31,7 @@ test('shows a mentee profile returned by the API', async ({ page }) => {
   ).toBeVisible()
   await expect(
     page.getByRole('link', { name: 'Back to mentee directory' }),
-  ).toHaveAttribute('href', '/mentees/directory')
+  ).toHaveAttribute('href', '/directory?view=mentees')
   await expect(
     page.getByRole('heading', { name: 'Areas of interest' }),
   ).toBeVisible()

@@ -8,7 +8,7 @@ import {
 } from './useDirectoryQueries'
 
 export function useMenteeDirectory() {
-  const filters = useDirectoryFilters()
+  const filters = useDirectoryFilters('mentee')
   const debouncedSearchText = useDebouncedValue(filters.searchText.trim())
   const menteesQuery = usePaginatedDirectoryQuery({
     queryKey: [

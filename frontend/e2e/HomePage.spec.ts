@@ -33,7 +33,7 @@ test('shows member navigation for an authenticated visitor', async ({
   await page.goto('/')
 
   await expect(
-    page.getByRole('link', { name: 'Mentors', exact: true }),
+    page.getByRole('link', { name: 'Directory', exact: true }),
   ).toBeVisible()
   await expect(
     page.getByRole('link', { name: 'Profile', exact: true }),

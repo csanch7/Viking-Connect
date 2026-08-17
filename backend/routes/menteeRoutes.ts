@@ -37,12 +37,6 @@ export function createMenteeRouter(
     "/mentees/:paginator",
     requireAuth,
     asyncHandler(async (req, res) => {
-      if (req.session.type !== "mentee" && req.session.role !== "admin") {
-        res
-          .status(403)
-          .json({ message: "Only mentees and admins can view mentees" });
-        return;
-      }
       const page = normalizePageParam(req.params.paginator);
 
       if (page === null) {
@@ -92,12 +86,6 @@ export function createMenteeRouter(
     "/mentee/:id",
     requireAuth,
     asyncHandler(async (req, res) => {
-      if (req.session.type !== "mentee" && req.session.role !== "admin") {
-        res
-          .status(403)
-          .json({ message: "Only mentees and admins can view mentees" });
-        return;
-      }
       const id = normalizeIdParam(req.params.id);
       const validationError = getIdParamValidationError(id);
 

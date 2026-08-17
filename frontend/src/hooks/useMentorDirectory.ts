@@ -9,7 +9,7 @@ import {
 } from './useDirectoryQueries'
 
 export function useMentorDirectory(isMentee: boolean) {
-  const filters = useDirectoryFilters()
+  const filters = useDirectoryFilters('mentor')
   const debouncedSearchText = useDebouncedValue(filters.searchText.trim())
   const mentorsQuery = usePaginatedDirectoryQuery({
     queryKey: [

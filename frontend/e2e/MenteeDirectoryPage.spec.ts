@@ -16,6 +16,22 @@ const mentee = {
   gradYear: 2027,
 }
 
+test('redirects the previous mentee directory URL', async ({ page }) => {
+  await mockAuthenticatedSession(page)
+  await mockTopics(page)
+  await mockColleges(page)
+  await page.route('**/api/mentees/**', async (route) => {
+    await fulfillJson(route, [])
+  })
+
+  await page.goto('/mentees/directory')
+
+  await expect(page).toHaveURL('/directory?view=mentees')
+  await expect(
+    page.getByRole('button', { name: 'Mentees', exact: true }),
+  ).toHaveAttribute('aria-pressed', 'true')
+})
+
 test('loads approved mentees for an authenticated mentee', async ({ page }) => {
   await mockAuthenticatedSession(page, false, true)
   await mockTopics(page, ['Career Planning'])
@@ -24,11 +40,14 @@ test('loads approved mentees for an authenticated mentee', async ({ page }) => {
     await fulfillJson(route, [mentee])
   })
 
-  await page.goto('/mentees/directory')
+  await page.goto('/directory?view=mentees')
 
   await expect(
-    page.getByRole('heading', { name: 'Connect with fellow mentees' }),
+    page.getByRole('heading', { name: 'Member directory' }),
   ).toBeVisible()
+  await expect(
+    page.getByRole('button', { name: 'Mentees', exact: true }),
+  ).toHaveAttribute('aria-pressed', 'true')
   await expect(
     page.getByRole('link', { name: 'Jordan Mentee' }),
   ).toHaveAttribute('href', '/mentee/77')
@@ -55,7 +74,7 @@ test('applies interest filters without replacing the directory', async ({
     await fulfillJson(route, [mentee])
   })
 
-  await page.goto('/mentees/directory')
+  await page.goto('/directory?view=mentees')
   await page.getByRole('button', { name: /Filters/ }).click()
   await page.getByRole('checkbox', { name: 'Data Ethics', exact: true }).check()
 
@@ -67,7 +86,7 @@ test('applies interest filters without replacing the directory', async ({
   await filteredRequest
 
   await expect(
-    page.getByRole('heading', { name: 'Connect with fellow mentees' }),
+    page.getByRole('heading', { name: 'Member directory' }),
   ).toBeVisible()
   await expect(page.getByRole('link', { name: 'Jordan Mentee' })).toBeVisible()
   await expect(page.getByText('Gathering your information...')).toBeHidden()
@@ -83,7 +102,7 @@ test('applies and clears a college filter', async ({ page }) => {
     await fulfillJson(route, [mentee])
   })
 
-  await page.goto('/mentees/directory')
+  await page.goto('/directory?view=mentees')
   await page.getByRole('button', { name: /Filters/ }).click()
   await page
     .getByLabel('College')

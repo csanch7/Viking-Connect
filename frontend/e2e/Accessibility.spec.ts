@@ -89,8 +89,8 @@ test('authenticated application pages have no accessibility violations', async (
   )
 
   for (const [path, heading] of [
-    ['/directory', 'Find alumni mentors'],
-    ['/mentees/directory', 'Connect with fellow mentees'],
+    ['/directory', 'Member directory'],
+    ['/directory?view=mentees', 'Member directory'],
     ['/profile', 'Alex Mentor'],
     ['/mentor/42', 'Alex Mentor'],
     ['/mentee/77', 'Jordan Mentee'],

@@ -564,16 +564,17 @@ describe("API routes", () => {
     assert.equal(profile.body.id, mentee.id);
   });
 
-  it("does not expose the mentee directory to mentors", async () => {
+  it("allows mentors to browse mentees and open their profiles", async () => {
     const app = buildApiApp("user", async () => undefined, "mentor");
     const agent = await login(app);
 
-    const response = await agent.get("/api/mentees/0");
+    const directory = await agent.get("/api/mentees/0");
+    assert.equal(directory.status, 200);
+    assert.equal(directory.body[0].name, mentee.name);
 
-    assert.equal(response.status, 403);
-    assert.deepEqual(response.body, {
-      message: "Only mentees and admins can view mentees",
-    });
+    const profile = await agent.get(`/api/mentee/${mentee.id}`);
+    assert.equal(profile.status, 200);
+    assert.equal(profile.body.id, mentee.id);
   });
 
   it("allows admins to review and approve pending users", async () => {

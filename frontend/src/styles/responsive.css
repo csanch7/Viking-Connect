@@ -180,6 +180,16 @@
     font-size: 15px;
   }
 
+  .directory-view-picker {
+    display: grid;
+    width: 100%;
+  }
+
+  .directory-view-picker button {
+    min-width: 0;
+    padding-inline: 12px;
+  }
+
   .directory-controls {
     gap: 16px;
     padding: 16px;

@@ -1,12 +1,21 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
+import userService from '../services/userService'
+import { useAuth } from '../auth/useAuth'
 
 interface AppNavProps {
   isAuthenticated: boolean
   isAdmin: boolean
-  isMentee: boolean
 }
 
-function AppNav({ isAuthenticated, isAdmin, isMentee }: AppNavProps) {
+function AppNav({ isAuthenticated, isAdmin }: AppNavProps) {
+  const navigate = useNavigate()
+  const { markSignedOut } = useAuth()
+  async function handleLogout() {
+      await userService.logout()
+      markSignedOut()
+      navigate('/login', { replace: true })
+  }
+
   return (
     <nav className="app-nav" aria-label="Main navigation">
       <NavLink to="/" className="app-nav-brand">
@@ -19,22 +28,20 @@ function AppNav({ isAuthenticated, isAdmin, isMentee }: AppNavProps) {
       <div className="app-nav-actions">
         {isAuthenticated ? (
           <>
-            {(isAdmin || isMentee) && (
-              <NavLink to="/mentees/directory" className="app-nav-button">
-                Mentees
-              </NavLink>
-            )}
-            <NavLink to="/directory" className="app-nav-button">
-              Mentors
-            </NavLink>
-            <NavLink to="/profile" className="app-nav-button">
-              Profile
-            </NavLink>
             {isAdmin && (
               <NavLink to="/admin" className="app-nav-button">
                 Admin
               </NavLink>
             )}
+            <NavLink to="/directory" className="app-nav-button">
+              Directory
+            </NavLink>
+            <NavLink to="/profile" className="app-nav-button">
+              Profile
+            </NavLink>
+            <button onClick={()=>handleLogout()} className="app-nav-button">
+              Sign Out 
+            </button> 
           </>
         ) : (
           <>

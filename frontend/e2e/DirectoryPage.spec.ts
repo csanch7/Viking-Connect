@@ -33,8 +33,11 @@ test('shows the mentor directory and mentor contact details', async ({
   await page.goto('/directory')
 
   await expect(
-    page.getByRole('heading', { name: 'Find alumni mentors' }),
+    page.getByRole('heading', { name: 'Member directory' }),
   ).toBeVisible()
+  await expect(
+    page.getByRole('button', { name: 'Mentors', exact: true }),
+  ).toHaveAttribute('aria-pressed', 'true')
   await expect(page.getByRole('link', { name: 'Alex Mentor' })).toHaveAttribute(
     'href',
     '/mentor/42',
@@ -76,7 +79,7 @@ test('shows personalized recommendations to mentees', async ({ page }) => {
 test('applies an expertise filter to the mentor request', async ({ page }) => {
   await page.goto('/directory')
   await expect(
-    page.getByRole('heading', { name: 'Find alumni mentors' }),
+    page.getByRole('heading', { name: 'Member directory' }),
   ).toBeVisible()
 
   await page.getByRole('button', { name: /Filters/ }).click()
@@ -127,7 +130,7 @@ test('keeps the directory visible while filters are applied', async ({
   await filteredRequest
 
   await expect(
-    page.getByRole('heading', { name: 'Find alumni mentors' }),
+    page.getByRole('heading', { name: 'Member directory' }),
   ).toBeVisible()
   await expect(page.getByRole('link', { name: 'Alex Mentor' })).toBeVisible()
   await expect(page.getByText('Gathering your information...')).toBeHidden()
@@ -226,4 +229,41 @@ test('shows an error state when mentor loading fails', async ({ page }) => {
   await expect(
     page.getByRole('heading', { name: 'Unable to load mentors' }),
   ).toBeVisible()
+})
+
+test('preserves independent mentor and mentee filters when switching views', async ({
+  page,
+}) => {
+  await page.route('**/api/mentees/**', async (route) => {
+    await fulfillJson(route, [])
+  })
+  await page.goto('/directory')
+
+  await page.getByRole('button', { name: /Filters/ }).click()
+  await page.getByRole('checkbox', { name: 'Data Ethics', exact: true }).check()
+  await page.getByRole('button', { name: 'Apply filters' }).click()
+
+  await page.getByRole('button', { name: 'Mentees', exact: true }).click()
+  await expect(
+    page.getByRole('heading', { name: 'Search mentees' }),
+  ).toBeVisible()
+  await page.getByRole('button', { name: /Filters/ }).click()
+  await page
+    .getByRole('checkbox', { name: 'Career Planning', exact: true })
+    .check()
+  await page.getByRole('button', { name: 'Apply filters' }).click()
+
+  await page.getByRole('button', { name: 'Mentors', exact: true }).click()
+  await expect(page.getByLabel('Active filters')).toContainText(
+    'Expertise: Data Ethics',
+  )
+
+  await page.getByRole('button', { name: 'Mentees', exact: true }).click()
+  await expect(page.getByLabel('Active filters')).toContainText(
+    'Interest: Career Planning',
+  )
+
+  const currentUrl = new URL(page.url())
+  expect(currentUrl.searchParams.get('mentorTopic')).toBe('Data Ethics')
+  expect(currentUrl.searchParams.get('menteeTopic')).toBe('Career Planning')
 })

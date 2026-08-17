@@ -50,8 +50,8 @@ test('redirects a signed-in non-admin visitor to the directory', async ({
   })
   await page.goto('/admin')
 
-  await expect(page).toHaveURL('/directory')
+  await expect(page).toHaveURL('/directory?view=mentors')
   await expect(
-    page.getByRole('heading', { name: 'Find alumni mentors' }),
+    page.getByRole('heading', { name: 'Member directory' }),
   ).toBeVisible()
 })
