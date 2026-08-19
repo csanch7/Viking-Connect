@@ -1,36 +1,15 @@
-import { useEffect } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import MenteeDirectoryComponent from '../components/user/MenteeDirectoryComponent'
 import MentorDirectoryComponent from '../components/user/MentorDirectoryComponent'
 
 type DirectoryView = 'mentors' | 'mentees'
 
 function DirectoryPage() {
-  const [searchParams, setSearchParams] = useSearchParams()
-  const requestedView = searchParams.get('view')
-  const currentView: DirectoryView =
-    requestedView === 'mentees' ? 'mentees' : 'mentors'
-
-  useEffect(() => {
-    if (requestedView === 'mentors' || requestedView === 'mentees') return
-
-    setSearchParams(
-      (currentParams) => {
-        const nextParams = new URLSearchParams(currentParams)
-        nextParams.set('view', 'mentors')
-        return nextParams
-      },
-      { replace: true },
-    )
-  }, [requestedView, setSearchParams])
-
-  function changeView(view: DirectoryView) {
-    setSearchParams((currentParams) => {
-      const nextParams = new URLSearchParams(currentParams)
-      nextParams.set('view', view)
-      return nextParams
-    })
-  }
+  const location = useLocation()
+  const [currentView, setCurrentView] = useState<DirectoryView>(() =>
+    location.state?.view === 'mentees' ? 'mentees' : 'mentors',
+  )
 
   return (
     <main className="directory-page">
@@ -51,14 +30,14 @@ function DirectoryPage() {
           <button
             type="button"
             aria-pressed={currentView === 'mentors'}
-            onClick={() => changeView('mentors')}
+            onClick={() => setCurrentView('mentors')}
           >
             Mentors
           </button>
           <button
             type="button"
             aria-pressed={currentView === 'mentees'}
-            onClick={() => changeView('mentees')}
+            onClick={() => setCurrentView('mentees')}
           >
             Mentees
           </button>

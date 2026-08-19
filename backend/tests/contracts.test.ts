@@ -30,6 +30,20 @@ describe("shared API contracts", () => {
       ])[0].id,
       "42",
     );
+    assert.equal(
+      parseMentorList([
+        {
+          id: "43",
+          name: "Casey Community",
+          email: "casey@example.com",
+          linkedin: "https://www.linkedin.com/in/casey-community",
+          type: "mentor",
+          areasOfExpertise: ["Finance"],
+          gradYear: null,
+        },
+      ])[0].gradYear,
+      null,
+    );
     assert.deepEqual(parseActiveTopicsEnvelope({ topics: ["Finance"] }), {
       topics: ["Finance"],
     });

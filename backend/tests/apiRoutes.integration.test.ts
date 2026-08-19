@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
+import type { UserRole } from "../../shared/contracts";
 
 process.env.DATABASE_URL =
   process.env.DATABASE_URL ?? "postgresql://test:test@localhost/test";
@@ -25,7 +26,7 @@ const baseUser = {
   areasOfExpertise: [],
   gradYear: 2027,
   status: "approved" as const,
-  role: "user" as "admin" | "user",
+  role: "user" as UserRole,
 };
 
 const mentor = {
@@ -77,7 +78,7 @@ let receivedMenteeQuery:
 let receivedTopic: string | undefined;
 
 function buildApiApp(
-  role: "admin" | "user" = "user",
+  role: UserRole = "user",
   sendContactUsEmail: (
     request: import("../../shared/contracts").EmailRequest,
   ) => Promise<void> = async () => undefined,
@@ -420,6 +421,7 @@ describe("API routes", () => {
         bio: "I help students prepare for careers in finance.",
         areasOfExpertise: ["Finance"],
         gradYear: 2012,
+        role: "user",
       });
 
     assert.equal(response.status, 201);
@@ -427,6 +429,27 @@ describe("API routes", () => {
     assert.equal(response.body.user.status, "pending");
     assert.equal(response.body.user.college, "DePaul University");
     assert.equal("passwordHash" in response.body.user, false);
+  });
+
+  it("registers a community member without a graduation year", async () => {
+    const response = await request(buildApiApp())
+      .post("/api/register")
+      .send({
+        name: "Casey Community",
+        password: "StrongPass123!",
+        email: "casey@example.com",
+        linkedin: "https://www.linkedin.com/in/casey-community",
+        type: "mentor",
+        college: null,
+        bio: "I support students through the local community.",
+        areasOfExpertise: ["Finance"],
+        gradYear: null,
+        role: "community member",
+      });
+
+    assert.equal(response.status, 201);
+    assert.equal(response.body.user.gradYear, null);
+    assert.equal(response.body.user.role, "community member");
   });
 
   it("updates only the authenticated member's profile", async () => {

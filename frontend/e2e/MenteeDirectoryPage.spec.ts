@@ -16,22 +16,6 @@ const mentee = {
   gradYear: 2027,
 }
 
-test('redirects the previous mentee directory URL', async ({ page }) => {
-  await mockAuthenticatedSession(page)
-  await mockTopics(page)
-  await mockColleges(page)
-  await page.route('**/api/mentees/**', async (route) => {
-    await fulfillJson(route, [])
-  })
-
-  await page.goto('/mentees/directory')
-
-  await expect(page).toHaveURL('/directory?view=mentees')
-  await expect(
-    page.getByRole('button', { name: 'Mentees', exact: true }),
-  ).toHaveAttribute('aria-pressed', 'true')
-})
-
 test('loads approved mentees for an authenticated mentee', async ({ page }) => {
   await mockAuthenticatedSession(page, false, true)
   await mockTopics(page, ['Career Planning'])
@@ -40,7 +24,8 @@ test('loads approved mentees for an authenticated mentee', async ({ page }) => {
     await fulfillJson(route, [mentee])
   })
 
-  await page.goto('/directory?view=mentees')
+  await page.goto('/directory')
+  await page.getByRole('button', { name: 'Mentees', exact: true }).click()
 
   await expect(
     page.getByRole('heading', { name: 'Member directory' }),
@@ -74,7 +59,8 @@ test('applies interest filters without replacing the directory', async ({
     await fulfillJson(route, [mentee])
   })
 
-  await page.goto('/directory?view=mentees')
+  await page.goto('/directory')
+  await page.getByRole('button', { name: 'Mentees', exact: true }).click()
   await page.getByRole('button', { name: /Filters/ }).click()
   await page.getByRole('checkbox', { name: 'Data Ethics', exact: true }).check()
 
@@ -102,7 +88,8 @@ test('applies and clears a college filter', async ({ page }) => {
     await fulfillJson(route, [mentee])
   })
 
-  await page.goto('/directory?view=mentees')
+  await page.goto('/directory')
+  await page.getByRole('button', { name: 'Mentees', exact: true }).click()
   await page.getByRole('button', { name: /Filters/ }).click()
   await page
     .getByLabel('College')

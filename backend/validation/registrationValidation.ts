@@ -11,6 +11,7 @@ const maxBioLength = 1000;
 const maxExpertiseLength = 80;
 const maxExpertiseCount = 15;
 const validUserTypes = new Set(["mentor", "mentee"]);
+const validUserRoles = new Set(["user", "community member"]);
 
 export function isLinkedinProfileUrl(value: string) {
   return /^https:\/\/(www\.)?linkedin\.com\/in\/[A-Za-z0-9-]{3,100}\/?$/.test(
@@ -59,7 +60,11 @@ export function normalizeRegistrationUser(input: User): RegistrationEmailUser {
     college:
       typeof input.college === "string" ? input.college.trim() || null : null,
     areasOfExpertise,
-    gradYear: Number(input.gradYear),
+    gradYear:
+      typeof input.gradYear === "number"
+        ? Number(input.gradYear) || null
+        : null,
+    role: typeof input.role === "string" ? input.role.trim() : "",
   };
 }
 
@@ -87,6 +92,10 @@ export function getRegistrationValidationError(
     return "Choose mentor or mentee";
   }
 
+  if (!validUserRoles.has(user.role)) {
+    return "Invalid member role";
+  }
+
   if (!user.bio) {
     return "Tell us about yourself";
   }
@@ -96,9 +105,11 @@ export function getRegistrationValidationError(
   }
 
   if (
-    !Number.isInteger(user.gradYear) ||
-    user.gradYear < earliestGraduationYear ||
-    user.gradYear > latestGraduationYear
+    user.role === "user" &&
+    (!Number.isInteger(user.gradYear) ||
+      user.gradYear === null ||
+      user.gradYear < earliestGraduationYear ||
+      user.gradYear > latestGraduationYear)
   ) {
     return "Select a valid graduation year";
   }

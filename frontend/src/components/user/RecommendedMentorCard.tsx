@@ -22,7 +22,11 @@ function RecommendedMentorCard({ recommendation }: RecommendedMentorCardProps) {
           <h3>
             <Link to={`/mentor/${mentor.id}`}>{mentor.name}</Link>
           </h3>
-          <p>St. Laurence class of {mentor.gradYear}</p>
+          {mentor.gradYear ? (
+            <p>St. Laurence class of {mentor.gradYear}</p>
+          ) : (
+            <p>Community member</p>
+          )}
         </div>
       </div>
 

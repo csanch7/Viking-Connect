@@ -333,8 +333,10 @@ function ProfilePage() {
                   <span>
                     <strong>{user.name}</strong>
                     <small>
-                      {user.type === 'mentor' ? 'Mentor' : 'Mentee'} · Class of{' '}
-                      {user.gradYear}
+                      {user.type === 'mentor' ? 'Mentor' : 'Mentee'} ·{' '}
+                      {user.gradYear
+                        ? `Class of ${user.gradYear}`
+                        : 'Community member'}
                     </small>
                   </span>
                 </div>

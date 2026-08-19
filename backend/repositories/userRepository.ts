@@ -17,7 +17,7 @@ export async function createUser(input: {
   college: string | null;
   bio: string;
   areasOfExpertise: string[];
-  gradYear: number;
+  gradYear: number | null;
   role: UserRole;
   passwordHash: string;
 }): Promise<DatabaseUserWithPassword> {

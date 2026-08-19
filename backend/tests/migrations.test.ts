@@ -29,6 +29,7 @@ describe("database migrations", () => {
       "008_add_college_relationship.sql",
       "009_enforce_case_insensitive_topic_names.sql",
       "010_add_is_active_to_topics.sql",
+      "011_allow_community_members.sql",
     ]);
   });
 
@@ -135,5 +136,16 @@ describe("database migrations", () => {
     );
 
     assert.match(sql, /ADD is_active BOOLEAN NOT NULL DEFAULT TRUE/);
+  });
+
+  it("allows community members without a graduation year", async () => {
+    const sql = await fs.readFile(
+      path.join(migrationsDirectory, "011_allow_community_members.sql"),
+      "utf8",
+    );
+
+    assert.match(sql, /ALTER COLUMN grad_year DROP NOT NULL/);
+    assert.match(sql, /grad_year IS NULL OR grad_year BETWEEN 1961 AND 2200/);
+    assert.match(sql, /'community member'/);
   });
 });

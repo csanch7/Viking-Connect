@@ -29,12 +29,17 @@ test('shows a mentee profile returned by the API', async ({ page }) => {
   await expect(
     page.getByRole('heading', { name: 'Jordan Mentee', level: 1 }),
   ).toBeVisible()
-  await expect(
-    page.getByRole('link', { name: 'Back to mentee directory' }),
-  ).toHaveAttribute('href', '/directory?view=mentees')
+  const backLink = page.getByRole('link', { name: 'Back to mentee directory' })
+  await expect(backLink).toHaveAttribute('href', '/directory')
   await expect(
     page.getByRole('heading', { name: 'Areas of interest' }),
   ).toBeVisible()
+
+  await backLink.click()
+  await expect(page).toHaveURL('/directory')
+  await expect(
+    page.getByRole('button', { name: 'Mentees', exact: true }),
+  ).toHaveAttribute('aria-pressed', 'true')
 })
 
 test('shows a mentee-specific not-found state', async ({ page }) => {

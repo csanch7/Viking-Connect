@@ -1,167 +1,117 @@
-import { useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useReducer } from 'react'
 
-export type DirectoryFilterScope = 'mentor' | 'mentee'
-
-function readPage(value: string | null) {
-  if (!value || !/^\d+$/.test(value)) return 0
-
-  const page = Number(value)
-  return Number.isSafeInteger(page) ? page : 0
+export type DirectoryFilterState = {
+  page: number
+  searchText: string
+  expertiseSearchText: string
+  appliedExpertise: string[]
+  draftExpertise: string[]
+  appliedCollege: string
+  draftCollege: string
+  filterPanelOpen: boolean
 }
 
-export function useDirectoryFilters(scope: DirectoryFilterScope) {
-  const [searchParams, setSearchParams] = useSearchParams()
-  const parameterNames = {
-    search: `${scope}Search`,
-    expertise: `${scope}Topic`,
-    college: `${scope}College`,
-    page: `${scope}Page`,
-  }
+type DirectoryFilterAction =
+  | { type: 'searchChanged'; value: string }
+  | { type: 'expertiseSearchChanged'; value: string }
+  | { type: 'expertiseToggled'; area: string; checked: boolean }
+  | { type: 'collegeChanged'; value: string }
+  | { type: 'filterPanelToggled' }
+  | { type: 'filtersApplied' }
+  | { type: 'filtersCleared' }
+  | { type: 'pageChanged'; page: number }
 
-  const page = readPage(searchParams.get(parameterNames.page))
-  const searchText = searchParams.get(parameterNames.search) ?? ''
-  const appliedExpertise = searchParams.getAll(parameterNames.expertise)
-  const appliedCollege = searchParams.get(parameterNames.college) ?? ''
-  const appliedExpertiseKey = appliedExpertise.join('\u001f')
-  const appliedFilterKey = `${appliedCollege}\u001e${appliedExpertiseKey}`
+const initialDirectoryFilterState: DirectoryFilterState = {
+  page: 0,
+  searchText: '',
+  expertiseSearchText: '',
+  appliedExpertise: [],
+  draftExpertise: [],
+  appliedCollege: '',
+  draftCollege: '',
+  filterPanelOpen: false,
+}
 
-  const [expertiseSearchText, setExpertiseSearchText] = useState('')
-  const [draftFilters, setDraftFilters] = useState(() => ({
-    sourceKey: appliedFilterKey,
-    expertise: appliedExpertise,
-    college: appliedCollege,
-  }))
-  const [filterPanelOpen, setFilterPanelOpen] = useState(false)
-  const draftExpertise =
-    draftFilters.sourceKey === appliedFilterKey
-      ? draftFilters.expertise
-      : appliedExpertise
-  const draftCollege =
-    draftFilters.sourceKey === appliedFilterKey
-      ? draftFilters.college
-      : appliedCollege
-
-  function updateSearchParams(
-    update: (nextParams: URLSearchParams) => void,
-    replace = true,
-  ) {
-    setSearchParams(
-      (currentParams) => {
-        const nextParams = new URLSearchParams(currentParams)
-        update(nextParams)
-        return nextParams
-      },
-      { replace },
-    )
-  }
-
-  function changeSearch(value: string) {
-    updateSearchParams((nextParams) => {
-      if (value) {
-        nextParams.set(parameterNames.search, value)
-      } else {
-        nextParams.delete(parameterNames.search)
+function directoryFilterReducer(
+  state: DirectoryFilterState,
+  action: DirectoryFilterAction,
+): DirectoryFilterState {
+  switch (action.type) {
+    case 'searchChanged':
+      return { ...state, searchText: action.value, page: 0 }
+    case 'expertiseSearchChanged':
+      return { ...state, expertiseSearchText: action.value }
+    case 'expertiseToggled':
+      return {
+        ...state,
+        draftExpertise: action.checked
+          ? Array.from(new Set([...state.draftExpertise, action.area]))
+          : state.draftExpertise.filter((area) => area !== action.area),
       }
-      nextParams.delete(parameterNames.page)
-    })
-  }
-
-  function changePage(nextPage: number) {
-    updateSearchParams((nextParams) => {
-      if (nextPage > 0) {
-        nextParams.set(parameterNames.page, String(nextPage))
-      } else {
-        nextParams.delete(parameterNames.page)
+    case 'collegeChanged':
+      return { ...state, draftCollege: action.value }
+    case 'filterPanelToggled':
+      return { ...state, filterPanelOpen: !state.filterPanelOpen }
+    case 'filtersApplied':
+      return {
+        ...state,
+        appliedExpertise: state.draftExpertise,
+        appliedCollege: state.draftCollege,
+        page: 0,
+        filterPanelOpen: false,
       }
-    }, false)
+    case 'filtersCleared':
+      return {
+        ...initialDirectoryFilterState,
+        filterPanelOpen: state.filterPanelOpen,
+      }
+    case 'pageChanged':
+      return { ...state, page: action.page }
+  }
+}
+
+export function useDirectoryFilters() {
+  const [state, dispatch] = useReducer(
+    directoryFilterReducer,
+    initialDirectoryFilterState,
+  )
+
+  function changePage(page: number) {
+    dispatch({ type: 'pageChanged', page })
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
   }
 
-  function applyFilters() {
-    updateSearchParams((nextParams) => {
-      nextParams.delete(parameterNames.expertise)
-      draftExpertise.forEach((area) =>
-        nextParams.append(parameterNames.expertise, area),
-      )
-
-      if (draftCollege) {
-        nextParams.set(parameterNames.college, draftCollege)
-      } else {
-        nextParams.delete(parameterNames.college)
-      }
-
-      nextParams.delete(parameterNames.page)
-    }, false)
-    setFilterPanelOpen(false)
-  }
-
-  function clearFilters() {
-    updateSearchParams((nextParams) => {
-      Object.values(parameterNames).forEach((parameterName) =>
-        nextParams.delete(parameterName),
-      )
-    }, false)
-    setDraftFilters({
-      sourceKey: appliedFilterKey,
-      expertise: [],
-      college: '',
-    })
-    setExpertiseSearchText('')
-  }
-
-  function toggleExpertise(area: string, checked: boolean) {
-    setDraftFilters({
-      sourceKey: appliedFilterKey,
-      expertise: checked
-        ? Array.from(new Set([...draftExpertise, area]))
-        : draftExpertise.filter((item) => item !== area),
-      college: draftCollege,
-    })
-  }
-
-  function changeCollege(college: string) {
-    setDraftFilters({
-      sourceKey: appliedFilterKey,
-      expertise: draftExpertise,
-      college,
-    })
-  }
-
-  const hasPendingFilterChanges =
-    draftCollege !== appliedCollege ||
-    draftExpertise.length !== appliedExpertise.length ||
-    draftExpertise.some((area) => !appliedExpertise.includes(area))
-
   return {
-    page,
-    searchText,
-    expertiseSearchText,
-    appliedExpertise,
-    draftExpertise,
-    appliedCollege,
-    draftCollege,
-    filterPanelOpen,
-    activeFilterCount: appliedExpertise.length + (appliedCollege ? 1 : 0),
+    ...state,
+    activeFilterCount:
+      state.appliedExpertise.length + (state.appliedCollege ? 1 : 0),
     hasActiveFilters:
-      searchText.trim().length > 0 ||
-      appliedExpertise.length > 0 ||
-      appliedCollege.length > 0,
-    hasPendingFilterChanges,
+      state.searchText.trim().length > 0 ||
+      state.appliedExpertise.length > 0 ||
+      state.appliedCollege.length > 0,
+    hasPendingFilterChanges:
+      state.draftCollege !== state.appliedCollege ||
+      state.draftExpertise.length !== state.appliedExpertise.length ||
+      state.draftExpertise.some(
+        (area) => !state.appliedExpertise.includes(area),
+      ),
     canClearFilters:
-      draftExpertise.length > 0 ||
-      appliedExpertise.length > 0 ||
-      draftCollege.length > 0 ||
-      appliedCollege.length > 0 ||
-      searchText.length > 0 ||
-      expertiseSearchText.length > 0,
-    applyFilters,
-    clearFilters,
-    toggleFilterPanel: () => setFilterPanelOpen((isOpen) => !isOpen),
-    changeSearch,
-    changeExpertiseSearch: setExpertiseSearchText,
-    toggleExpertise,
-    changeCollege,
+      state.draftExpertise.length > 0 ||
+      state.appliedExpertise.length > 0 ||
+      state.draftCollege.length > 0 ||
+      state.appliedCollege.length > 0 ||
+      state.searchText.length > 0 ||
+      state.expertiseSearchText.length > 0,
+    applyFilters: () => dispatch({ type: 'filtersApplied' }),
+    clearFilters: () => dispatch({ type: 'filtersCleared' }),
+    toggleFilterPanel: () => dispatch({ type: 'filterPanelToggled' }),
+    changeSearch: (value: string) => dispatch({ type: 'searchChanged', value }),
+    changeExpertiseSearch: (value: string) =>
+      dispatch({ type: 'expertiseSearchChanged', value }),
+    toggleExpertise: (area: string, checked: boolean) =>
+      dispatch({ type: 'expertiseToggled', area, checked }),
+    changeCollege: (value: string) =>
+      dispatch({ type: 'collegeChanged', value }),
     changePage,
   }
 }

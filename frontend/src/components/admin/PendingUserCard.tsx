@@ -40,8 +40,17 @@ function PendingUserCard({
           <dd>{user.type.toUpperCase()}</dd>
         </div>
         <div>
+          {user.gradYear ? (<>
           <dt>Graduation year</dt>
-          <dd>{user.gradYear}</dd>
+          <dd>{user.gradYear ?? 'N/A'}</dd>
+          </>):
+          (
+            <>
+          <dt>Role</dt>
+          <dd>{user.role.toLocaleUpperCase()}</dd>
+          </>
+          )}
+          
         </div>
         <div>
           <dt>LinkedIn</dt>

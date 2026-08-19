@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import registerService from '../services/registerService'
-import type { User } from '../types/user'
+import type { CommunityMemberType, User } from '../types/user'
 
 const passwordSpecialCharacters = '!@#$%^&*()_-+=[{]};:,.?'
 export const linkedinProfileUrlPattern =
@@ -11,6 +11,10 @@ const linkedinProfileUrlRegex =
   /^https:\/\/(www\.)?linkedin\.com\/in\/[A-Za-z0-9-]{3,100}\/?$/
 const earliestGraduationYear = 1961
 const latestGraduationYear = new Date().getFullYear() + 10
+const graduationYearMemberTypes: CommunityMemberType[] = [
+  'Alumnus',
+  'Current Student',
+]
 
 interface ApiErrorResponse {
   message?: string
@@ -46,14 +50,18 @@ export function useRegistrationForm() {
     string[]
   >([])
   const [college, setCollege] = useState('')
+  const [communityMemberType, setCommunityMemberType] =
+    useState<CommunityMemberType>('Alumnus')
   const [expertise, setExpertise] = useState('')
-  const [gradYear, setGradYear] = useState(0)
+  const [gradYear, setGradYear] = useState<number | null>(null)
   const navigate = useNavigate()
 
   const passwordRules = getPasswordRules(password)
   const passwordIsValid = passwordRules.every((rule) => rule.valid)
   const trimmedLinkedin = linkedin.trim()
   const linkedinIsValid = linkedinProfileUrlRegex.test(trimmedLinkedin)
+  const requiresGradYear =
+    graduationYearMemberTypes.includes(communityMemberType)
   const passwordFieldState =
     password.length === 0
       ? 'register-field'
@@ -78,6 +86,15 @@ export function useRegistrationForm() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  function handleMemberType(type: CommunityMemberType) {
+    const nextRequiresGradYear = graduationYearMemberTypes.includes(type)
+
+    setCommunityMemberType(type)
+    if (!nextRequiresGradYear) {
+      setGradYear(null)
+    }
+  }
+
   async function submit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
     if (isSubmitting) return
@@ -92,9 +109,11 @@ export function useRegistrationForm() {
       return
     }
     if (
-      !Number.isInteger(gradYear) ||
-      gradYear < earliestGraduationYear ||
-      gradYear > latestGraduationYear
+      requiresGradYear &&
+      (!Number.isInteger(gradYear) ||
+        gradYear === null ||
+        gradYear < earliestGraduationYear ||
+        gradYear > latestGraduationYear)
     ) {
       showError('Select a valid graduation year', 'graduationYear')
       return
@@ -112,6 +131,8 @@ export function useRegistrationForm() {
       return
     }
 
+    const role = requiresGradYear ? 'user' : 'community member'
+
     const user: User = {
       name,
       password,
@@ -122,6 +143,7 @@ export function useRegistrationForm() {
       college: college || null,
       areasOfExpertise: selectedAreasOfExpertise,
       gradYear,
+      role,
     }
 
     try {
@@ -177,7 +199,9 @@ export function useRegistrationForm() {
     selectedAreasOfExpertise,
     expertise,
     setExpertise,
-    setGradYear: (value: string) => setGradYear(Number(value)),
+    gradYear,
+    setGradYear: (value: string) =>
+      setGradYear(value === '' ? null : Number(value)),
     passwordRules,
     passwordIsValid,
     linkedinIsValid,
@@ -189,5 +213,9 @@ export function useRegistrationForm() {
     navigate,
     college,
     setCollege,
+    requiresGradYear,
+    communityMemberType,
+    setCommunityMemberType,
+    handleMemberType,
   }
 }

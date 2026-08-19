@@ -28,9 +28,6 @@ function VerificationPage() {
           <Link className="verification-primary-link" to="/">
             Return home
           </Link>
-          <Link className="verification-link" to="/login">
-            Sign in after approval
-          </Link>
         </div>
       </section>
     </main>

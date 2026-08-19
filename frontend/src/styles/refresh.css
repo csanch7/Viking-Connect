@@ -1301,6 +1301,57 @@
   background: var(--surface-gold-soft);
 }
 
+.register-role-group {
+  column-gap: 16px;
+}
+
+.register-field input,
+.register-field select,
+.college-select {
+  height: 44px;
+  min-height: 44px;
+}
+
+.register-section .college-field {
+  gap: 7px;
+  color: var(--surface-ink);
+  font-size: 13px;
+  font-weight: 680;
+}
+
+.register-field > span,
+.register-section .college-field-label {
+  font: inherit;
+  line-height: 1.45;
+}
+
+.register-section .college-select {
+  padding: 8px 40px 8px 10px;
+  border-color: var(--surface-border-strong);
+  color: var(--surface-ink);
+  font-size: 14px;
+  font-weight: 500;
+  background: #fff;
+  box-shadow: none;
+}
+
+.register-section .college-select:hover:not(:disabled) {
+  border-color: var(--surface-border-strong);
+  background: #fff;
+}
+
+.register-section .college-select:focus {
+  border-color: #c8aa48;
+  box-shadow: 0 0 0 3px rgba(255, 199, 44, 0.2);
+}
+
+.register-section .college-field-message {
+  color: var(--surface-muted);
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
 .register-alert {
   border-color: #edc4b1;
   border-radius: 8px;

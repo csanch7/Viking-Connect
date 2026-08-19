@@ -1,6 +1,6 @@
 export type UserType = "mentor" | "mentee";
 export type UserStatus = "pending" | "approved" | "denied";
-export type UserRole = "admin" | "user";
+export type UserRole = "admin" | "user" | "community member";
 
 export interface PublicUser {
   id: string;
@@ -11,7 +11,7 @@ export interface PublicUser {
   college: string | null;
   bio: string;
   areasOfExpertise: string[];
-  gradYear: number;
+  gradYear: number | null;
   status: UserStatus;
   role: UserRole;
 }
@@ -53,7 +53,8 @@ export interface RegistrationRequest {
   bio: string;
   college: string | null;
   areasOfExpertise: string[];
-  gradYear: number;
+  gradYear: number | null;
+  role: string;
 }
 
 export interface EmailRequest {
@@ -135,6 +136,14 @@ function readNumber(record: Record<string, unknown>, key: string) {
     : contractError(key);
 }
 
+function readGradYear(record: Record<string, unknown>, key: string) {
+  const value = record[key];
+
+  return (typeof value === "number" && Number.isFinite(value)) || value === null
+    ? value
+    : contractError(key);
+}
+
 function parseUserType(value: unknown): UserType {
   return value === "mentor" || value === "mentee"
     ? value
@@ -142,7 +151,9 @@ function parseUserType(value: unknown): UserType {
 }
 
 function parseUserRole(value: unknown): UserRole {
-  return value === "admin" || value === "user" ? value : contractError("role");
+  return value === "admin" || value === "user" || value === "community member"
+    ? value
+    : contractError("role");
 }
 
 function parseUserStatus(value: unknown): UserStatus {
@@ -229,7 +240,7 @@ export function parsePublicUser(value: unknown): PublicUser {
     type: parseUserType(value.type),
     bio: readString(value, "bio"),
     areasOfExpertise: readStringArray(value, "areasOfExpertise"),
-    gradYear: readNumber(value, "gradYear"),
+    gradYear: readGradYear(value, "gradYear"),
     status: parseUserStatus(value.status),
     role: parseUserRole(value.role),
     college: readCollege(value.college),
@@ -256,7 +267,7 @@ export function parseMentor(value: unknown): MentorDirectoryUser {
     linkedin: readString(value, "linkedin"),
     type: parseUserType(value.type),
     areasOfExpertise: readStringArray(value, "areasOfExpertise"),
-    gradYear: readNumber(value, "gradYear"),
+    gradYear: readGradYear(value, "gradYear"),
   };
 
   return parsed;
@@ -274,7 +285,7 @@ export function parseMentee(value: unknown): MenteeDirectoryUser {
     linkedin: readString(value, "linkedin"),
     areasOfExpertise: readStringArray(value, "areasOfExpertise"),
     type: parseUserType(value.type),
-    gradYear: readNumber(value, "gradYear"),
+    gradYear: readGradYear(value, "gradYear"),
   };
 
   return parsed;
@@ -342,7 +353,7 @@ export function parsePendingUsersEnvelope(value: unknown) {
       type: parseUserType(user.type),
       bio: readString(user, "bio"),
       areasOfExpertise: readStringArray(user, "areasOfExpertise"),
-      gradYear: readNumber(user, "gradYear"),
+      gradYear: readGradYear(user, "gradYear"),
       role: parseUserRole(user.role),
       college: readCollege(user.college),
     };

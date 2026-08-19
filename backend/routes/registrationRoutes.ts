@@ -13,7 +13,7 @@ import {
   getRegistrationValidationError,
   normalizeRegistrationUser,
 } from "../validation/registrationValidation";
-import type { UserType } from "../../shared/contracts";
+import type { UserRole, UserType } from "../../shared/contracts";
 import { getActiveTopics } from "../repositories/topicRepository";
 import { getColleges } from "../repositories/collegeRepository";
 
@@ -87,8 +87,9 @@ export function createRegistrationRouter(
         const passwordHash = await hashPassword(password);
         const createdUser = await createUser({
           ...normalizedUser,
+          gradYear: normalizedUser.gradYear,
           type: normalizedUser.type as UserType,
-          role: "user",
+          role: normalizedUser.role as UserRole,
           passwordHash,
         });
 

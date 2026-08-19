@@ -11,9 +11,9 @@ function AppNav({ isAuthenticated, isAdmin }: AppNavProps) {
   const navigate = useNavigate()
   const { markSignedOut } = useAuth()
   async function handleLogout() {
-      await userService.logout()
-      markSignedOut()
-      navigate('/login', { replace: true })
+    await userService.logout()
+    markSignedOut()
+    navigate('/login', { replace: true })
   }
 
   return (
@@ -39,9 +39,9 @@ function AppNav({ isAuthenticated, isAdmin }: AppNavProps) {
             <NavLink to="/profile" className="app-nav-button">
               Profile
             </NavLink>
-            <button onClick={()=>handleLogout()} className="app-nav-button">
-              Sign Out 
-            </button> 
+            <button onClick={() => handleLogout()} className="app-nav-button">
+              Sign Out
+            </button>
           </>
         ) : (
           <>

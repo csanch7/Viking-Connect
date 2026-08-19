@@ -15,7 +15,4 @@ test('confirms that registration is pending and links home', async ({
     'href',
     '/',
   )
-  await expect(
-    page.getByRole('link', { name: 'Sign in after approval' }),
-  ).toHaveAttribute('href', '/login')
 })

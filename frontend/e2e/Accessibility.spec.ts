@@ -9,7 +9,7 @@ import {
 } from './support/mockApi'
 
 const publicPages = [
-  { path: '/', heading: 'Turn school pride into career momentum.' },
+  { path: '/', heading: 'Viking Connect' },
   { path: '/login', heading: 'Sign in to your account' },
   { path: '/register', heading: 'Create your member profile' },
   { path: '/verification', heading: 'Your account is pending review' },
@@ -88,9 +88,9 @@ test('authenticated application pages have no accessibility violations', async (
     fulfillJson(route, { users: [user] }),
   )
 
-  for (const [path, heading] of [
+  for (const [path, heading, view] of [
     ['/directory', 'Member directory'],
-    ['/directory?view=mentees', 'Member directory'],
+    ['/directory', 'Member directory', 'mentees'],
     ['/profile', 'Alex Mentor'],
     ['/mentor/42', 'Alex Mentor'],
     ['/mentee/77', 'Jordan Mentee'],
@@ -100,6 +100,10 @@ test('authenticated application pages have no accessibility violations', async (
     ['/admin/mentees', 'Manage mentees'],
   ]) {
     await page.goto(path)
+    if (view === 'mentees') {
+      await page.getByRole('button', { name: 'Mentees', exact: true }).click()
+      await page.waitForTimeout(200)
+    }
     await expect(
       page.getByRole('heading', { level: 1, name: heading }),
     ).toBeVisible()

@@ -121,5 +121,41 @@ test('validates and submits a complete mentee registration', async ({
     bio: 'I am interested in interview preparation and career planning.',
     areasOfExpertise: ['Career Planning'],
     gradYear: 2027,
+    role: 'user',
+  })
+})
+
+test('submits a community member without a graduation year', async ({
+  page,
+}) => {
+  let submittedBody: unknown
+  await page.route('**/api/register', async (route) => {
+    submittedBody = route.request().postDataJSON()
+    await fulfillJson(route, { message: 'User created' }, 201)
+  })
+
+  await page.getByLabel('Name').fill('Casey Community')
+  await page.getByLabel('Email').fill('casey@example.com')
+  await page.getByLabel('Password', { exact: true }).fill('StrongPass123!')
+  await page.getByLabel('Confirm password').fill('StrongPass123!')
+  await page.getByRole('radio', { name: /Mentor/ }).check()
+  await page
+    .getByLabel('St. Laurence affiliation')
+    .selectOption('Community Member')
+  await expect(page.getByLabel('Graduation year')).toBeDisabled()
+  await page
+    .getByLabel('LinkedIn URL')
+    .fill('https://www.linkedin.com/in/casey-community')
+  await page
+    .getByLabel('Bio')
+    .fill('I support students through the local community.')
+  await page.getByLabel('Select an area').selectOption('Finance')
+  await page.getByRole('button', { name: 'Add' }).click()
+  await page.getByRole('button', { name: 'Submit registration' }).click()
+
+  await expect(page).toHaveURL('/verification')
+  expect(submittedBody).toMatchObject({
+    gradYear: null,
+    role: 'community member',
   })
 })

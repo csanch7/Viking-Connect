@@ -43,7 +43,11 @@ function MenteePage() {
         <span className="mentor-state-icon">!</span>
         <h1>Mentee not found</h1>
         <p>{error || 'We could not load this mentee profile.'}</p>
-        <Link className="mentor-primary-link" to="/directory?view=mentees">
+        <Link
+          className="mentor-primary-link"
+          to="/directory"
+          state={{ view: 'mentees' }}
+        >
           Back to mentee directory
         </Link>
       </main>
@@ -52,7 +56,11 @@ function MenteePage() {
 
   return (
     <main className="member-profile-page">
-      <Link className="member-profile-back-link" to="/directory?view=mentees">
+      <Link
+        className="member-profile-back-link"
+        to="/directory"
+        state={{ view: 'mentees' }}
+      >
         <span aria-hidden="true">←</span>
         Back to mentee directory
       </Link>

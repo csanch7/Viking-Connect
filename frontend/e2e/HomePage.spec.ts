@@ -7,7 +7,7 @@ test('shows the public home page and opens registration', async ({ page }) => {
 
   await expect(
     page.getByRole('heading', {
-      name: 'Turn school pride into career momentum.',
+      name: 'Viking Connect',
     }),
   ).toBeVisible()
   await expect(

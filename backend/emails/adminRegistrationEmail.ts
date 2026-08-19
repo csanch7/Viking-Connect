@@ -88,8 +88,8 @@ export function renderAdminRegistrationEmail(
                         <td style="padding: 12px 0; color: #090909; font-size: 14px; font-weight: 600; text-align: right;">${escapeHtml(user.type)}</td>
                       </tr>
                       <tr>
-                        <td style="padding: 12px 0; color: #676767; font-size: 14px;">Graduation year</td>
-                        <td style="padding: 12px 0; color: #090909; font-size: 14px; font-weight: 600; text-align: right;">${escapeHtml(user.gradYear)}</td>
+                        <td style="padding: 12px 0; color: #676767; font-size: 14px;">${user.gradYear ? "Graduation Year": "Role"}</td>
+                        <td style="padding: 12px 0; color: #090909; font-size: 14px; font-weight: 600; text-align: right;">${escapeHtml(user.gradYear ? user.gradYear: user.role)}</td>
                       </tr>
                       ${linkedinRow}
                       <tr>

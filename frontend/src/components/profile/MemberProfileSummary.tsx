@@ -23,8 +23,17 @@ function MemberProfileSummary({
             <dd>{memberType}</dd>
           </div>
           <div>
-            <dt>Graduation year</dt>
-            <dd>{user.gradYear}</dd>
+            {user.gradYear ? (
+              <>
+                <dt>Graduation year</dt>
+                <dd>{user.gradYear}</dd>
+              </>
+            ) : (
+              <>
+                <dt>Member Type</dt>
+                <dd>Community member</dd>
+              </>
+            )}
           </div>
           {!collegeEditor && (
             <div>

@@ -119,7 +119,7 @@ test('signs out and returns to the sign-in page', async ({ page }) => {
   })
   await page.goto('/profile')
 
-  await page.getByRole('button', { name: 'Sign out' }).click()
+  await page.getByRole('button', { name: 'Sign out' }).nth(1).click()
 
   await expect(page).toHaveURL('/login')
   await expect(

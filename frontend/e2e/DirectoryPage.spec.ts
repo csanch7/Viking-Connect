@@ -231,7 +231,7 @@ test('shows an error state when mentor loading fails', async ({ page }) => {
   ).toBeVisible()
 })
 
-test('preserves independent mentor and mentee filters when switching views', async ({
+test('resets filters when switching views and keeps a clean URL', async ({
   page,
 }) => {
   await page.route('**/api/mentees/**', async (route) => {
@@ -243,27 +243,16 @@ test('preserves independent mentor and mentee filters when switching views', asy
   await page.getByRole('checkbox', { name: 'Data Ethics', exact: true }).check()
   await page.getByRole('button', { name: 'Apply filters' }).click()
 
+  await expect(page).toHaveURL('/directory')
+
   await page.getByRole('button', { name: 'Mentees', exact: true }).click()
   await expect(
     page.getByRole('heading', { name: 'Search mentees' }),
   ).toBeVisible()
-  await page.getByRole('button', { name: /Filters/ }).click()
-  await page
-    .getByRole('checkbox', { name: 'Career Planning', exact: true })
-    .check()
-  await page.getByRole('button', { name: 'Apply filters' }).click()
-
   await page.getByRole('button', { name: 'Mentors', exact: true }).click()
-  await expect(page.getByLabel('Active filters')).toContainText(
-    'Expertise: Data Ethics',
-  )
+  await expect(page.getByLabel('Active filters')).toHaveCount(0)
 
   await page.getByRole('button', { name: 'Mentees', exact: true }).click()
-  await expect(page.getByLabel('Active filters')).toContainText(
-    'Interest: Career Planning',
-  )
-
-  const currentUrl = new URL(page.url())
-  expect(currentUrl.searchParams.get('mentorTopic')).toBe('Data Ethics')
-  expect(currentUrl.searchParams.get('menteeTopic')).toBe('Career Planning')
+  await expect(page.getByLabel('Active filters')).toHaveCount(0)
+  await expect(page).toHaveURL('/directory')
 })

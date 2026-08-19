@@ -4,9 +4,10 @@ import {
   linkedinProfileUrlPattern,
   useRegistrationForm,
 } from '../hooks/useRegistrationForm'
+import { communityMemberTypes, type CommunityMemberType } from '../types/user'
 
 function RegisterPage() {
-  const latestGraduationYear = new Date().getFullYear() + 10
+  const latestGraduationYear = new Date().getFullYear() + 5
   const {
     name,
     setName,
@@ -41,6 +42,10 @@ function RegisterPage() {
     navigate,
     setCollege,
     college,
+    gradYear,
+    requiresGradYear,
+    communityMemberType,
+    handleMemberType,
   } = useRegistrationForm()
 
   return (
@@ -186,6 +191,40 @@ function RegisterPage() {
           </fieldset>
 
           <div className="register-grid">
+            <label className="register-field" htmlFor="sltMemberType">
+              <span>St. Laurence affiliation</span>
+              <select
+                id="sltMemberType"
+                name="sltMemberType"
+                value={communityMemberType}
+                onChange={(event) =>
+                  handleMemberType(event.target.value as CommunityMemberType)
+                }
+              >
+                {communityMemberTypes.map((area) => (
+                  <option key={area} value={area}>
+                    {area}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="register-field" htmlFor="graduationYear">
+              <span>Graduation year</span>
+              <input
+                id="graduationYear"
+                type="number"
+                inputMode="numeric"
+                min="1961"
+                max={latestGraduationYear}
+                value={gradYear ?? ''}
+                onChange={(e) => setGradYear(e.target.value)}
+                placeholder={!requiresGradYear ? "N/A": "2027"}
+                disabled={!requiresGradYear}
+                required={requiresGradYear}
+              />
+            </label>
+
             <label className={linkedinFieldState} htmlFor="linkedin">
               <span>LinkedIn URL</span>
               <input
@@ -204,20 +243,6 @@ function RegisterPage() {
                 Use your personal LinkedIn profile URL. Your profile and contact
                 details are shown only to approved Viking Connect members.
               </small>
-            </label>
-
-            <label className="register-field" htmlFor="graduationYear">
-              <span>Graduation year</span>
-              <input
-                id="graduationYear"
-                type="number"
-                inputMode="numeric"
-                min="1961"
-                max={latestGraduationYear}
-                onChange={(e) => setGradYear(e.target.value)}
-                placeholder="2027"
-                required
-              />
             </label>
 
             <CollegeSelector

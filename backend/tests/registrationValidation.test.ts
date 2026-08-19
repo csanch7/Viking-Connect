@@ -20,6 +20,7 @@ function makeUser(overrides: Partial<User> = {}): User {
     bio: "I help students prepare for careers in technology.",
     areasOfExpertise: ["Software Engineering"],
     gradYear: 2020,
+    role: "user",
     ...overrides,
   };
 }
@@ -128,6 +129,14 @@ describe("registration validation", () => {
     assert.equal(
       validate(makeUser({ gradYear: new Date().getFullYear() + 11 })),
       "Select a valid graduation year",
+    );
+    assert.equal(validate(makeUser({ role: "admin" })), "Invalid member role");
+  });
+
+  it("accepts community members without a graduation year", () => {
+    assert.equal(
+      validate(makeUser({ role: "community member", gradYear: null })),
+      null,
     );
   });
 });

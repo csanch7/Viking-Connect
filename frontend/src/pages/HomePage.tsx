@@ -48,12 +48,14 @@ function HomePage({ isAuthenticated = false }: HomePageProps) {
         </div>
 
         <div className="home-hero-content">
-          <p className="home-kicker">St. Laurence Alumni Networking & Mentorship</p>
+          <p className="home-kicker">
+            St. Laurence Alumni Networking & Mentorship
+          </p>
           <h1 id="home-title">Viking Connect</h1>
           <p className="home-hero-copy">
             One private community where every Viking can find mentors, meet
-              peers, share experience, and turn a familiar connection into a
-              useful next conversation.
+            peers, share experience, and turn a familiar connection into a
+            useful next conversation.
           </p>
           <div className="home-hero-actions">
             {isAuthenticated ? (

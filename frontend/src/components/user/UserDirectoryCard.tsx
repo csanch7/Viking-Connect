@@ -21,7 +21,11 @@ function UserDirectoryCard({ user }: UserDirectoryCardProps) {
               <Link to={`/mentee/${user.id}`}>{user.name}</Link>
             )}
           </h3>
-          <p>St. Laurence class of {user.gradYear}</p>
+          {user.gradYear ? (
+            <p>St. Laurence class of {user.gradYear}</p>
+          ) : (
+            <p>Community member</p>
+          )}
         </div>
       </div>
 

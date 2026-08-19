@@ -23,7 +23,7 @@ function renderAdminRegistrationText(user: RegistrationEmailUser) {
     Name: ${user.name}
     Email: ${user.email}
     Account type: ${user.type}
-    Graduation year: ${user.gradYear}
+    Graduation year: ${user.gradYear ?? "N/A"}
     Bio: ${user.bio || "Not provided"}
     ${topicsLine}
 
@@ -46,7 +46,7 @@ export async function sendAdminRegistrationNotification(
     await resend.emails.send({
       from: config.from,
       to: config.to,
-      subject: "STL Mentorship Program: New Registered User",
+      subject: "STL Mentorship Program: New Registered ",
       html: renderAdminRegistrationEmail(
         user,
         adminPendingUsersUrl,
