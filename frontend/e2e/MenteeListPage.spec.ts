@@ -11,7 +11,7 @@ const mentee = {
   gradYear: 2027,
 }
 
-test('requires confirmation before permanently deleting a mentee', async ({
+test('requires confirmation before deleting a mentee', async ({
   page,
 }) => {
   await mockAuthenticatedSession(page, true)

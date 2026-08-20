@@ -20,6 +20,7 @@ export async function updateCollege(college: string | null, userId: string) {
         WHERE name = ${college}
       )
       WHERE id = ${userId}
+        AND deleted_on IS NULL
       RETURNING college_id
     )
     SELECT colleges.name AS college
@@ -29,4 +30,3 @@ export async function updateCollege(college: string | null, userId: string) {
 
   return rows[0] as { college: string | null } | undefined;
 }
-

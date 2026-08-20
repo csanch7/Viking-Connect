@@ -30,6 +30,7 @@ describe("database migrations", () => {
       "009_enforce_case_insensitive_topic_names.sql",
       "010_add_is_active_to_topics.sql",
       "011_allow_community_members.sql",
+      "012_add_deleted_user_column.sql",
     ]);
   });
 
@@ -147,5 +148,14 @@ describe("database migrations", () => {
     assert.match(sql, /ALTER COLUMN grad_year DROP NOT NULL/);
     assert.match(sql, /grad_year IS NULL OR grad_year BETWEEN 1961 AND 2200/);
     assert.match(sql, /'community member'/);
+  });
+
+  it("tracks soft-deleted users", async () => {
+    const sql = await fs.readFile(
+      path.join(migrationsDirectory, "012_add_deleted_user_column.sql"),
+      "utf8",
+    );
+
+    assert.match(sql, /ADD deleted_on TIMESTAMPTZ/);
   });
 });

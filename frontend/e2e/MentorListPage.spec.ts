@@ -18,7 +18,7 @@ test.beforeEach(async ({ page }) => {
   })
 })
 
-test('requires confirmation before permanently deleting a mentor', async ({
+test('requires confirmation before deleting a mentor', async ({
   page,
 }) => {
   let deleteRequests = 0

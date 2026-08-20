@@ -22,6 +22,7 @@ export async function getMentorRecommendations(
       WHERE id = ${menteeId}
         AND type = 'mentee'
         AND status = 'approved'
+        AND deleted_on IS NULL
     ),
     mentee_topics AS (
       SELECT user_topics.topic_id
@@ -61,6 +62,7 @@ export async function getMentorRecommendations(
         ON matched_topics.topic_id = mentor_topics.topic_id
       WHERE mentors.type = 'mentor'
         AND mentors.status = 'approved'
+        AND mentors.deleted_on IS NULL
       GROUP BY
         mentors.id,
         mentors.name,

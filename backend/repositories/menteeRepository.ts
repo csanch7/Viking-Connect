@@ -48,6 +48,7 @@ export async function getMenteesByPagination(
     LEFT JOIN colleges ON colleges.id = users.college_id
     WHERE users.type = 'mentee'
       AND users.status = 'approved'
+      AND users.deleted_on IS NULL
 
       AND (
         ${expertiseFilters.length === 0}
@@ -105,6 +106,7 @@ export async function findMenteeById(
     WHERE users.id = ${userId}
     AND users.type = 'mentee'
     AND users.status = 'approved'
+    AND deleted_on IS NULL
     LIMIT 1
   `;
 

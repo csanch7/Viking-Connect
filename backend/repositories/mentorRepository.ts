@@ -48,6 +48,7 @@ export async function getMentorsByPagination(
     LEFT JOIN colleges ON colleges.id = users.college_id
     WHERE users.type = 'mentor'
       AND users.status = 'approved'
+      AND users.deleted_on IS NULL
 
       AND (
         ${expertiseFilters.length === 0}
@@ -105,6 +106,7 @@ export async function findMentorById(
     WHERE users.id = ${userId}
     AND users.type = 'mentor'
     AND users.status = 'approved'
+    AND deleted_on IS NULL
     LIMIT 1
   `;
 

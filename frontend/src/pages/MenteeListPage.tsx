@@ -142,7 +142,7 @@ function MenteeListPage() {
         {deleteTarget && (
           <p>
             <strong>{deleteTarget.name}</strong> ({deleteTarget.email}) will be
-            permanently deleted. This action cannot be undone.
+            deleted.
           </p>
         )}
       </ConfirmationDialog>

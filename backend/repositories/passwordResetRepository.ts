@@ -10,6 +10,7 @@ export async function createPasswordResetToken(
       SELECT id, email
       FROM users
       WHERE LOWER(email) = LOWER(${email})
+      AND deleted_on IS NULL
       LIMIT 1
     ),
     removed_tokens AS (
@@ -44,6 +45,7 @@ export async function consumePasswordResetToken(
     UPDATE users
     SET password_hash = ${passwordHash}
     WHERE id IN (SELECT user_id FROM valid_token)
+      AND deleted_on IS NULL
     RETURNING id::text
   `;
 

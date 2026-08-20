@@ -27,6 +27,7 @@ export async function getPendingUsers(): Promise<PendingUser[]> {
     FROM users
     LEFT JOIN colleges ON colleges.id = users.college_id
     WHERE users.status = 'pending'
+      AND users.deleted_on IS NULL
   `;
 
   return rows as PendingUser[];
@@ -39,6 +40,7 @@ export async function denyUser(userId: string) {
     SET status = 'denied'
     WHERE id = ${userId}
     AND status = 'pending'
+    AND deleted_on IS NULL
     RETURNING id::text
   `;
 
@@ -52,6 +54,7 @@ export async function approveUser(userId: string) {
     SET status = 'approved'
     WHERE id = ${userId}
     AND status = 'pending'
+    AND deleted_on IS NULL
     RETURNING id::text
   `;
 
@@ -64,7 +67,8 @@ export async function deleteUser(userId: string) {
       SELECT id
       FROM users
       WHERE id = ${userId}
-        AND role = 'user'
+        AND role != 'admin'
+        AND deleted_on IS NULL
     ),
     deleted_sessions AS (
       DELETE FROM session
@@ -72,7 +76,8 @@ export async function deleteUser(userId: string) {
         SELECT id::text FROM target_user
       )
     )
-    DELETE FROM users
+    UPDATE users
+    SET deleted_on = NOW()
     WHERE id IN (SELECT id FROM target_user)
     RETURNING name
   `;
@@ -86,6 +91,7 @@ export async function getMentorCount(): Promise<CountRow> {
     FROM users 
     WHERE type = 'mentor'
     AND status = 'approved'
+    AND deleted_on IS NULL
   `;
 
   return rows[0] as CountRow;
@@ -97,6 +103,7 @@ export async function getMenteeCount(): Promise<CountRow> {
     FROM users 
     WHERE type = 'mentee'
     AND status = 'approved'
+    AND deleted_on IS NULL
   `;
 
   return rows[0] as CountRow;

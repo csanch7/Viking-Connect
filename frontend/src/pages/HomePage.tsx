@@ -208,6 +208,29 @@ function HomePage({ isAuthenticated = false }: HomePageProps) {
           <ContactUsForm />
         </div>
       </section>
+      <footer className="home-footer">
+        <div className="home-footer-inner">
+          <div className="home-footer-identity">
+            <img
+              className="home-footer-emblem"
+              src="/favicon.svg"
+              alt=""
+              aria-hidden="true"
+            />
+            <div>
+              <strong>Viking Connect</strong>
+              <p>St. Laurence Alumni Networking &amp; Mentorship</p>
+            </div>
+          </div>
+
+          <div className="home-footer-sponsor">
+            <p>Brought to you by</p>
+            <a href="https://www.vikingventuresgroup.org" target="_blank" rel="noopener noreferrer">
+              <img src="/viking-ventures-logo.png" alt="Viking Ventures" />
+            </a>
+          </div>
+        </div>
+      </footer>
     </main>
   )
 }

@@ -612,7 +612,7 @@ describe("API routes", () => {
     assert.deepEqual(approval.body, { message: "19 has been approved" });
   });
 
-  it("allows admins to permanently delete a user", async () => {
+  it("allows admins to delete a user", async () => {
     const agent = await login(buildApiApp("admin"));
 
     const deletion = await agent.delete(`/api/admin/users/${mentor.id}`);

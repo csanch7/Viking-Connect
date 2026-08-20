@@ -102,6 +102,7 @@ export async function findUserByEmail(
     FROM users
     LEFT JOIN colleges ON colleges.id = users.college_id
     WHERE LOWER(email) = LOWER(${email})
+    AND deleted_on IS NULL
     LIMIT 1
   `;
 
@@ -133,6 +134,7 @@ export async function findUserById(
     FROM users
     LEFT JOIN colleges ON colleges.id = users.college_id
     WHERE users.id = ${userId}
+      AND users.deleted_on IS NULL
     LIMIT 1
   `;
 
@@ -145,6 +147,7 @@ export async function updateBio(bio: string, userId: string) {
       users
     SET bio = ${bio}
     WHERE id = ${userId}
+      AND deleted_on IS NULL
     RETURNING 
       bio
   `;
@@ -161,6 +164,7 @@ export async function updateAreasOfExpertise(
       SELECT id
       FROM users
       WHERE id = ${userId}
+        AND deleted_on IS NULL
     ),
     selected_topics AS (
       SELECT id, name
@@ -212,6 +216,7 @@ export async function updateProfile(
         bio = ${input.bio},
         college_id = (SELECT id FROM selected_college)
       WHERE id = ${userId}
+        AND deleted_on IS NULL
       RETURNING id, bio, college_id
     ),
     selected_topics AS (
