@@ -283,10 +283,19 @@ test('applies and clears a separate college filter', async ({ page }) => {
     throw new Error('Directory filter controls should be visible')
   }
 
-  expect(Math.abs(expertiseBox.y - collegeBox.y)).toBeLessThanOrEqual(1)
   expect(Math.abs(expertiseBox.height - collegeBox.height)).toBeLessThanOrEqual(
     1,
   )
+
+  if ((page.viewportSize()?.width ?? 0) <= 760) {
+    expect(Math.abs(expertiseBox.x - collegeBox.x)).toBeLessThanOrEqual(1)
+    expect(Math.abs(expertiseBox.width - collegeBox.width)).toBeLessThanOrEqual(
+      1,
+    )
+    expect(collegeBox.y).toBeGreaterThan(expertiseBox.y + expertiseBox.height)
+  } else {
+    expect(Math.abs(expertiseBox.y - collegeBox.y)).toBeLessThanOrEqual(1)
+  }
 
   await chooseCollege(page, 'University of Illinois Chicago', 'Illinois')
 
