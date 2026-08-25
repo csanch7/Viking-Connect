@@ -45,6 +45,33 @@ test('shows the mentor directory and mentor contact details', async ({
   await expect(page.getByText('Finance')).toBeVisible()
 })
 
+test('previews the directory structure while mentor profiles load', async ({
+  page,
+}) => {
+  let releaseResponse: (() => void) | undefined
+  const responseAllowed = new Promise<void>((resolve) => {
+    releaseResponse = resolve
+  })
+
+  await page.unroute('**/api/mentors/**')
+  await page.route('**/api/mentors/**', async (route) => {
+    await responseAllowed
+    await fulfillJson(route, mentors)
+  })
+
+  await page.goto('/directory')
+
+  const loadingState = page.getByRole('status', { name: 'Loading mentors' })
+  await expect(loadingState).toHaveAttribute('aria-busy', 'true')
+  await expect(
+    loadingState.locator('.directory-loading-skeleton-row'),
+  ).toHaveCount(3)
+
+  releaseResponse?.()
+  await expect(page.getByRole('link', { name: 'Alex Mentor' })).toBeVisible()
+  await expect(loadingState).toHaveCount(0)
+})
+
 test('shows personalized recommendations to mentees', async ({ page }) => {
   await page.unroute('**/api/auth/session')
   await mockAuthenticatedSession(page, false, true)
@@ -69,11 +96,115 @@ test('shows personalized recommendations to mentees', async ({ page }) => {
     page.getByRole('heading', { name: 'Recommended for you' }),
   ).toBeVisible()
   await expect(
-    page.getByText('You share a college connection and mentoring interests.'),
+    page.getByText('You share mentoring interests and a college connection.'),
   ).toBeVisible()
-  await expect(page.getByText('2 shared topics')).toBeVisible()
-  await expect(page.getByText('Same college')).toBeVisible()
+  await expect(
+    page.getByLabel('Why this match').getByText('Career Planning'),
+  ).toBeVisible()
+  await expect(
+    page.getByLabel('Why this match').getByText('College connection', {
+      exact: true,
+    }),
+  ).toBeVisible()
+  await expect(
+    page.getByRole('link', { name: 'View profile and contact' }),
+  ).toHaveAttribute('href', '/mentor/42')
   await expect(page.getByText('/100 match')).toBeHidden()
+})
+
+test('describes a same-college-only recommendation accurately', async ({
+  page,
+}) => {
+  await page.unroute('**/api/auth/session')
+  await mockAuthenticatedSession(page, false, true)
+  await page.route('**/api/recommendations/mentors', async (route) => {
+    await fulfillJson(route, {
+      recommendations: [
+        {
+          mentor: {
+            ...mentors[0],
+            id: '84',
+            name: 'Taylor Mentor',
+            areasOfExpertise: ['Technology', 'Product Design'],
+          },
+          recommendationScore: 10,
+          coveragePercentage: 0,
+          sharedTopicCount: 0,
+          matchedTopics: [],
+          sameCollege: true,
+        },
+      ],
+    })
+  })
+
+  await page.goto('/directory')
+
+  await expect(
+    page.getByText(
+      'A shared college connection gives you a natural place to start.',
+    ),
+  ).toBeVisible()
+  await expect(page.getByText('Mentor expertise')).toBeVisible()
+  await expect(page.getByText('Technology')).toBeVisible()
+  await expect(page.getByText('No shared topics')).toBeHidden()
+})
+
+test('shows a recommendation skeleton while personalized matches load', async ({
+  page,
+}) => {
+  let releaseRecommendations: (() => void) | undefined
+  const recommendationsAllowed = new Promise<void>((resolve) => {
+    releaseRecommendations = resolve
+  })
+
+  await page.unroute('**/api/auth/session')
+  await mockAuthenticatedSession(page, false, true)
+  await page.route('**/api/recommendations/mentors', async (route) => {
+    await recommendationsAllowed
+    await fulfillJson(route, { recommendations: [] })
+  })
+
+  await page.goto('/directory')
+
+  const loadingState = page.getByRole('status', {
+    name: 'Loading mentor recommendations',
+  })
+  await expect(loadingState).toHaveAttribute('aria-busy', 'true')
+  await expect(
+    loadingState.locator('.recommendation-card--loading'),
+  ).toHaveCount(3)
+
+  releaseRecommendations?.()
+  await expect(page.getByText('No close matches yet')).toBeVisible()
+})
+
+test('recovers when personalized recommendations fail to load', async ({
+  page,
+}) => {
+  let requestCount = 0
+
+  await page.unroute('**/api/auth/session')
+  await mockAuthenticatedSession(page, false, true)
+  await page.route('**/api/recommendations/mentors', async (route) => {
+    requestCount += 1
+    await fulfillJson(
+      route,
+      requestCount === 1 ? { message: 'Unavailable' } : { recommendations: [] },
+      requestCount === 1 ? 503 : 200,
+    )
+  })
+
+  await page.goto('/directory')
+
+  await expect(
+    page.getByText('Recommendations are temporarily unavailable'),
+  ).toBeVisible()
+  await page.getByRole('button', { name: 'Try recommendations again' }).click()
+
+  await expect(page.getByText('No close matches yet')).toBeVisible()
+  await expect(
+    page.getByRole('link', { name: 'Review your profile' }),
+  ).toHaveAttribute('href', '/profile')
 })
 
 test('applies an expertise filter to the mentor request', async ({ page }) => {
@@ -229,6 +360,56 @@ test('shows an error state when mentor loading fails', async ({ page }) => {
   await expect(
     page.getByRole('heading', { name: 'Unable to load mentors' }),
   ).toBeVisible()
+})
+
+test('uses the full directory width when no mentors are available', async ({
+  page,
+}) => {
+  await page.unroute('**/api/mentors/**')
+  await page.route('**/api/mentors/**', async (route) => {
+    await fulfillJson(route, [])
+  })
+
+  await page.goto('/directory')
+
+  const emptyState = page.locator('.directory-empty')
+  await expect(
+    emptyState.getByRole('heading', { name: 'No mentors yet' }),
+  ).toBeVisible()
+
+  const [emptyStateWidth, controlsWidth] = await Promise.all([
+    emptyState.evaluate((element) => element.getBoundingClientRect().width),
+    page
+      .locator('.directory-controls')
+      .evaluate((element) => element.getBoundingClientRect().width),
+  ])
+
+  expect(Math.abs(emptyStateWidth - controlsWidth)).toBeLessThan(1)
+})
+
+test('keeps filtered no-results recovery concise', async ({ page }) => {
+  await page.unroute('**/api/mentors/**')
+  await page.route('**/api/mentors/**', async (route) => {
+    const hasCollegeFilter = new URL(route.request().url()).searchParams.has(
+      'college',
+    )
+    await fulfillJson(route, hasCollegeFilter ? [] : mentors)
+  })
+
+  await page.goto('/directory')
+  await page.getByRole('button', { name: /Filters/ }).click()
+  await page
+    .getByLabel('College')
+    .selectOption('University of Illinois Chicago')
+  await page.getByRole('button', { name: 'Apply filters' }).click()
+
+  await expect(
+    page.getByRole('heading', { name: 'No matching mentors' }),
+  ).toBeVisible()
+  await expect(
+    page.getByRole('button', { name: 'Clear all filters' }),
+  ).toHaveCount(1)
+  await expect(page.getByText('Page 1')).toBeHidden()
 })
 
 test('resets filters when switching views and keeps a clean URL', async ({

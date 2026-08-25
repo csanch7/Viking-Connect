@@ -1,9 +1,12 @@
 import type { Mentor } from '../../types/user'
+import { Link } from 'react-router-dom'
 import UserDirectoryCard from './UserDirectoryCard'
 import RecommendedMentorCard from './RecommendedMentorCard'
 import { useAuth } from '../../auth/useAuth'
 import { useMentorDirectory } from '../../hooks/useMentorDirectory'
 import DirectoryAppliedFilters from './DirectoryAppliedFilters'
+import DirectoryLoadingState from './DirectoryLoadingState'
+import RecommendationLoadingState from './RecommendationLoadingState'
 
 function MentorDirectoryComponent() {
   const { mentee: isMentee } = useAuth()
@@ -33,6 +36,7 @@ function MentorDirectoryComponent() {
     canClearFilters,
     hasActiveFilters,
   } = directory
+  const visibleRecommendations = recommendations.slice(0, 3)
 
   function handleFilter(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -40,12 +44,7 @@ function MentorDirectoryComponent() {
   }
 
   if (directory.loading) {
-    return (
-      <section className="directory-empty" aria-live="polite">
-        <h2>Loading mentors</h2>
-        <p>Gathering approved mentor profiles...</p>
-      </section>
-    )
+    return <DirectoryLoadingState memberType="mentors" />
   }
 
   return (
@@ -57,25 +56,35 @@ function MentorDirectoryComponent() {
         >
           <div className="recommendations-header">
             <div>
-              <p className="directory-kicker">Based on your profile</p>
               <h2 id="recommendations-title">Recommended for you</h2>
               <p>
-                Matched using shared interests and, when available, college.
+                Your top mentor matches, based on interests in your profile and
+                your college when available.
               </p>
             </div>
           </div>
 
           {recommendationsLoading ? (
-            <p className="recommendations-status" aria-live="polite">
-              Finding your strongest mentor matches...
-            </p>
+            <RecommendationLoadingState />
           ) : recommendationsError ? (
-            <p className="recommendations-status" role="alert">
-              {recommendationsError}
-            </p>
-          ) : recommendations.length > 0 ? (
+            <div className="recommendations-state" role="alert">
+              <div>
+                <strong>Recommendations are temporarily unavailable</strong>
+                <p>
+                  {recommendationsError} You can still browse every approved
+                  mentor below.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => void directory.retryRecommendations()}
+              >
+                Try recommendations again
+              </button>
+            </div>
+          ) : visibleRecommendations.length > 0 ? (
             <div className="recommendations-grid">
-              {recommendations.slice(0, 3).map((recommendation) => (
+              {visibleRecommendations.map((recommendation) => (
                 <RecommendedMentorCard
                   key={recommendation.mentor.id}
                   recommendation={recommendation}
@@ -83,10 +92,16 @@ function MentorDirectoryComponent() {
               ))}
             </div>
           ) : (
-            <p className="recommendations-status">
-              No close matches yet. You can still browse every approved mentor
-              below.
-            </p>
+            <div className="recommendations-state">
+              <div>
+                <strong>No close matches yet</strong>
+                <p>
+                  Add current interests or college information to your profile,
+                  or browse every approved mentor below.
+                </p>
+              </div>
+              <Link to="/profile">Review your profile</Link>
+            </div>
           )}
         </section>
       )}
@@ -248,6 +263,7 @@ function MentorDirectoryComponent() {
         college={appliedCollege}
         topicLabel="Expertise"
         onClear={directory.clearFilters}
+        showClearAction={mentors.length > 0 || Boolean(error)}
       />
 
       {mentors.length > 0 ? (
@@ -265,7 +281,10 @@ function MentorDirectoryComponent() {
           </div>
         </section>
       ) : error ? (
-        <section className="directory-empty" aria-live="polite">
+        <section
+          className="directory-empty directory-empty--compact"
+          aria-live="polite"
+        >
           <h2>Unable to load mentors</h2>
           <p>{error}</p>
           <button type="button" onClick={() => directory.retryMentors()}>
@@ -287,21 +306,23 @@ function MentorDirectoryComponent() {
           )}
         </section>
       )}
-      <div className="directory-pagination">
-        <p>Page {page + 1}</p>
-        <div className="directory-pagination-actions">
-          {page > 0 && (
-            <button onClick={() => directory.changePage(page - 1)}>
-              Previous page
-            </button>
-          )}
-          {hasNextPage && (
-            <button onClick={() => directory.changePage(page + 1)}>
-              Next page
-            </button>
-          )}
+      {(mentors.length > 0 || page > 0) && (
+        <div className="directory-pagination">
+          <p>Page {page + 1}</p>
+          <div className="directory-pagination-actions">
+            {page > 0 && (
+              <button onClick={() => directory.changePage(page - 1)}>
+                Previous page
+              </button>
+            )}
+            {hasNextPage && (
+              <button onClick={() => directory.changePage(page + 1)}>
+                Next page
+              </button>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </>
   )
 }

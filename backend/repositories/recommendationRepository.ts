@@ -96,7 +96,7 @@ export async function getMentorRecommendations(
     FROM mentor_stats
     WHERE "sharedTopicCount" > 0 OR "sameCollege"
     ORDER BY "recommendationScore" DESC, name ASC, id ASC
-    LIMIT 10
+    LIMIT 3
   `;
 
   return (rows as RecommendationRow[]).map((row) => ({

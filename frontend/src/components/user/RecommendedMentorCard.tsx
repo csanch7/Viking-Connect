@@ -9,19 +9,27 @@ interface RecommendedMentorCardProps {
 function RecommendedMentorCard({ recommendation }: RecommendedMentorCardProps) {
   const { mentor, sharedTopicCount, matchedTopics, sameCollege } =
     recommendation
-  const connectionReason = sameCollege
-    ? 'You share a college connection and mentoring interests.'
-    : sharedTopicCount > 0
-      ? `You share ${sharedTopicCount} mentoring ${sharedTopicCount === 1 ? 'interest' : 'interests'}.`
-      : 'This mentor may complement the goals in your profile.'
+  const hasSharedTopics = sharedTopicCount > 0 && matchedTopics.length > 0
+  const evidenceAreas = hasSharedTopics
+    ? matchedTopics
+    : mentor.areasOfExpertise
+  const evidenceLabel = hasSharedTopics
+    ? 'Interests you share'
+    : 'Mentor expertise'
+  const connectionReason =
+    sameCollege && hasSharedTopics
+      ? 'You share mentoring interests and a college connection.'
+      : sameCollege
+        ? 'A shared college connection gives you a natural place to start.'
+        : hasSharedTopics
+          ? 'Their expertise aligns with interests in your profile.'
+          : 'Their experience may complement your mentorship goals.'
 
   return (
     <article className="recommendation-card">
       <div className="recommendation-card-heading">
         <div>
-          <h3>
-            <Link to={`/mentor/${mentor.id}`}>{mentor.name}</Link>
-          </h3>
+          <h3>{mentor.name}</h3>
           {mentor.gradYear ? (
             <p>St. Laurence class of {mentor.gradYear}</p>
           ) : (
@@ -32,34 +40,25 @@ function RecommendedMentorCard({ recommendation }: RecommendedMentorCardProps) {
 
       <p className="recommendation-reason">{connectionReason}</p>
 
-      <div className="recommendation-signals">
-        {sharedTopicCount > 0 && (
-          <span>
-            {sharedTopicCount} shared{' '}
-            {sharedTopicCount === 1 ? 'topic' : 'topics'}
-          </span>
-        )}
-        {sameCollege && <span>Same college</span>}
-      </div>
-
-      <div className="recommendation-topics">
-        <p>
-          {matchedTopics.length > 0 ? 'Shared interests' : 'Mentor expertise'}
-        </p>
-        {matchedTopics.length > 0 ? (
+      <div className="recommendation-evidence" aria-label="Why this match">
+        <div className="recommendation-evidence-header">
+          <p>{evidenceLabel}</p>
+          {sameCollege && <span>College connection</span>}
+        </div>
+        {evidenceAreas.length > 0 ? (
           <ExpertiseChips
-            areas={matchedTopics}
+            areas={evidenceAreas}
             className="directory-chips"
             countClassName="directory-chip-count"
             maxVisible={3}
           />
         ) : (
-          <span className="directory-muted">No shared topics</span>
+          <span className="directory-muted">Expertise not listed yet</span>
         )}
       </div>
 
       <Link className="recommendation-profile-link" to={`/mentor/${mentor.id}`}>
-        View mentor profile
+        View profile and contact
       </Link>
     </article>
   )

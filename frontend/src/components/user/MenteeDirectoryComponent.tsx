@@ -2,6 +2,7 @@ import type { Mentee } from '../../types/user'
 import UserDirectoryCard from './UserDirectoryCard'
 import { useMenteeDirectory } from '../../hooks/useMenteeDirectory'
 import DirectoryAppliedFilters from './DirectoryAppliedFilters'
+import DirectoryLoadingState from './DirectoryLoadingState'
 
 function MenteeDirectoryComponent() {
   const directory = useMenteeDirectory()
@@ -35,12 +36,7 @@ function MenteeDirectoryComponent() {
   }
 
   if (directory.loading) {
-    return (
-      <section className="directory-empty" aria-live="polite">
-        <h2>Loading mentees</h2>
-        <p>Gathering approved mentee profiles...</p>
-      </section>
-    )
+    return <DirectoryLoadingState memberType="mentees" />
   }
 
   return (
@@ -207,6 +203,7 @@ function MenteeDirectoryComponent() {
         college={appliedCollege}
         topicLabel="Interest"
         onClear={directory.clearFilters}
+        showClearAction={mentees.length > 0 || Boolean(error)}
       />
 
       {mentees.length > 0 ? (
@@ -224,7 +221,10 @@ function MenteeDirectoryComponent() {
           </div>
         </section>
       ) : error ? (
-        <section className="directory-empty" aria-live="polite">
+        <section
+          className="directory-empty directory-empty--compact"
+          aria-live="polite"
+        >
           <h2>Unable to load mentees</h2>
           <p>{error}</p>
           <button type="button" onClick={() => directory.retryMentees()}>
@@ -246,21 +246,23 @@ function MenteeDirectoryComponent() {
           )}
         </section>
       )}
-      <div className="directory-pagination">
-        <p>Page {page + 1}</p>
-        <div className="directory-pagination-actions">
-          {page > 0 && (
-            <button onClick={() => directory.changePage(page - 1)}>
-              Previous page
-            </button>
-          )}
-          {hasNextPage && (
-            <button onClick={() => directory.changePage(page + 1)}>
-              Next page
-            </button>
-          )}
+      {(mentees.length > 0 || page > 0) && (
+        <div className="directory-pagination">
+          <p>Page {page + 1}</p>
+          <div className="directory-pagination-actions">
+            {page > 0 && (
+              <button onClick={() => directory.changePage(page - 1)}>
+                Previous page
+              </button>
+            )}
+            {hasNextPage && (
+              <button onClick={() => directory.changePage(page + 1)}>
+                Next page
+              </button>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </>
   )
 }

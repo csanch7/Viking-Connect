@@ -4,6 +4,7 @@ interface DirectoryAppliedFiltersProps {
   college: string
   topicLabel: string
   onClear: () => void
+  showClearAction?: boolean
 }
 
 function DirectoryAppliedFilters({
@@ -12,6 +13,7 @@ function DirectoryAppliedFilters({
   college,
   topicLabel,
   onClear,
+  showClearAction = true,
 }: DirectoryAppliedFiltersProps) {
   const trimmedSearch = searchText.trim()
   const hasFilters = Boolean(trimmedSearch || expertise.length || college)
@@ -32,9 +34,11 @@ function DirectoryAppliedFilters({
           {college && <li>College: {college}</li>}
         </ul>
       </div>
-      <button type="button" onClick={onClear}>
-        Clear all filters
-      </button>
+      {showClearAction && (
+        <button type="button" onClick={onClear}>
+          Clear all filters
+        </button>
+      )}
     </section>
   )
 }

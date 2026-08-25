@@ -23,6 +23,10 @@
   .home-outcome-grid {
     gap: 12px;
   }
+
+  .recommendations-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 760px) {
@@ -203,8 +207,23 @@
     grid-template-columns: 1fr;
   }
 
+  .recommendations-header,
+  .recommendations-state {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .recommendations-state button,
+  .recommendations-state > a {
+    width: 100%;
+  }
+
   .directory-search-row {
     grid-template-columns: 1fr;
+  }
+
+  .directory-skeleton-button {
+    width: 100%;
   }
 
   .directory-filter-toggle {
@@ -282,6 +301,10 @@
   .directory-details {
     grid-template-columns: 1fr;
     gap: 14px;
+  }
+
+  .directory-loading-skeleton-row {
+    min-height: 184px;
   }
 
   .directory-user-actions {

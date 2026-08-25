@@ -54,6 +54,7 @@ export function useMentorDirectory(isMentee: boolean) {
     recommendationsError: recommendationsQuery.isError
       ? 'We could not load your recommendations right now.'
       : '',
+    retryRecommendations: recommendationsQuery.refetch,
     colleges: collegesQuery.data ?? [],
     collegesLoading: collegesQuery.isPending,
     collegesError: collegesQuery.isError ? 'We could not load colleges.' : '',
