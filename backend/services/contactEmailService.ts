@@ -1,7 +1,7 @@
-import { Resend } from "resend";
 import type { EmailRequest } from "../../shared/contracts";
 import { getContactUsEmailConfig } from "../config/env";
 import { renderContactUsEmail } from "../emails/contactUsEmail";
+import { sendEmail } from "./emailService";
 import { log, logError } from "./logger";
 
 function renderContactUsText(emailData: EmailRequest) {
@@ -23,8 +23,7 @@ export async function sendContactUsEmail(emailData: EmailRequest) {
   }
 
   try {
-    const resend = new Resend(config.apiKey);
-    const result = await resend.emails.send({
+    await sendEmail({
       from: config.from,
       to: config.to,
       replyTo: emailData.sender,
@@ -32,10 +31,6 @@ export async function sendContactUsEmail(emailData: EmailRequest) {
       text: renderContactUsText(emailData),
       html: renderContactUsEmail(emailData),
     });
-
-    if (result.error) {
-      throw result.error;
-    }
   } catch (error) {
     logError("contact_email.send_failed", error);
     throw error;

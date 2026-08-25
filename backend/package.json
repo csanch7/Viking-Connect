@@ -11,6 +11,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@aws-sdk/client-sesv2": "^3.1114.0",
     "@neondatabase/serverless": "^1.1.0",
     "argon2": "^0.44.0",
     "connect-pg-simple": "^10.0.0",
@@ -18,8 +19,7 @@
     "express-rate-limit": "^8.5.2",
     "express-session": "^1.19.0",
     "helmet": "^8.2.0",
-    "pg": "^8.16.3",
-    "resend": "^6.16.0"
+    "pg": "^8.16.3"
   },
   "devDependencies": {
     "@types/connect-pg-simple": "^7.0.3",

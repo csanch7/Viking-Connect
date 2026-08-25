@@ -45,14 +45,18 @@ The frontend development server proxies `/api` requests to
 - `NODE_ENV` — set to `production` in production
 - `PORT` — backend port, default `3000`
 - `APP_URL` — public application URL used in notification links
-- `RESEND_API` — optional Resend API key
-- `FROM_RESEND_EMAIL` — optional verified sender
-- `TO_RESEND_EMAIL` — optional admin notification recipient
-- `TO_CONTACT_US_EMAIL` — optional contact form recipient
+- `AWS_REGION` — AWS Region containing the verified Amazon SES identity
+- `SES_FROM_EMAIL` — optional SES-verified sender
+- `ADMIN_NOTIFICATION_EMAIL` — optional admin notification recipient
+- `CONTACT_EMAIL` — optional contact form recipient
+- `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` — optional when the runtime
+  does not already have an IAM role; loaded through the standard AWS credential
+  chain
 
-Registration email is skipped when its Resend settings are incomplete. Contact
-form delivery requires `RESEND_API`, `FROM_RESEND_EMAIL`, and
-`TO_CONTACT_US_EMAIL`.
+Registration email is skipped when its SES settings are incomplete. Contact
+form delivery requires `AWS_REGION`, `SES_FROM_EMAIL`, and `CONTACT_EMAIL`.
+Before sending to users, verify the sending domain in SES and request production
+access for the selected Region.
 
 ## Database migrations
 

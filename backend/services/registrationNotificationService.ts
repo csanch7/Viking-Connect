@@ -1,7 +1,7 @@
-import { Resend } from "resend";
 import { env, getRegistrationEmailConfig } from "../config/env";
 import { renderAdminRegistrationEmail } from "../emails/adminRegistrationEmail";
 import type { RegistrationEmailUser } from "../validation/registrationValidation";
+import { sendEmail } from "./emailService";
 import { log, logError } from "./logger";
 
 const adminPendingUsersPath = "/admin/pending-users";
@@ -41,9 +41,7 @@ export async function sendAdminRegistrationNotification(
   }
 
   try {
-    const resend = new Resend(config.apiKey);
-
-    await resend.emails.send({
+    await sendEmail({
       from: config.from,
       to: config.to,
       subject: "STL Mentorship Program: New Registered ",

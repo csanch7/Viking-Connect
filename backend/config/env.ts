@@ -26,41 +26,39 @@ if (!isProduction && !process.env.SESSION_SECRET) {
 
 export const env = {
   appUrl: optionalEnv("APP_URL"),
+  awsRegion: optionalEnv("AWS_REGION"),
   databaseUrl: requireEnv("DATABASE_URL"),
   isProduction,
   port: optionalEnv("PORT") ?? "3000",
-  resendApiKey: optionalEnv("RESEND_API"),
-  resendFromEmail: optionalEnv("FROM_RESEND_EMAIL"),
-  resendToEmail: optionalEnv("TO_RESEND_EMAIL"),
-  contactToEmail: optionalEnv("TO_CONTACT_US_EMAIL"),
+  sesFromEmail: optionalEnv("SES_FROM_EMAIL"),
+  adminNotificationEmail: optionalEnv("ADMIN_NOTIFICATION_EMAIL"),
+  contactEmail: optionalEnv("CONTACT_EMAIL"),
   sessionSecret,
 };
 
 export function getRegistrationEmailConfig() {
-  if (!env.resendApiKey || !env.resendFromEmail || !env.resendToEmail) {
+  if (!env.awsRegion || !env.sesFromEmail || !env.adminNotificationEmail) {
     return null;
   }
 
   return {
-    apiKey: env.resendApiKey,
-    from: env.resendFromEmail,
-    to: env.resendToEmail,
+    from: env.sesFromEmail,
+    to: env.adminNotificationEmail,
   };
 }
 
 export function getContactUsEmailConfig() {
-  if (!env.resendApiKey || !env.resendFromEmail || !env.contactToEmail) {
+  if (!env.awsRegion || !env.sesFromEmail || !env.contactEmail) {
     return null;
   }
 
   return {
-    apiKey: env.resendApiKey,
-    from: env.resendFromEmail,
-    to: env.contactToEmail,
+    from: env.sesFromEmail,
+    to: env.contactEmail,
   };
 }
 
 export function getPasswordResetEmailConfig() {
-  if (!env.resendApiKey || !env.resendFromEmail) return null;
-  return { apiKey: env.resendApiKey, from: env.resendFromEmail };
+  if (!env.awsRegion || !env.sesFromEmail) return null;
+  return { from: env.sesFromEmail };
 }

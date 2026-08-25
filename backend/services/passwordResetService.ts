@@ -1,6 +1,6 @@
 import { createHash, randomBytes } from "node:crypto";
-import { Resend } from "resend";
 import { env, getPasswordResetEmailConfig } from "../config/env";
+import { sendEmail } from "./emailService";
 import { log, logError } from "./logger";
 
 export function createPasswordResetSecret() {
@@ -27,8 +27,7 @@ export async function sendPasswordResetEmail(
   const resetUrl = `${appOrigin.replace(/\/$/, "")}/reset-password?token=${encodeURIComponent(token)}`;
 
   try {
-    const resend = new Resend(config.apiKey);
-    await resend.emails.send({
+    await sendEmail({
       from: config.from,
       to: email,
       subject: "Reset your STL Mentorship Program password",
