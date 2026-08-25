@@ -31,6 +31,7 @@ describe("database migrations", () => {
       "010_add_is_active_to_topics.sql",
       "011_allow_community_members.sql",
       "012_add_deleted_user_column.sql",
+      "013_import_college_scorecard_institutions.sql",
     ]);
   });
 
@@ -64,6 +65,25 @@ describe("database migrations", () => {
     assert.match(sql, /ADD COLUMN college_id BIGINT/);
     assert.match(sql, /FOREIGN KEY \(college_id\) REFERENCES colleges \(id\)/);
     assert.match(sql, /CREATE INDEX users_college_id_idx/);
+  });
+
+  it("imports operating degree-granting colleges with unique display names", async () => {
+    const sql = await fs.readFile(
+      path.join(
+        migrationsDirectory,
+        "013_import_college_scorecard_institutions.sql",
+      ),
+      "utf8",
+    );
+
+    assert.equal(sql.match(/^  \('/gm)?.length, 3_863);
+    assert.match(sql, /\('Canada College'\)/);
+    assert.match(sql, /\('Columbia College \(Sonora, CA\)'\)/);
+    assert.match(
+      sql,
+      /\('Western Technical College \(El Paso, TX 79924\)'\)/,
+    );
+    assert.match(sql, /ON CONFLICT \(name\) DO NOTHING/);
   });
 
   it("keeps required user constraints in versioned SQL", async () => {

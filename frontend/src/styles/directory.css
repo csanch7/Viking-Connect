@@ -547,11 +547,11 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(220px, 0.6fr);
   gap: 12px;
-  align-items: end;
+  align-items: start;
 }
 
 .directory-filter-search,
-.directory-filter-select {
+.directory-college-filter {
   display: grid;
   gap: 8px;
   color: var(--directory-ink);
@@ -559,11 +559,20 @@
   font-weight: 760;
 }
 
+.directory-filter-fields .directory-college-filter {
+  gap: 8px;
+}
+
+.directory-filter-search > span,
+.directory-college-filter > .college-field-label {
+  font: inherit;
+  line-height: 1.45;
+}
+
 .directory-filter-search input,
-.directory-filter-select select {
+.directory-college-filter .college-combobox-input {
   width: 100%;
   min-height: 44px;
-  padding: 0 12px;
   border: 1px solid var(--directory-border);
   border-radius: 6px;
   color: var(--directory-ink);
@@ -572,57 +581,29 @@
   background: var(--directory-card);
 }
 
-.directory-filter-select-shell {
-  position: relative;
-  min-width: 0;
+.directory-filter-search input {
+  padding: 0 12px;
 }
 
-.directory-filter-select select {
-  padding-right: 40px;
-  appearance: none;
-  text-overflow: ellipsis;
-  cursor: pointer;
-  box-shadow: 0 1px 2px rgba(25, 25, 25, 0.04);
-  transition:
-    border-color 160ms ease,
-    box-shadow 160ms ease,
-    background-color 160ms ease;
+.directory-college-filter .college-combobox-input {
+  padding: 0 44px 0 12px;
 }
 
-.directory-filter-select select:hover:not(:disabled) {
+.directory-college-filter .college-combobox-input:hover {
   border-color: #b6aa92;
   background: #fffdf8;
 }
 
-.directory-filter-select-icon {
-  position: absolute;
-  top: 50%;
-  right: 12px;
-  width: 18px;
-  height: 18px;
-  color: var(--directory-muted);
-  pointer-events: none;
-  stroke: currentColor;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 1.8;
-  transform: translateY(-50%);
-}
-
-.directory-filter-select select:disabled {
-  color: #8b857b;
-  cursor: not-allowed;
-  background: #f4f0e8;
-}
-
 .directory-filter-search input:focus,
-.directory-filter-select select:focus {
+.directory-college-filter .college-combobox-input:focus {
   border-color: #191919;
   outline: none;
   box-shadow: 0 0 0 3px rgba(255, 199, 44, 0.35);
 }
 
-.directory-filter-select select:focus + .directory-filter-select-icon {
+.directory-college-filter
+  .college-combobox-input:focus
+  + .college-combobox-icon {
   color: #765900;
 }
 

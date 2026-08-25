@@ -11,7 +11,7 @@ import MemberProfileCardHeading from '../components/profile/MemberProfileCardHea
 import MemberProfileContact from '../components/profile/MemberProfileContact'
 import MemberProfileHero from '../components/profile/MemberProfileHero'
 import MemberProfileSummary from '../components/profile/MemberProfileSummary'
-import CollegeSelector from '../components/profile/CollegeSelector'
+import CollegeSelector from '../components/CollegeSelector'
 import ConfirmationDialog from '../components/ConfirmationDialog'
 
 function ProfilePage() {

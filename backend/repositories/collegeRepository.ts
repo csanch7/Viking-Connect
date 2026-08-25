@@ -1,10 +1,17 @@
 import { sql } from "../database";
 
-export async function getColleges(): Promise<string[]> {
+const collegeSearchResultLimit = 10;
+
+export async function getColleges(searchText?: string): Promise<string[]> {
+  const trimmedSearchText = searchText?.trim() ?? "";
+  const searchPattern = `%${trimmedSearchText}%`;
+
   const rows = await sql`
     SELECT name
     FROM colleges
+    WHERE ${trimmedSearchText === ""} OR name ILIKE ${searchPattern}
     ORDER BY name ASC
+    LIMIT ${trimmedSearchText ? collegeSearchResultLimit : null}
   `;
 
   return rows.map((row) => String(row.name));

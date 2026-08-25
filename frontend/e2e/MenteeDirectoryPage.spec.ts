@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 import {
+  chooseCollege,
   fulfillJson,
   mockAuthenticatedSession,
   mockColleges,
@@ -91,9 +92,7 @@ test('applies and clears a college filter', async ({ page }) => {
   await page.goto('/directory')
   await page.getByRole('button', { name: 'Mentees', exact: true }).click()
   await page.getByRole('button', { name: /Filters/ }).click()
-  await page
-    .getByLabel('College')
-    .selectOption('University of Illinois Chicago')
+  await chooseCollege(page, 'University of Illinois Chicago', 'Illinois')
 
   const filteredRequest = page.waitForRequest((request) => {
     const url = new URL(request.url())
@@ -117,5 +116,5 @@ test('applies and clears a college filter', async ({ page }) => {
   await page.getByRole('button', { name: 'Clear all filters' }).click()
   await clearedRequest
   await page.getByRole('button', { name: /Filters/ }).click()
-  await expect(page.getByLabel('College')).toHaveValue('')
+  await expect(page.getByLabel('College', { exact: true })).toHaveValue('')
 })

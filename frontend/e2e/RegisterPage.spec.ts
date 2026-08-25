@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 import {
+  chooseCollege,
   fulfillJson,
   mockColleges,
   mockSession,
@@ -73,6 +74,38 @@ test('shows a loading state before database topics arrive', async ({
   await expect(selector.getByRole('option', { name: 'Finance' })).toBeAttached()
 })
 
+test('searches in the college field without losing the current selection', async ({
+  page,
+}) => {
+  const collegeSearches: string[] = []
+  await page.unroute('**/api/colleges*')
+  await page.route('**/api/colleges*', async (route) => {
+    const searchText = new URL(route.request().url()).searchParams.get(
+      'searchText',
+    )
+    collegeSearches.push(searchText ?? '')
+    await fulfillJson(route, {
+      colleges: searchText?.includes('Illinois')
+        ? ['University of Illinois Chicago']
+        : ['DePaul University', 'University of Illinois Chicago'],
+    })
+  })
+  await page.reload()
+
+  const collegeSelector = page.getByRole('combobox', {
+    name: 'College',
+    exact: true,
+  })
+  await chooseCollege(page, 'DePaul University')
+  await collegeSelector.fill('  Illinois  ')
+
+  await expect.poll(() => collegeSearches).toContain('Illinois')
+  await collegeSelector.press('Escape')
+  await expect(collegeSelector).toHaveValue('DePaul University')
+  await chooseCollege(page, 'University of Illinois Chicago', 'Illinois')
+  await expect(collegeSelector).toHaveValue('University of Illinois Chicago')
+})
+
 test('validates and submits a complete mentee registration', async ({
   page,
 }) => {
@@ -91,7 +124,7 @@ test('validates and submits a complete mentee registration', async ({
     .getByLabel('LinkedIn URL')
     .fill('https://www.linkedin.com/in/jane-student')
   await page.getByLabel('Graduation year').fill('2027')
-  await page.getByLabel('College').selectOption('DePaul University')
+  await chooseCollege(page, 'DePaul University')
   await page
     .getByLabel('Bio')
     .fill('I am interested in interview preparation and career planning.')

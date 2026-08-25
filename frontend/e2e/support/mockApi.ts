@@ -55,7 +55,18 @@ export async function mockColleges(
   page: Page,
   colleges = ['DePaul University', 'University of Illinois Chicago'],
 ) {
-  await page.route('**/api/colleges', async (route) => {
+  await page.route('**/api/colleges*', async (route) => {
     await fulfillJson(route, { colleges })
   })
+}
+
+export async function chooseCollege(
+  page: Page,
+  college: string,
+  searchText = college,
+) {
+  await page
+    .getByRole('combobox', { name: 'College', exact: true })
+    .fill(searchText)
+  await page.getByRole('option', { name: college, exact: true }).click()
 }
