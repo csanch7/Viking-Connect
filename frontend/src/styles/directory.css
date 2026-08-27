@@ -208,13 +208,13 @@
 .recommendations-header h2 {
   margin: 0 0 4px;
   color: var(--directory-ink);
-  font-size: 20px;
+  font-size: var(--fs-700);
   font-weight: 780;
 }
 
 .recommendations-header > div > p:last-child {
   color: var(--directory-muted);
-  font-size: 13px;
+  font-size: var(--fs-200);
   line-height: 1.45;
 }
 
@@ -256,22 +256,35 @@
 
 .recommendation-card h3 {
   margin: 0 0 4px;
-  font-size: 16px;
+  font-size: var(--fs-500);
   line-height: 1.25;
   overflow-wrap: anywhere;
 }
 
 .recommendation-card-heading p {
   color: var(--directory-muted);
-  font-size: 12px;
+  font-size: var(--fs-100);
   line-height: 1.35;
   overflow-wrap: anywhere;
+}
+
+.recommendation-college-badge {
+  flex: none;
+  margin-top: 2px;
+  padding: 3px 8px;
+  border: 1px solid #e1d49d;
+  border-radius: 6px;
+  color: #66500c;
+  font-size: var(--fs-100);
+  font-weight: 760;
+  white-space: nowrap;
+  background: #fff8e2;
 }
 
 .recommendation-reason {
   margin: 0;
   color: #3f392f;
-  font-size: 13px;
+  font-size: var(--fs-200);
   font-weight: 680;
   line-height: 1.5;
 }
@@ -281,27 +294,11 @@
   gap: 8px;
 }
 
-.recommendation-evidence-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.recommendation-evidence-header p {
+.recommendation-evidence-label {
+  margin: 0;
   color: var(--directory-muted);
-  font-size: 11px;
+  font-size: var(--fs-100);
   font-weight: 700;
-}
-
-.recommendation-evidence-header span {
-  padding: 3px 7px;
-  border: 1px solid #e1d49d;
-  border-radius: 6px;
-  color: #66500c;
-  font-size: 10px;
-  font-weight: 760;
-  background: #fff8e2;
 }
 
 .recommendation-profile-link {
@@ -311,7 +308,7 @@
   min-height: 44px;
   border-top: 1px solid #ece5da;
   color: var(--directory-ink);
-  font-size: 13px;
+  font-size: var(--fs-200);
   font-weight: 760;
   text-decoration-color: #dba800;
   text-underline-offset: 3px;
@@ -330,13 +327,13 @@
   display: block;
   margin-bottom: 3px;
   color: var(--directory-ink);
-  font-size: 13px;
+  font-size: var(--fs-200);
 }
 
 .recommendations-state p {
   max-width: 68ch;
   color: var(--directory-muted);
-  font-size: 13px;
+  font-size: var(--fs-200);
   line-height: 1.45;
 }
 
@@ -352,7 +349,7 @@
   border-radius: 6px;
   color: var(--directory-ink);
   font: inherit;
-  font-size: 12px;
+  font-size: var(--fs-100);
   font-weight: 760;
   text-decoration: none;
   background: var(--directory-card);

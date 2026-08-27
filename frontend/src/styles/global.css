@@ -9,6 +9,23 @@
   --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
+  /* Type scale — every font-size in the app should reference one of these. */
+  --fs-100: 12px; /* micro badges, tags, avatar initials */
+  --fs-200: 13px; /* captions, nav text, secondary meta */
+  --fs-300: 14px; /* default UI/body baseline */
+  --fs-400: 15px; /* paragraph copy */
+  --fs-500: 16px; /* emphasized body, larger inputs */
+  --fs-600: 18px; /* card/panel sub-headings */
+  --fs-700: 20px; /* kickers, footer identity name */
+  --fs-800: 22px; /* card titles (h3) */
+  --fs-900: 24px; /* default h2 */
+  --fs-1000: 28px; /* icon glyphs, badges */
+  --fs-1100: 30px; /* compact auth h1 (mobile) */
+  --fs-1200: 34px; /* section h2 (mobile) */
+  --fs-1300: 36px; /* compact auth h1 (desktop), default h1 (mobile) */
+  --fs-1400: 44px; /* hero h1 floor (mobile) */
+  --fs-1500: 56px; /* default h1 (desktop) */
+
   font: 18px/145% var(--sans);
   letter-spacing: 0;
   color-scheme: light;
@@ -50,21 +67,21 @@ h2 {
 }
 
 h1 {
-  font-size: 56px;
+  font-size: var(--fs-1500);
   letter-spacing: 0;
   margin: 32px 0;
   @media (max-width: 1024px) {
-    font-size: 36px;
+    font-size: var(--fs-1300);
     margin: 20px 0;
   }
 }
 h2 {
-  font-size: 24px;
+  font-size: var(--fs-900);
   line-height: 118%;
   letter-spacing: 0;
   margin: 0 0 8px;
   @media (max-width: 1024px) {
-    font-size: 20px;
+    font-size: var(--fs-700);
   }
 }
 p {
@@ -80,7 +97,7 @@ pre {
 code {
   display: inline-flex;
   border-radius: 4px;
-  font-size: 15px;
+  font-size: var(--fs-400);
   line-height: 135%;
   padding: 4px 8px;
   background: var(--code-bg);

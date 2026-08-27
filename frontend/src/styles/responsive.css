@@ -1,16 +1,10 @@
 @media (max-width: 980px) {
-  .home-signal-card {
-    width: min(280px, 38vw);
+  .home-hero {
+    grid-template-columns: 1fr;
   }
 
-  .home-signal-card--primary {
-    right: 4%;
-    bottom: 10%;
-  }
-
-  .home-signal-card--secondary {
-    left: 4%;
-    top: 12%;
+  .home-hero-stage {
+    display: none;
   }
 
   .home-section--split,
@@ -36,11 +30,16 @@
   }
 
   .home-hero h1 {
-    font-size: 44px;
+    font-size: var(--fs-1400);
   }
 
-  .home-hero-copy {
-    font-size: 16px;
+  .home-hero-content {
+    justify-items: center;
+    text-align: center;
+  }
+
+  .home-hero-content .home-hero-actions {
+    justify-content: center;
   }
 
   .home-hero-actions {
@@ -48,14 +47,6 @@
     flex-direction: column;
     width: 100%;
     max-width: 360px;
-  }
-
-  .home-signal-card {
-    display: none;
-  }
-
-  .home-signal-line {
-    display: none;
   }
 
   .home-proof,
@@ -93,7 +84,7 @@
   .home-network h2,
   .home-final-cta h2,
   .home-contact h2 {
-    font-size: 34px;
+    font-size: var(--fs-1200);
   }
 
   .home-final-cta {
@@ -152,7 +143,7 @@
   }
 
   .login-heading h1 {
-    font-size: 30px;
+    font-size: var(--fs-1100);
   }
 
   .verification-page {
@@ -165,7 +156,7 @@
   }
 
   .verification-card h1 {
-    font-size: 30px;
+    font-size: var(--fs-1100);
   }
 
   .directory-page {
