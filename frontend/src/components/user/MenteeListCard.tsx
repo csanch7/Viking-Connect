@@ -37,6 +37,7 @@ function MenteeListCard({
                 className="directory-chips"
                 countClassName="directory-chip-count"
                 maxVisible={2}
+                areaLabel="areas of interest"
               />
             ) : (
               <span className="directory-muted">No interests listed yet</span>

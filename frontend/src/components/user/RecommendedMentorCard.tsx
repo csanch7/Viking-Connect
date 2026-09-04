@@ -15,7 +15,7 @@ function RecommendedMentorCard({ recommendation }: RecommendedMentorCardProps) {
     : mentor.areasOfExpertise
   const evidenceLabel = hasSharedTopics
     ? 'Interests you share'
-    : 'Mentor expertise'
+    : 'Mentor expertise / industries'
   const primaryTopic = matchedTopics[0]
   const connectionReason =
     sameCollege && hasSharedTopics
@@ -54,9 +54,16 @@ function RecommendedMentorCard({ recommendation }: RecommendedMentorCardProps) {
             className="directory-chips"
             countClassName="directory-chip-count"
             maxVisible={3}
+            areaLabel={
+              hasSharedTopics
+                ? 'areas of interest'
+                : 'areas of expertise / industries'
+            }
           />
         ) : (
-          <span className="directory-muted">Expertise not listed yet</span>
+          <span className="directory-muted">
+            Expertise / industries not listed yet
+          </span>
         )}
       </div>
 

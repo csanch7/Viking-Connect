@@ -26,7 +26,7 @@ test('shows the fields that match the selected program role', async ({
   await expect(page.getByRole('heading', { name: 'About you' })).toBeVisible()
   await expect(page.getByLabel('Bio')).toBeVisible()
   await expect(
-    page.getByRole('heading', { name: 'Areas of expertise' }),
+    page.getByRole('heading', { name: 'Areas of Expertise / Industries' }),
   ).toBeVisible()
   await expect(page.getByLabel('Select an area')).toBeVisible()
   await expect(page.locator('#linkedin-help')).toContainText(
@@ -37,7 +37,7 @@ test('shows the fields that match the selected program role', async ({
   await expect(page.getByRole('heading', { name: 'About you' })).toBeVisible()
   await expect(page.getByLabel('Bio')).toBeVisible()
   await expect(
-    page.getByRole('heading', { name: 'Areas of expertise' }),
+    page.getByRole('heading', { name: 'Areas of Expertise / Industries' }),
   ).toBeHidden()
   await expect(
     page.getByRole('heading', { name: 'Areas of interest' }),

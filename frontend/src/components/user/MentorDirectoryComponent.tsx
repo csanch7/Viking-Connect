@@ -166,7 +166,9 @@ function MentorDirectoryComponent() {
             </div>
 
             <fieldset className="directory-filter-options">
-              <legend className="sr-only">Areas of expertise</legend>
+              <legend className="sr-only">
+                Areas of Expertise / Industries
+              </legend>
               {topicsLoading ? (
                 <p className="directory-filter-empty" aria-live="polite">
                   Loading expertise filters...

@@ -31,7 +31,9 @@ function UserDirectoryCard({ user }: UserDirectoryCardProps) {
 
       <dl className="directory-details">
         <div>
-          <dt>{user.type === 'mentor' ? 'Expertise' : 'Interests'}</dt>
+          <dt>
+            {user.type === 'mentor' ? 'Expertise / Industries' : 'Interests'}
+          </dt>
           <dd>
             {user.areasOfExpertise.length > 0 ? (
               <ExpertiseChips
@@ -39,6 +41,11 @@ function UserDirectoryCard({ user }: UserDirectoryCardProps) {
                 className="directory-chips"
                 countClassName="directory-chip-count"
                 maxVisible={2}
+                areaLabel={
+                  user.type === 'mentor'
+                    ? 'areas of expertise / industries'
+                    : 'areas of interest'
+                }
               />
             ) : (
               <span className="directory-muted">

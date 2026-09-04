@@ -145,7 +145,7 @@ test('describes a same-college-only recommendation accurately', async ({
       'A shared college connection gives you a natural place to start.',
     ),
   ).toBeVisible()
-  await expect(page.getByText('Mentor expertise')).toBeVisible()
+  await expect(page.getByText('Mentor expertise / industries')).toBeVisible()
   await expect(page.getByText('Technology')).toBeVisible()
   await expect(page.getByText('No shared topics')).toBeHidden()
 })

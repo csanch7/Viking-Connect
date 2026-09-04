@@ -27,7 +27,7 @@ export function renderAdminRegistrationEmail(
     ? user.areasOfExpertise.map((area) => escapeHtml(area)).join(", ")
     : "Not provided";
   const topicsLabel =
-    user.type === "mentor" ? "Areas of expertise" : "Areas of interest";
+    user.type === "mentor" ? "Areas of expertise / Industries" : "Areas of interest";
 
   const linkedinValue = escapeHtml(user.linkedin);
   const linkedinContent = isHttpUrl(user.linkedin)

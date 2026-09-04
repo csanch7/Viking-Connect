@@ -65,7 +65,11 @@ function PendingUserCard({
           <dd>{user.bio || 'No bio provided'}</dd>
         </div>
         <div className="pending-user-detail-wide">
-          <dt>Areas of {user.type === 'mentor' ? 'expertise' : 'interest'}</dt>
+          <dt>
+            {user.type === 'mentor'
+              ? 'Areas of Expertise / Industries'
+              : 'Areas of interest'}
+          </dt>
           <dd>{user.areasOfExpertise.join(', ') || 'No areas listed'}</dd>
         </div>
       </dl>

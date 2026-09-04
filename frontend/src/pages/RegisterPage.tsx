@@ -298,7 +298,7 @@ function RegisterPage() {
                 <div>
                   <h2 id="topics-heading">
                     {type === 'mentor'
-                      ? 'Areas of expertise'
+                      ? 'Areas of Expertise / Industries'
                       : 'Areas of interest'}
                   </h2>
                   <p>
