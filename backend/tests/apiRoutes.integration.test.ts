@@ -233,12 +233,13 @@ function buildApiApp(
             role: "user",
           },
         ],
-        approveUser: async (id) => ({ id }),
+        approveUser: async (id) => ({ email: baseUser.email }),
         deleteUser: async (id) =>
           id === mentor.id ? { name: mentor.name } : undefined,
         denyUser: async (id) => ({ id }),
         getMentorCount: async () => ({ count: "12" }),
         getMenteeCount: async () => ({ count: "34" }),
+        sendRegistrationAcceptanceEmail: async () => undefined,
       },
     },
   });

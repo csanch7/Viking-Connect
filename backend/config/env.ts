@@ -62,3 +62,9 @@ export function getPasswordResetEmailConfig() {
   if (!env.awsRegion || !env.sesFromEmail) return null;
   return { from: env.sesFromEmail };
 }
+
+export function getRegistrationAcceptanceConfig() {
+  if (!env.awsRegion || !env.sesFromEmail) return null;
+  return { from: env.sesFromEmail };
+}
+

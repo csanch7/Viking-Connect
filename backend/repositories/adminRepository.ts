@@ -55,10 +55,10 @@ export async function approveUser(userId: string) {
     WHERE id = ${userId}
     AND status = 'pending'
     AND deleted_on IS NULL
-    RETURNING id::text
+    RETURNING email
   `;
 
-  return rows[0] as { id: string } | undefined;
+  return rows[0] as { email: string } | undefined;
 }
 
 export async function deleteUser(userId: string) {

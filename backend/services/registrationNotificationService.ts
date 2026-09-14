@@ -1,4 +1,4 @@
-import { env, getRegistrationEmailConfig } from "../config/env";
+import { env, getRegistrationEmailConfig, getRegistrationAcceptanceConfig } from "../config/env";
 import { renderAdminRegistrationEmail } from "../emails/adminRegistrationEmail";
 import type { RegistrationEmailUser } from "../validation/registrationValidation";
 import { sendEmail } from "./emailService";
@@ -55,5 +55,28 @@ export async function sendAdminRegistrationNotification(
     log("info", "registration_email.sent", { messageId });
   } catch (error) {
     logError("registration_email.send_failed", error);
+  }
+}
+
+export async function sendRegistrationAcceptanceEmail(
+  email: string
+) {
+  const config = getRegistrationAcceptanceConfig();
+  if (!config) {
+    log("warn", "registration_acceptance_email.skipped_missing_config");
+    return;
+  }
+
+  try {
+    const messageId = await sendEmail({
+      from: config.from,
+      to: email,
+      subject: "Acceptance to the Viking Connect",
+      html: `<p>Welcome to Viking Connect! A quick overview of the site: - Directory: Here you can find search for mentors and mentees by name, topic, and college. - Profile: Here you can see how others view your profile, and update your information accordingly. </p>`,
+      text: `From the Viking Connect Team`,
+    });
+    log("info", "registration_acceptance_email.sent", { messageId });
+  } catch (error) {
+    logError("registration_acceptance_email.send_failed", error);
   }
 }

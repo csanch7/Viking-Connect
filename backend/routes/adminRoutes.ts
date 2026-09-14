@@ -9,6 +9,7 @@ import {
 } from "../repositories/adminRepository";
 import { asyncHandler } from "../middleware/asyncHandler";
 import { requireAdmin } from "../middleware/auth";
+import { sendRegistrationAcceptanceEmail } from "../services/registrationNotificationService";
 import {
   getIdParamValidationError,
   normalizeIdParam,
@@ -21,6 +22,7 @@ export interface AdminRouterDependencies {
   getMenteeCount: typeof getMenteeCount;
   getMentorCount: typeof getMentorCount;
   getPendingUsers: typeof getPendingUsers;
+  sendRegistrationAcceptanceEmail: typeof sendRegistrationAcceptanceEmail;
 }
 
 const defaultDependencies: AdminRouterDependencies = {
@@ -30,6 +32,7 @@ const defaultDependencies: AdminRouterDependencies = {
   getMenteeCount,
   getMentorCount,
   getPendingUsers,
+  sendRegistrationAcceptanceEmail
 };
 
 export function createAdminRouter(
@@ -114,6 +117,10 @@ export function createAdminRouter(
         res.status(404).json({ message: "Pending user not found" });
         return;
       }
+
+      await dependencies.sendRegistrationAcceptanceEmail(
+        approvedUser.email
+      )
 
       res.json({ message: `${userId} has been approved` });
     }),
