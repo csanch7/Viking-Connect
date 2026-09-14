@@ -41,7 +41,7 @@ export async function sendAdminRegistrationNotification(
   }
 
   try {
-    await sendEmail({
+    const messageId = await sendEmail({
       from: config.from,
       to: config.to,
       subject: "STL Mentorship Program: New Registered ",
@@ -52,6 +52,7 @@ export async function sendAdminRegistrationNotification(
       ),
       text: renderAdminRegistrationText(user),
     });
+    log("info", "registration_email.sent", { messageId });
   } catch (error) {
     logError("registration_email.send_failed", error);
   }

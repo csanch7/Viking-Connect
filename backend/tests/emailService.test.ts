@@ -9,10 +9,11 @@ describe("Amazon SES email service", () => {
     const sendEmail = createEmailSender({
       async send(command) {
         capturedCommand = command;
+        return { MessageId: "ses-message-123" };
       },
     });
 
-    await sendEmail({
+    const messageId = await sendEmail({
       from: "Viking Connect <hello@example.com>",
       to: "member@example.com",
       replyTo: "visitor@example.com",
@@ -35,5 +36,6 @@ describe("Amazon SES email service", () => {
         },
       },
     });
+    assert.equal(messageId, "ses-message-123");
   });
 });

@@ -10,12 +10,12 @@ export interface EmailMessage {
 }
 
 interface EmailClient {
-  send(command: SendEmailCommand): Promise<unknown>;
+  send(command: SendEmailCommand): Promise<{ MessageId?: string } | undefined>;
 }
 
 export function createEmailSender(client: EmailClient) {
   return async function sendEmail(message: EmailMessage) {
-    await client.send(
+    const response = await client.send(
       new SendEmailCommand({
         FromEmailAddress: message.from,
         Destination: { ToAddresses: [message.to] },
@@ -31,6 +31,8 @@ export function createEmailSender(client: EmailClient) {
         },
       }),
     );
+
+    return response?.MessageId;
   };
 }
 
