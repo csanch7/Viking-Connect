@@ -4,6 +4,8 @@ import { renderContactUsEmail } from "../emails/contactUsEmail";
 import { sendEmail } from "./emailService";
 import { log, logError } from "./logger";
 
+const contactUsSubject = "New contact form message";
+
 function renderContactUsText(emailData: EmailRequest) {
   return [
     "Contact Us Submission",
@@ -27,7 +29,7 @@ export async function sendContactUsEmail(emailData: EmailRequest) {
       from: config.from,
       to: config.to,
       replyTo: emailData.sender,
-      subject: emailData.subject,
+      subject: contactUsSubject,
       text: renderContactUsText(emailData),
       html: renderContactUsEmail(emailData),
     });

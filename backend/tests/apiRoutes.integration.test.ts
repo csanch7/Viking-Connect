@@ -364,7 +364,6 @@ describe("API routes", () => {
 
     const response = await request(app).post("/api/contact-us").send({
       sender: "  Visitor@Example.com ",
-      subject: " Mentorship question ",
       body: " I would like to learn more about the program. ",
     });
 
@@ -374,7 +373,6 @@ describe("API routes", () => {
     });
     assert.deepEqual(received, {
       sender: "visitor@example.com",
-      subject: "Mentorship question",
       body: "I would like to learn more about the program.",
     });
   });
@@ -387,7 +385,6 @@ describe("API routes", () => {
 
     const response = await request(app).post("/api/contact-us").send({
       sender: "not-an-email",
-      subject: "",
       body: "",
     });
 
@@ -402,7 +399,6 @@ describe("API routes", () => {
     const app = buildApiApp();
     const payload = {
       sender: "visitor@example.com",
-      subject: "Mentorship question",
       body: "I would like to learn more about the program.",
     };
 

@@ -10,13 +10,12 @@ import {
 
 export function renderContactUsEmail(emailData: EmailRequest) {
   const sender = escapeHtml(emailData.sender);
-  const subject = escapeHtml(emailData.subject);
   const message = escapeHtml(emailData.body).replace(/\r?\n/g, "<br>");
 
-  const fields = [
-    renderField("From", renderLink(`mailto:${emailData.sender}`, sender)),
-    renderField("Subject", subject),
-  ].join("");
+  const fields = renderField(
+    "From",
+    renderLink(`mailto:${emailData.sender}`, sender),
+  );
 
   const bodyHtml = `
     <p style="margin: 0 0 24px; color: #4f4b45; font-size: 15px; line-height: 1.6;">

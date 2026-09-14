@@ -3,15 +3,13 @@ import { describe, it } from "node:test";
 import { renderContactUsEmail } from "../emails/contactUsEmail";
 
 describe("contact form email", () => {
-  it("renders the sender, subject, and multiline message", () => {
+  it("renders the sender and multiline message", () => {
     const html = renderContactUsEmail({
       sender: "visitor@example.com",
-      subject: "Mentorship question",
       body: "First line\nSecond line",
     });
 
     assert.match(html, /mailto:visitor@example\.com/);
-    assert.match(html, /Mentorship question/);
     assert.match(html, /First line<br>Second line/);
     assert.match(html, /Reply to sender/);
   });
@@ -19,13 +17,10 @@ describe("contact form email", () => {
   it("escapes submitted content before rendering it as HTML", () => {
     const html = renderContactUsEmail({
       sender: "visitor@example.com",
-      subject: "<strong>Question</strong>",
       body: '<script>alert("test")</script>',
     });
 
-    assert.doesNotMatch(html, /<strong>Question<\/strong>/);
     assert.doesNotMatch(html, /<script>/);
-    assert.match(html, /&lt;strong&gt;Question&lt;\/strong&gt;/);
     assert.match(
       html,
       /&lt;script&gt;alert\(&quot;test&quot;\)&lt;\/script&gt;/,

@@ -59,7 +59,6 @@ export interface RegistrationRequest {
 
 export interface EmailRequest {
   sender: string;
-  subject: string;
   body: string;
 }
 

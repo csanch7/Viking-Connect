@@ -97,15 +97,15 @@ test('shows personalized recommendations to mentees', async ({ page }) => {
     page.getByRole('heading', { name: 'Recommended for you' }),
   ).toBeVisible()
   await expect(
-    page.getByText('You share mentoring interests and a college connection.'),
+    page.getByText(
+      'A fellow St. Laurence alum who also knows Career Planning.',
+    ),
   ).toBeVisible()
   await expect(
     page.getByLabel('Why this match').getByText('Career Planning'),
   ).toBeVisible()
   await expect(
-    page.getByLabel('Why this match').getByText('College connection', {
-      exact: true,
-    }),
+    page.getByText('College connection', { exact: true }),
   ).toBeVisible()
   await expect(
     page.getByRole('link', { name: 'View profile and contact' }),

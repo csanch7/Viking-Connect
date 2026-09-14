@@ -9,7 +9,6 @@ interface ApiErrorResponse {
 
 function ContactUsForm() {
   const [sender, setSender] = useState('')
-  const [subject, setSubject] = useState('')
   const [body, setBody] = useState('')
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
@@ -21,12 +20,11 @@ function ContactUsForm() {
 
     const emailRequest: EmailRequest = {
       sender: sender.trim(),
-      subject: subject.trim(),
       body: body.trim(),
     }
 
-    if (!emailRequest.sender || !emailRequest.subject || !emailRequest.body) {
-      setError('Email, subject, and message are required')
+    if (!emailRequest.sender || !emailRequest.body) {
+      setError('Email and message are required')
       return
     }
 
@@ -38,7 +36,6 @@ function ContactUsForm() {
       const response = await emailService.sendContactUsEmail(emailRequest)
       setMessage(response.message)
       setSender('')
-      setSubject('')
       setBody('')
     } catch (caughtError) {
       setError(
@@ -72,20 +69,6 @@ function ContactUsForm() {
           onChange={(event) => setSender(event.target.value)}
           autoComplete="email"
           maxLength={254}
-          required
-        />
-      </label>
-      <label className="contact-form-field" htmlFor="contact-subject">
-        <span className="contact-form-label-row">
-          <span>Subject</span>
-          <small>{subject.length}/120</small>
-        </span>
-        <input
-          id="contact-subject"
-          type="text"
-          value={subject}
-          onChange={(event) => setSubject(event.target.value)}
-          maxLength={120}
           required
         />
       </label>
