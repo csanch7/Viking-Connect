@@ -3,6 +3,7 @@ interface ExpertiseChipsProps {
   className: string
   countClassName?: string
   maxVisible?: number
+  areaLabel?: string
 }
 
 function ExpertiseChips({
@@ -10,6 +11,7 @@ function ExpertiseChips({
   className,
   countClassName,
   maxVisible,
+  areaLabel = 'areas of expertise / industries',
 }: ExpertiseChipsProps) {
   const visibleAreas =
     typeof maxVisible === 'number' ? areas.slice(0, maxVisible) : areas
@@ -23,7 +25,7 @@ function ExpertiseChips({
       {hiddenAreaCount > 0 && (
         <li
           className={countClassName}
-          aria-label={`${hiddenAreaCount} more areas of expertise`}
+          aria-label={`${hiddenAreaCount} more ${areaLabel}`}
         >
           +{hiddenAreaCount}
         </li>

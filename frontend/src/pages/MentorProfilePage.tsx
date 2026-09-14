@@ -82,7 +82,7 @@ function MentorPage() {
             <MemberProfileCardHeading
               id="mentor-expertise-title"
               kicker="Mentorship"
-              title="Areas of expertise"
+              title="Areas of Expertise / Industries"
             />
 
             {mentor.areasOfExpertise.length > 0 ? (
@@ -92,7 +92,7 @@ function MentorPage() {
               />
             ) : (
               <p className="member-profile-muted">
-                No areas of expertise listed yet.
+                No areas of expertise / industries listed yet.
               </p>
             )}
           </section>

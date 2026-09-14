@@ -35,18 +35,6 @@ function HomePage({ isAuthenticated = false }: HomePageProps) {
   return (
     <main className="home-page">
       <section className="home-hero" aria-labelledby="home-title">
-        {/* <div className="home-hero-art" aria-hidden="true"> */}
-        <div className="disabled" aria-hidden="true">
-          <div className="home-signal-card home-signal-card--primary">
-            <span>Find mentors</span>
-            <strong>Explore alumni in finance</strong>
-            <p>
-              Interview preparation, first-role strategy, career perspective
-            </p>
-          </div>
-          <div className="home-signal-line" />
-        </div>
-
         <div className="home-hero-content">
           <p className="home-kicker">
             St. Laurence Alumni Networking & Mentorship
@@ -77,6 +65,196 @@ function HomePage({ isAuthenticated = false }: HomePageProps) {
                 </Link>
               </>
             )}
+          </div>
+        </div>
+
+        <div className="home-hero-stage" aria-hidden="true">
+          <div className="home-hero-network">
+            <svg viewBox="0 0 320 460" xmlns="http://www.w3.org/2000/svg">
+              <g>
+                <line pathLength={1} x1="40" y1="34" x2="128" y2="18" />
+                <line pathLength={1} x1="128" y1="18" x2="208" y2="58" />
+                <line pathLength={1} x1="208" y1="58" x2="278" y2="28" />
+                <line pathLength={1} x1="278" y1="28" x2="300" y2="112" />
+                <line pathLength={1} x1="40" y1="34" x2="62" y2="142" />
+                <line pathLength={1} x1="62" y1="142" x2="168" y2="168" />
+                <line pathLength={1} x1="168" y1="168" x2="208" y2="58" />
+                <line pathLength={1} x1="168" y1="168" x2="248" y2="192" />
+                <line pathLength={1} x1="248" y1="192" x2="298" y2="262" />
+                <line pathLength={1} x1="300" y1="112" x2="298" y2="262" />
+                <line pathLength={1} x1="62" y1="142" x2="22" y2="232" />
+                <line pathLength={1} x1="22" y1="232" x2="112" y2="300" />
+                <line pathLength={1} x1="112" y1="300" x2="168" y2="168" />
+                <line pathLength={1} x1="298" y1="262" x2="268" y2="340" />
+                <line pathLength={1} x1="112" y1="300" x2="42" y2="382" />
+                <line pathLength={1} x1="42" y1="382" x2="190" y2="402" />
+                <line pathLength={1} x1="190" y1="402" x2="268" y2="340" />
+                <line pathLength={1} x1="268" y1="340" x2="300" y2="422" />
+              </g>
+              <g>
+                <circle
+                  className="home-hero-node-halo"
+                  cx="208"
+                  cy="58"
+                  r="10.5"
+                  pathLength={1}
+                />
+                <circle
+                  className="home-hero-node-halo"
+                  cx="300"
+                  cy="112"
+                  r="11"
+                  pathLength={1}
+                />
+                <circle
+                  className="home-hero-node-halo"
+                  cx="298"
+                  cy="262"
+                  r="10"
+                  pathLength={1}
+                />
+                <circle
+                  className="home-hero-node-halo"
+                  cx="190"
+                  cy="402"
+                  r="11"
+                  pathLength={1}
+                />
+                <circle
+                  className="home-hero-node"
+                  cx="40"
+                  cy="34"
+                  r="2.5"
+                  pathLength={1}
+                />
+                <circle
+                  className="home-hero-node"
+                  cx="128"
+                  cy="18"
+                  r="2"
+                  pathLength={1}
+                />
+                <circle
+                  className="home-hero-node--hub"
+                  cx="208"
+                  cy="58"
+                  r="4.5"
+                  pathLength={1}
+                />
+                <circle
+                  className="home-hero-node"
+                  cx="278"
+                  cy="28"
+                  r="2"
+                  pathLength={1}
+                />
+                <circle
+                  className="home-hero-node--hub"
+                  cx="300"
+                  cy="112"
+                  r="5"
+                  pathLength={1}
+                />
+                <circle
+                  className="home-hero-node"
+                  cx="62"
+                  cy="142"
+                  r="2.5"
+                  pathLength={1}
+                />
+                <circle
+                  className="home-hero-node--mid"
+                  cx="168"
+                  cy="168"
+                  r="3"
+                  pathLength={1}
+                />
+                <circle
+                  className="home-hero-node"
+                  cx="248"
+                  cy="192"
+                  r="2"
+                  pathLength={1}
+                />
+                <circle
+                  className="home-hero-node--mid"
+                  cx="22"
+                  cy="232"
+                  r="3"
+                  pathLength={1}
+                />
+                <circle
+                  className="home-hero-node--hub"
+                  cx="298"
+                  cy="262"
+                  r="4"
+                  pathLength={1}
+                />
+                <circle
+                  className="home-hero-node"
+                  cx="112"
+                  cy="300"
+                  r="2.5"
+                  pathLength={1}
+                />
+                <circle
+                  className="home-hero-node--mid"
+                  cx="268"
+                  cy="340"
+                  r="3"
+                  pathLength={1}
+                />
+                <circle
+                  className="home-hero-node"
+                  cx="42"
+                  cy="382"
+                  r="2"
+                  pathLength={1}
+                />
+                <circle
+                  className="home-hero-node--hub"
+                  cx="190"
+                  cy="402"
+                  r="5"
+                  pathLength={1}
+                />
+                <circle
+                  className="home-hero-node"
+                  cx="300"
+                  cy="422"
+                  r="2"
+                  pathLength={1}
+                />
+              </g>
+            </svg>
+          </div>
+
+          <div className="home-hero-card home-hero-card--primary">
+            <p className="home-hero-card-kicker">Directory preview</p>
+            <div className="home-hero-card-avatar">J</div>
+            <p className="home-hero-card-name">Jordan M.</p>
+            <p className="home-hero-card-meta">St. Laurence class of 2014</p>
+            <div className="home-hero-card-tags">
+              <span className="home-hero-card-tag">Interview prep</span>
+              <span className="home-hero-card-tag">Career pivots</span>
+            </div>
+            <hr className="home-hero-card-divider" />
+            <div className="home-hero-card-footer">
+              <span>View full profile</span>
+              <span aria-hidden="true">&rarr;</span>
+            </div>
+          </div>
+
+          <div className="home-hero-card home-hero-card--secondary">
+            <p className="home-hero-card-kicker home-hero-card-kicker--dark">
+              New connection
+            </p>
+            <div className="home-hero-card-avatars">
+              <span>P</span>
+              <span>J</span>
+            </div>
+            <strong>Priya S. &rarr; Jordan M.</strong>
+            <p>Matched on career pivots</p>
           </div>
         </div>
       </section>

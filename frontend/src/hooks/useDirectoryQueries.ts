@@ -1,29 +1,13 @@
-import { useEffect, useState } from 'react'
 import {
   keepPreviousData,
   useQuery,
   type QueryKey,
 } from '@tanstack/react-query'
-import collegeService from '../services/collegeService'
 import topicService from '../services/topicService'
 
 const pageSize = 10
 export const activeTopicsQueryKey = ['topics', 'active'] as const
 export const topicsQueryKey = ['topics', 'all'] as const
-
-export function useDebouncedValue(value: string, delay = 400) {
-  const [debouncedValue, setDebouncedValue] = useState(value)
-
-  useEffect(() => {
-    const timeoutId = window.setTimeout(() => {
-      setDebouncedValue(value)
-    }, delay)
-
-    return () => window.clearTimeout(timeoutId)
-  }, [delay, value])
-
-  return debouncedValue
-}
 
 export function usePaginatedDirectoryQuery<T>({
   queryKey,
@@ -62,12 +46,5 @@ export function useTopicsQuery() {
   return useQuery({
     queryKey: topicsQueryKey,
     queryFn: topicService.getTopics,
-  })
-}
-
-export function useCollegesQuery() {
-  return useQuery({
-    queryKey: ['colleges'],
-    queryFn: collegeService.getColleges,
   })
 }

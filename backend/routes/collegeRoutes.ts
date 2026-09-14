@@ -1,6 +1,10 @@
 import { Router } from "express";
 import { getColleges } from "../repositories/collegeRepository";
 import { asyncHandler } from "../middleware/asyncHandler";
+import {
+  getSearchTextValidationError,
+  normalizeSearchText,
+} from "../validation/routeValidation";
 
 export interface CollegeRouterDependencies {
   getColleges: typeof getColleges;
@@ -15,9 +19,16 @@ export function createCollegeRouter(
 
   router.get(
     "/colleges",
-    asyncHandler(async (_req, res) => {
+    asyncHandler(async (req, res) => {
+      const searchText = normalizeSearchText(req.query.searchText);
+      const searchValidationError = getSearchTextValidationError(searchText);
+
+      if (searchValidationError) {
+        res.status(400).json({ message: searchValidationError });
+        return;
+      }
       res.set("Cache-Control", "public, max-age=300");
-      res.json({ colleges: await dependencies.getColleges() });
+      res.json({ colleges: await dependencies.getColleges(searchText) });
     }),
   );
 

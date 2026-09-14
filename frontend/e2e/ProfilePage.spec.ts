@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 import {
+  chooseCollege,
   fulfillJson,
   mockAuthenticatedSession,
   mockColleges,
@@ -74,9 +75,7 @@ test('edits and saves the complete profile from one action', async ({
   await page
     .getByLabel('About you')
     .fill('I am looking for resume review and interview preparation.')
-  await page
-    .getByLabel('College')
-    .selectOption('University of Illinois Chicago')
+  await chooseCollege(page, 'University of Illinois Chicago', 'Illinois')
   await page.getByLabel('Add an interest').selectOption('Career Planning')
   await page.getByRole('button', { name: 'Add' }).click()
   await expect(page.getByText('Unsaved changes')).toBeVisible()

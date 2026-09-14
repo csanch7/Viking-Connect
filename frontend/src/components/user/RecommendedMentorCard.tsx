@@ -15,14 +15,15 @@ function RecommendedMentorCard({ recommendation }: RecommendedMentorCardProps) {
     : mentor.areasOfExpertise
   const evidenceLabel = hasSharedTopics
     ? 'Interests you share'
-    : 'Mentor expertise'
+    : 'Mentor expertise / industries'
+  const primaryTopic = matchedTopics[0]
   const connectionReason =
     sameCollege && hasSharedTopics
-      ? 'You share mentoring interests and a college connection.'
+      ? `A fellow St. Laurence alum who also knows ${primaryTopic}.`
       : sameCollege
         ? 'A shared college connection gives you a natural place to start.'
         : hasSharedTopics
-          ? 'Their expertise aligns with interests in your profile.'
+          ? `You both share an interest in ${primaryTopic}.`
           : 'Their experience may complement your mentorship goals.'
 
   return (
@@ -36,24 +37,33 @@ function RecommendedMentorCard({ recommendation }: RecommendedMentorCardProps) {
             <p>Community member</p>
           )}
         </div>
+        {sameCollege && (
+          <span className="recommendation-college-badge">
+            College connection
+          </span>
+        )}
       </div>
 
       <p className="recommendation-reason">{connectionReason}</p>
 
       <div className="recommendation-evidence" aria-label="Why this match">
-        <div className="recommendation-evidence-header">
-          <p>{evidenceLabel}</p>
-          {sameCollege && <span>College connection</span>}
-        </div>
+        <p className="recommendation-evidence-label">{evidenceLabel}</p>
         {evidenceAreas.length > 0 ? (
           <ExpertiseChips
             areas={evidenceAreas}
             className="directory-chips"
             countClassName="directory-chip-count"
             maxVisible={3}
+            areaLabel={
+              hasSharedTopics
+                ? 'areas of interest'
+                : 'areas of expertise / industries'
+            }
           />
         ) : (
-          <span className="directory-muted">Expertise not listed yet</span>
+          <span className="directory-muted">
+            Expertise / industries not listed yet
+          </span>
         )}
       </div>
 

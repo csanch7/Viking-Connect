@@ -1,10 +1,8 @@
 import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import adminService from '../services/adminService'
-import {
-  useDebouncedValue,
-  usePaginatedDirectoryQuery,
-} from './useDirectoryQueries'
+import { usePaginatedDirectoryQuery } from './useDirectoryQueries'
+import { useDebouncedValue } from './useDebouncedValue'
 
 type DirectoryUser = {
   id: string

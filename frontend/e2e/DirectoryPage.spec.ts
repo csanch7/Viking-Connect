@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test'
 import {
+  chooseCollege,
   fulfillJson,
   mockAuthenticatedSession,
   mockColleges,
@@ -144,7 +145,7 @@ test('describes a same-college-only recommendation accurately', async ({
       'A shared college connection gives you a natural place to start.',
     ),
   ).toBeVisible()
-  await expect(page.getByText('Mentor expertise')).toBeVisible()
+  await expect(page.getByText('Mentor expertise / industries')).toBeVisible()
   await expect(page.getByText('Technology')).toBeVisible()
   await expect(page.getByText('No shared topics')).toBeHidden()
 })
@@ -272,9 +273,31 @@ test('keeps the directory visible while filters are applied', async ({
 test('applies and clears a separate college filter', async ({ page }) => {
   await page.goto('/directory')
   await page.getByRole('button', { name: /Filters/ }).click()
-  await page
-    .getByLabel('College')
-    .selectOption('University of Illinois Chicago')
+
+  const expertiseBox = await page.getByLabel('Search expertise').boundingBox()
+  const collegeBox = await page
+    .getByRole('combobox', { name: 'College', exact: true })
+    .boundingBox()
+
+  if (!expertiseBox || !collegeBox) {
+    throw new Error('Directory filter controls should be visible')
+  }
+
+  expect(Math.abs(expertiseBox.height - collegeBox.height)).toBeLessThanOrEqual(
+    1,
+  )
+
+  if ((page.viewportSize()?.width ?? 0) <= 760) {
+    expect(Math.abs(expertiseBox.x - collegeBox.x)).toBeLessThanOrEqual(1)
+    expect(Math.abs(expertiseBox.width - collegeBox.width)).toBeLessThanOrEqual(
+      1,
+    )
+    expect(collegeBox.y).toBeGreaterThan(expertiseBox.y + expertiseBox.height)
+  } else {
+    expect(Math.abs(expertiseBox.y - collegeBox.y)).toBeLessThanOrEqual(1)
+  }
+
+  await chooseCollege(page, 'University of Illinois Chicago', 'Illinois')
 
   const filteredRequest = page.waitForRequest((request) => {
     const url = new URL(request.url())
@@ -295,7 +318,7 @@ test('applies and clears a separate college filter', async ({ page }) => {
   await page.getByRole('button', { name: 'Clear all filters' }).click()
   await clearedRequest
   await page.getByRole('button', { name: /Filters/ }).click()
-  await expect(page.getByLabel('College')).toHaveValue('')
+  await expect(page.getByLabel('College', { exact: true })).toHaveValue('')
 })
 
 test('paginates when another mentor result exists', async ({ page }) => {
@@ -398,9 +421,7 @@ test('keeps filtered no-results recovery concise', async ({ page }) => {
 
   await page.goto('/directory')
   await page.getByRole('button', { name: /Filters/ }).click()
-  await page
-    .getByLabel('College')
-    .selectOption('University of Illinois Chicago')
+  await chooseCollege(page, 'University of Illinois Chicago', 'Illinois')
   await page.getByRole('button', { name: 'Apply filters' }).click()
 
   await expect(

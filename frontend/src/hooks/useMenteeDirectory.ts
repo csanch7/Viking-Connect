@@ -1,11 +1,10 @@
 import userService from '../services/userService'
 import { useDirectoryFilters } from './useDirectoryFilters'
 import {
-  useCollegesQuery,
-  useDebouncedValue,
   usePaginatedDirectoryQuery,
   useActiveTopicsQuery,
 } from './useDirectoryQueries'
+import { useDebouncedValue } from './useDebouncedValue'
 
 export function useMenteeDirectory() {
   const filters = useDirectoryFilters()
@@ -28,7 +27,6 @@ export function useMenteeDirectory() {
     errorMessage: 'We could not load mentees right now. Please try again.',
   })
   const topicsQuery = useActiveTopicsQuery()
-  const collegesQuery = useCollegesQuery()
   const topics = topicsQuery.data ?? []
   const visibleExpertiseOptions = topics.filter((area) =>
     area
@@ -42,10 +40,6 @@ export function useMenteeDirectory() {
     hasNextPage: menteesQuery.hasNextPage,
     loading: menteesQuery.loading,
     retryMentees: menteesQuery.retry,
-    colleges: collegesQuery.data ?? [],
-    collegesLoading: collegesQuery.isPending,
-    collegesError: collegesQuery.isError ? 'We could not load colleges.' : '',
-    retryColleges: collegesQuery.refetch,
     error: menteesQuery.error,
     topicsLoading: topicsQuery.isPending,
     topicsError: topicsQuery.isError

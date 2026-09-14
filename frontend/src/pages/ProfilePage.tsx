@@ -11,7 +11,7 @@ import MemberProfileCardHeading from '../components/profile/MemberProfileCardHea
 import MemberProfileContact from '../components/profile/MemberProfileContact'
 import MemberProfileHero from '../components/profile/MemberProfileHero'
 import MemberProfileSummary from '../components/profile/MemberProfileSummary'
-import CollegeSelector from '../components/profile/CollegeSelector'
+import CollegeSelector from '../components/CollegeSelector'
 import ConfirmationDialog from '../components/ConfirmationDialog'
 
 function ProfilePage() {
@@ -136,8 +136,9 @@ function ProfilePage() {
       />
     ) : (
       <p className="member-profile-muted">
-        No areas of {user.type === 'mentor' ? 'expertise' : 'interest'} added
-        yet.
+        {user.type === 'mentor'
+          ? 'No areas of expertise / industries added yet.'
+          : 'No areas of interest added yet.'}
       </p>
     )
   }
@@ -395,9 +396,11 @@ function ProfilePage() {
             <section className="member-profile-card">
               <MemberProfileCardHeading
                 kicker="Mentorship"
-                title={`Areas of ${
-                  user.type === 'mentor' ? 'expertise' : 'interest'
-                }`}
+                title={
+                  user.type === 'mentor'
+                    ? 'Areas of Expertise / Industries'
+                    : 'Areas of interest'
+                }
               />
               {renderExpertiseContent()}
             </section>

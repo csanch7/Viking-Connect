@@ -29,7 +29,7 @@ function MentorListCard({
 
       <dl className="directory-details directory-admin-details">
         <div>
-          <dt>Expertise</dt>
+          <dt>Expertise / Industries</dt>
           <dd>
             {mentor.areasOfExpertise.length > 0 ? (
               <ExpertiseChips

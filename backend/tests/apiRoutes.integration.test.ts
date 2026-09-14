@@ -76,6 +76,7 @@ let receivedMenteeQuery:
   | undefined;
 
 let receivedTopic: string | undefined;
+let receivedCollegeSearch: string | undefined;
 
 function buildApiApp(
   role: UserRole = "user",
@@ -116,10 +117,10 @@ function buildApiApp(
         changeTopicActivity: async () => false,
       },
       collegeDependencies: {
-        getColleges: async () => [
-          "DePaul University",
-          "University of Illinois Chicago",
-        ],
+        getColleges: async (searchText) => {
+          receivedCollegeSearch = searchText;
+          return ["DePaul University", "University of Illinois Chicago"];
+        },
       },
       authDependencies: {
         findUserByEmail: async () => ({
@@ -334,6 +335,7 @@ describe("API routes", () => {
   });
 
   it("serves colleges for registration and profile forms", async () => {
+    receivedCollegeSearch = undefined;
     const response = await request(buildApiApp()).get("/api/colleges");
 
     assert.equal(response.status, 200);
@@ -341,6 +343,17 @@ describe("API routes", () => {
       colleges: ["DePaul University", "University of Illinois Chicago"],
     });
     assert.equal(response.headers["cache-control"], "public, max-age=300");
+    assert.equal(receivedCollegeSearch, undefined);
+  });
+
+  it("normalizes college searches before querying", async () => {
+    receivedCollegeSearch = undefined;
+    const response = await request(buildApiApp())
+      .get("/api/colleges")
+      .query({ searchText: "  Illinois  " });
+
+    assert.equal(response.status, 200);
+    assert.equal(receivedCollegeSearch, "Illinois");
   });
 
   it("validates and sends contact form submissions", async () => {

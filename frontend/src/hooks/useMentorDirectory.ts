@@ -2,11 +2,10 @@ import { useQuery } from '@tanstack/react-query'
 import userService from '../services/userService'
 import { useDirectoryFilters } from './useDirectoryFilters'
 import {
-  useCollegesQuery,
-  useDebouncedValue,
   usePaginatedDirectoryQuery,
   useActiveTopicsQuery,
 } from './useDirectoryQueries'
+import { useDebouncedValue } from './useDebouncedValue'
 
 export function useMentorDirectory(isMentee: boolean) {
   const filters = useDirectoryFilters()
@@ -34,7 +33,6 @@ export function useMentorDirectory(isMentee: boolean) {
     enabled: isMentee,
   })
   const topicsQuery = useActiveTopicsQuery()
-  const collegesQuery = useCollegesQuery()
   const topics = topicsQuery.data ?? []
   const visibleExpertiseOptions = topics.filter((area) =>
     area
@@ -55,10 +53,6 @@ export function useMentorDirectory(isMentee: boolean) {
       ? 'We could not load your recommendations right now.'
       : '',
     retryRecommendations: recommendationsQuery.refetch,
-    colleges: collegesQuery.data ?? [],
-    collegesLoading: collegesQuery.isPending,
-    collegesError: collegesQuery.isError ? 'We could not load colleges.' : '',
-    retryColleges: collegesQuery.refetch,
     topicsLoading: topicsQuery.isPending,
     topicsError: topicsQuery.isError
       ? 'We could not load expertise filters.'

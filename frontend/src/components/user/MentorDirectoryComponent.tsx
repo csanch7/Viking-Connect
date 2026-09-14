@@ -7,6 +7,7 @@ import { useMentorDirectory } from '../../hooks/useMentorDirectory'
 import DirectoryAppliedFilters from './DirectoryAppliedFilters'
 import DirectoryLoadingState from './DirectoryLoadingState'
 import RecommendationLoadingState from './RecommendationLoadingState'
+import CollegeSelector from '../CollegeSelector'
 
 function MentorDirectoryComponent() {
   const { mentee: isMentee } = useAuth()
@@ -26,9 +27,6 @@ function MentorDirectoryComponent() {
     recommendations,
     recommendationsLoading,
     recommendationsError,
-    colleges,
-    collegesLoading,
-    collegesError,
     topicsLoading,
     topicsError,
     visibleExpertiseOptions,
@@ -157,54 +155,20 @@ function MentorDirectoryComponent() {
                 />
               </label>
 
-              <label
-                className="directory-filter-select"
-                htmlFor="college-filter"
-              >
-                <span>College</span>
-                <div className="directory-filter-select-shell">
-                  <select
-                    id="college-filter"
-                    value={draftCollege}
-                    onChange={(event) =>
-                      directory.changeCollege(event.target.value)
-                    }
-                    disabled={collegesLoading || Boolean(collegesError)}
-                  >
-                    <option value="">
-                      {collegesLoading ? 'Loading colleges...' : 'Any college'}
-                    </option>
-                    {colleges.map((college) => (
-                      <option key={college} value={college}>
-                        {college}
-                      </option>
-                    ))}
-                  </select>
-                  <svg
-                    className="directory-filter-select-icon"
-                    aria-hidden="true"
-                    viewBox="0 0 20 20"
-                    fill="none"
-                  >
-                    <path d="m6 8 4 4 4-4" />
-                  </svg>
-                </div>
-              </label>
+              <CollegeSelector
+                className="directory-college-filter"
+                selectId="college-filter"
+                value={draftCollege}
+                onChange={directory.changeCollege}
+                emptyLabel="Any college"
+                supportingText=""
+              />
             </div>
 
-            {collegesError && (
-              <div className="directory-filter-recovery">
-                <p className="directory-filter-empty" role="alert">
-                  {collegesError}
-                </p>
-                <button type="button" onClick={() => directory.retryColleges()}>
-                  Try again
-                </button>
-              </div>
-            )}
-
             <fieldset className="directory-filter-options">
-              <legend className="sr-only">Areas of expertise</legend>
+              <legend className="sr-only">
+                Areas of Expertise / Industries
+              </legend>
               {topicsLoading ? (
                 <p className="directory-filter-empty" aria-live="polite">
                   Loading expertise filters...

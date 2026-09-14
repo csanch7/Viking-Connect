@@ -1,5 +1,5 @@
 import ExpertiseSelector from '../components/expertise/ExpertiseSelector'
-import CollegeSelector from '../components/profile/CollegeSelector'
+import CollegeSelector from '../components/CollegeSelector'
 import {
   linkedinProfileUrlPattern,
   useRegistrationForm,
@@ -219,7 +219,7 @@ function RegisterPage() {
                 max={latestGraduationYear}
                 value={gradYear ?? ''}
                 onChange={(e) => setGradYear(e.target.value)}
-                placeholder={!requiresGradYear ? "N/A": "2027"}
+                placeholder={!requiresGradYear ? 'N/A' : '2027'}
                 disabled={!requiresGradYear}
                 required={requiresGradYear}
               />
@@ -298,7 +298,7 @@ function RegisterPage() {
                 <div>
                   <h2 id="topics-heading">
                     {type === 'mentor'
-                      ? 'Areas of expertise'
+                      ? 'Areas of Expertise / Industries'
                       : 'Areas of interest'}
                   </h2>
                   <p>

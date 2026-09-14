@@ -208,13 +208,13 @@
 .recommendations-header h2 {
   margin: 0 0 4px;
   color: var(--directory-ink);
-  font-size: 20px;
+  font-size: var(--fs-700);
   font-weight: 780;
 }
 
 .recommendations-header > div > p:last-child {
   color: var(--directory-muted);
-  font-size: 13px;
+  font-size: var(--fs-200);
   line-height: 1.45;
 }
 
@@ -256,22 +256,35 @@
 
 .recommendation-card h3 {
   margin: 0 0 4px;
-  font-size: 16px;
+  font-size: var(--fs-500);
   line-height: 1.25;
   overflow-wrap: anywhere;
 }
 
 .recommendation-card-heading p {
   color: var(--directory-muted);
-  font-size: 12px;
+  font-size: var(--fs-100);
   line-height: 1.35;
   overflow-wrap: anywhere;
+}
+
+.recommendation-college-badge {
+  flex: none;
+  margin-top: 2px;
+  padding: 3px 8px;
+  border: 1px solid #e1d49d;
+  border-radius: 6px;
+  color: #66500c;
+  font-size: var(--fs-100);
+  font-weight: 760;
+  white-space: nowrap;
+  background: #fff8e2;
 }
 
 .recommendation-reason {
   margin: 0;
   color: #3f392f;
-  font-size: 13px;
+  font-size: var(--fs-200);
   font-weight: 680;
   line-height: 1.5;
 }
@@ -281,27 +294,11 @@
   gap: 8px;
 }
 
-.recommendation-evidence-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.recommendation-evidence-header p {
+.recommendation-evidence-label {
+  margin: 0;
   color: var(--directory-muted);
-  font-size: 11px;
+  font-size: var(--fs-100);
   font-weight: 700;
-}
-
-.recommendation-evidence-header span {
-  padding: 3px 7px;
-  border: 1px solid #e1d49d;
-  border-radius: 6px;
-  color: #66500c;
-  font-size: 10px;
-  font-weight: 760;
-  background: #fff8e2;
 }
 
 .recommendation-profile-link {
@@ -311,7 +308,7 @@
   min-height: 44px;
   border-top: 1px solid #ece5da;
   color: var(--directory-ink);
-  font-size: 13px;
+  font-size: var(--fs-200);
   font-weight: 760;
   text-decoration-color: #dba800;
   text-underline-offset: 3px;
@@ -330,13 +327,13 @@
   display: block;
   margin-bottom: 3px;
   color: var(--directory-ink);
-  font-size: 13px;
+  font-size: var(--fs-200);
 }
 
 .recommendations-state p {
   max-width: 68ch;
   color: var(--directory-muted);
-  font-size: 13px;
+  font-size: var(--fs-200);
   line-height: 1.45;
 }
 
@@ -352,7 +349,7 @@
   border-radius: 6px;
   color: var(--directory-ink);
   font: inherit;
-  font-size: 12px;
+  font-size: var(--fs-100);
   font-weight: 760;
   text-decoration: none;
   background: var(--directory-card);
@@ -547,11 +544,11 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(220px, 0.6fr);
   gap: 12px;
-  align-items: end;
+  align-items: start;
 }
 
 .directory-filter-search,
-.directory-filter-select {
+.directory-college-filter {
   display: grid;
   gap: 8px;
   color: var(--directory-ink);
@@ -559,11 +556,20 @@
   font-weight: 760;
 }
 
+.directory-filter-fields .directory-college-filter {
+  gap: 8px;
+}
+
+.directory-filter-search > span,
+.directory-college-filter > .college-field-label {
+  font: inherit;
+  line-height: 1.45;
+}
+
 .directory-filter-search input,
-.directory-filter-select select {
+.directory-college-filter .college-combobox-input {
   width: 100%;
   min-height: 44px;
-  padding: 0 12px;
   border: 1px solid var(--directory-border);
   border-radius: 6px;
   color: var(--directory-ink);
@@ -572,57 +578,29 @@
   background: var(--directory-card);
 }
 
-.directory-filter-select-shell {
-  position: relative;
-  min-width: 0;
+.directory-filter-search input {
+  padding: 0 12px;
 }
 
-.directory-filter-select select {
-  padding-right: 40px;
-  appearance: none;
-  text-overflow: ellipsis;
-  cursor: pointer;
-  box-shadow: 0 1px 2px rgba(25, 25, 25, 0.04);
-  transition:
-    border-color 160ms ease,
-    box-shadow 160ms ease,
-    background-color 160ms ease;
+.directory-college-filter .college-combobox-input {
+  padding: 0 44px 0 12px;
 }
 
-.directory-filter-select select:hover:not(:disabled) {
+.directory-college-filter .college-combobox-input:hover {
   border-color: #b6aa92;
   background: #fffdf8;
 }
 
-.directory-filter-select-icon {
-  position: absolute;
-  top: 50%;
-  right: 12px;
-  width: 18px;
-  height: 18px;
-  color: var(--directory-muted);
-  pointer-events: none;
-  stroke: currentColor;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 1.8;
-  transform: translateY(-50%);
-}
-
-.directory-filter-select select:disabled {
-  color: #8b857b;
-  cursor: not-allowed;
-  background: #f4f0e8;
-}
-
 .directory-filter-search input:focus,
-.directory-filter-select select:focus {
+.directory-college-filter .college-combobox-input:focus {
   border-color: #191919;
   outline: none;
   box-shadow: 0 0 0 3px rgba(255, 199, 44, 0.35);
 }
 
-.directory-filter-select select:focus + .directory-filter-select-icon {
+.directory-college-filter
+  .college-combobox-input:focus
+  + .college-combobox-icon {
   color: #765900;
 }
 
