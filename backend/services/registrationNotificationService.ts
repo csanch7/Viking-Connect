@@ -1,5 +1,6 @@
 import { env, getRegistrationEmailConfig, getRegistrationAcceptanceConfig } from "../config/env";
 import { renderAdminRegistrationEmail } from "../emails/adminRegistrationEmail";
+import { renderRegistrationAcceptanceEmail } from "../emails/registrationAcceptanceEmail";
 import type { RegistrationEmailUser } from "../validation/registrationValidation";
 import { sendEmail } from "./emailService";
 import { log, logError } from "./logger";
@@ -8,6 +9,10 @@ const adminPendingUsersPath = "/admin/pending-users";
 const adminPendingUsersUrl = env.appUrl
   ? `${env.appUrl.replace(/\/$/, "")}${adminPendingUsersPath}`
   : adminPendingUsersPath;
+const loginPath = "/login";
+const loginUrl = env.appUrl
+  ? `${env.appUrl.replace(/\/$/, "")}${loginPath}`
+  : loginPath;
 
 function renderAdminRegistrationText(user: RegistrationEmailUser) {
   const topicsLabel =
@@ -59,7 +64,7 @@ export async function sendAdminRegistrationNotification(
 }
 
 export async function sendRegistrationAcceptanceEmail(
-  email: string
+  email: string,
 ) {
   const config = getRegistrationAcceptanceConfig();
   if (!config) {
@@ -71,9 +76,22 @@ export async function sendRegistrationAcceptanceEmail(
     const messageId = await sendEmail({
       from: config.from,
       to: email,
-      subject: "Acceptance to the Viking Connect",
-      html: `<p>Welcome to Viking Connect! A quick overview of the site: - Directory: Here you can find search for mentors and mentees by name, topic, and college. - Profile: Here you can see how others view your profile, and update your information accordingly. </p>`,
-      text: `From the Viking Connect Team`,
+      subject: "Your Viking Connect account is approved",
+      html: renderRegistrationAcceptanceEmail(loginUrl),
+      text: `Welcome to Viking Connect!
+
+Your account has been approved. You can now sign in and begin building relationships across the St. Laurence community.
+
+Make your first connection:
+- Complete your profile: Review your bio, contact details, and mentorship topics so the right people can find you.
+- Explore the directory: Search approved mentors and mentees by name, topic, and college.
+- Start a conversation: Reach out through a member's listed email or LinkedIn profile.
+
+Sign in: ${loginUrl}
+
+Viking Connect is a private community. Your profile and contact details are available only to approved members.
+
+The Viking Connect Team`,
     });
     log("info", "registration_acceptance_email.sent", { messageId });
   } catch (error) {
