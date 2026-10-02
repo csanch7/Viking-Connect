@@ -9,6 +9,7 @@ import {
   getBioValidationError,
   normalizeExpertiseList,
   normalizeBio,
+  normalizeUserType,
 } from "../validation/profileValidation";
 import {
   getCollegeFilterValidationError,
@@ -52,6 +53,12 @@ describe("login validation", () => {
 });
 
 describe("profile validation", () => {
+  it("accepts only mentor and mentee profile types", () => {
+    assert.equal(normalizeUserType("mentor"), "mentor");
+    assert.equal(normalizeUserType("mentee"), "mentee");
+    assert.equal(normalizeUserType("admin"), null);
+  });
+
   it("trims bios and rejects empty or oversized text", () => {
     assert.equal(normalizeBio("  Career guidance  "), "Career guidance");
     assert.equal(getBioValidationError(""), "Bio is required");

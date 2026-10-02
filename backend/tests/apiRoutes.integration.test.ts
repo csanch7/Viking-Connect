@@ -156,13 +156,25 @@ function buildApiApp(
       },
       profileDependencies: {
         getTopics: async () => ["Career Planning", "Finance", "Technology"],
-        getColleges: async () => [
-          "DePaul University",
-          "University of Illinois Chicago",
-        ],
+        findCollegeByName: async (college) =>
+          ["DePaul University", "University of Illinois Chicago"].includes(
+            college,
+          )
+            ? { id: college === "DePaul University" ? "1" : "2", name: college }
+            : undefined,
         updateBio: async (bio) => ({ bio }),
         updateCollege: async (college) => ({ college }),
-        updateProfile: async (profile) => profile,
+        updateProfile: async (profile) => ({
+          type: profile.type,
+          bio: profile.bio,
+          college:
+            profile.collegeId === "1"
+              ? "DePaul University"
+              : profile.collegeId === "2"
+                ? "University of Illinois Chicago"
+                : null,
+          areasOfExpertise: profile.areasOfExpertise,
+        }),
         updateAreasOfExpertise: async (areasOfExpertise) => ({
           areasOfExpertise,
         }),
@@ -496,6 +508,7 @@ describe("API routes", () => {
     assert.equal(malformedCollege.status, 400);
 
     const profileUpdate = await agent.patch("/api/profile/7").send({
+      type: "mentor",
       bio: "I am looking for career planning and interview preparation.",
       college: "University of Illinois Chicago",
       areasOfExpertise: ["Career Planning", "Finance"],
@@ -503,10 +516,24 @@ describe("API routes", () => {
     assert.equal(profileUpdate.status, 200);
     assert.deepEqual(profileUpdate.body, {
       message: "Profile has been successfully updated",
+      type: "mentor",
       bio: "I am looking for career planning and interview preparation.",
       college: "University of Illinois Chicago",
       areasOfExpertise: ["Career Planning", "Finance"],
     });
+
+    const updatedSession = await agent.get("/api/auth/session");
+    assert.equal(updatedSession.status, 200);
+    assert.equal(updatedSession.body.mentee, false);
+
+    const invalidType = await agent.patch("/api/profile/7").send({
+      type: "admin",
+      bio: "I am looking for career planning and interview preparation.",
+      college: "University of Illinois Chicago",
+      areasOfExpertise: ["Career Planning"],
+    });
+    assert.equal(invalidType.status, 400);
+    assert.deepEqual(invalidType.body, { message: "Choose mentor or mentee" });
 
     const forbiddenProfileUpdate = await agent.patch("/api/profile/8").send({
       bio: "Attempted change",

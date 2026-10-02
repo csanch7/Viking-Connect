@@ -12,13 +12,17 @@ import {
   normalizeExpertiseList,
   normalizeBio,
   normalizeCollege,
+  normalizeUserType,
 } from "../validation/profileValidation";
 import {
   getIdParamValidationError,
   normalizeIdParam,
 } from "../validation/routeValidation";
 import { getActiveTopics } from "../repositories/topicRepository";
-import { getColleges, updateCollege } from "../repositories/collegeRepository";
+import {
+  findCollegeByName,
+  updateCollege,
+} from "../repositories/collegeRepository";
 
 export interface ProfileRouterDependencies {
   updateAreasOfExpertise: typeof updateAreasOfExpertise;
@@ -26,7 +30,7 @@ export interface ProfileRouterDependencies {
   updateCollege: typeof updateCollege;
   updateProfile: typeof updateProfile;
   getTopics: typeof getActiveTopics;
-  getColleges: typeof getColleges;
+  findCollegeByName: typeof findCollegeByName;
 }
 
 const defaultDependencies: ProfileRouterDependencies = {
@@ -35,7 +39,7 @@ const defaultDependencies: ProfileRouterDependencies = {
   updateCollege,
   updateProfile,
   getTopics: getActiveTopics,
-  getColleges,
+  findCollegeByName,
 };
 
 export function createProfileRouter(
@@ -48,7 +52,7 @@ export function createProfileRouter(
     updateCollege,
     updateProfile,
     getTopics,
-    getColleges,
+    findCollegeByName,
   } = dependencies;
 
   router.patch(
@@ -70,6 +74,7 @@ export function createProfileRouter(
         return;
       }
 
+      const type = normalizeUserType(req.body.type);
       const bio = normalizeBio(req.body.bio);
       const collegeInput = req.body.college;
       const college = normalizeCollege(collegeInput);
@@ -79,6 +84,11 @@ export function createProfileRouter(
       const bioValidationError = getBioValidationError(bio);
       const expertiseValidationError =
         getExpertiseListValidationError(areasOfExpertise);
+
+      if (!type) {
+        res.status(400).json({ message: "Choose mentor or mentee" });
+        return;
+      }
 
       if (bioValidationError) {
         res.status(400).json({ message: bioValidationError });
@@ -95,9 +105,9 @@ export function createProfileRouter(
         return;
       }
 
-      const [allowedTopics, allowedColleges] = await Promise.all([
+      const [allowedTopics, selectedCollege] = await Promise.all([
         getTopics(),
-        getColleges(),
+        college ? findCollegeByName(college) : Promise.resolve(undefined),
       ]);
 
       if (!areasOfExpertise.every((topic) => allowedTopics.includes(topic))) {
@@ -105,13 +115,18 @@ export function createProfileRouter(
         return;
       }
 
-      if (college && !allowedColleges.includes(college)) {
+      if (college && !selectedCollege) {
         res.status(400).json({ message: "Choose a valid college" });
         return;
       }
 
       const updatedProfile = await updateProfile(
-        { bio, college, areasOfExpertise },
+        {
+          type,
+          bio,
+          collegeId: selectedCollege?.id ?? null,
+          areasOfExpertise,
+        },
         userId as string,
       );
 
@@ -119,6 +134,8 @@ export function createProfileRouter(
         res.status(404).json({ message: "Profile not found" });
         return;
       }
+
+      req.session.type = updatedProfile.type;
 
       res.json({
         message: "Profile has been successfully updated",
@@ -195,8 +212,8 @@ export function createProfileRouter(
       }
 
       if (college) {
-        const allowedColleges = new Set(await getColleges());
-        if (!allowedColleges.has(college)) {
+        const selectedCollege = await findCollegeByName(college);
+        if (!selectedCollege) {
           res.status(400).json({ message: "Choose a valid college" });
           return;
         }

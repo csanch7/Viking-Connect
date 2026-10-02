@@ -20,8 +20,8 @@ function ProfilePage() {
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
   const navigate = useNavigate()
-  const { markSignedOut } = useAuth()
-  const editor = useProfileEditor(user, setUser)
+  const { markSignedOut, setMentorshipType } = useAuth()
+  const editor = useProfileEditor(user, setUser, setMentorshipType)
   const {
     editor: editorState,
     saveError,
@@ -33,6 +33,7 @@ function ProfilePage() {
     canSave,
     startEditing,
     cancelEditing,
+    updateType,
     updateBio,
     updateCollege,
     updateSelectedExpertise,
@@ -234,11 +235,55 @@ function ProfilePage() {
               <header className="profile-edit-heading">
                 <h2 id="profile-edit-title">Edit your profile</h2>
                 <p>
-                  Help {user.type === 'mentor' ? 'mentees' : 'mentors'}{' '}
+                  Help {editorState.type === 'mentor' ? 'mentees' : 'mentors'}{' '}
                   understand your background and what a useful connection looks
                   like.
                 </p>
               </header>
+
+              <fieldset className="profile-role-group">
+                <legend>Mentorship role</legend>
+                <p className="profile-edit-help">
+                  Choose how you want to participate. You can switch again at
+                  any time.
+                </p>
+                <div>
+                  <label
+                    className="profile-role-option"
+                    htmlFor="profile-mentee"
+                  >
+                    <input
+                      id="profile-mentee"
+                      name="profile-type"
+                      type="radio"
+                      value="mentee"
+                      checked={editorState.type === 'mentee'}
+                      onChange={() => updateType('mentee')}
+                    />
+                    <span>
+                      <strong>Mentee</strong>
+                      <small>I am looking for guidance.</small>
+                    </span>
+                  </label>
+                  <label
+                    className="profile-role-option"
+                    htmlFor="profile-mentor"
+                  >
+                    <input
+                      id="profile-mentor"
+                      name="profile-type"
+                      type="radio"
+                      value="mentor"
+                      checked={editorState.type === 'mentor'}
+                      onChange={() => updateType('mentor')}
+                    />
+                    <span>
+                      <strong>Mentor</strong>
+                      <small>I want to offer guidance.</small>
+                    </span>
+                  </label>
+                </div>
+              </fieldset>
 
               <div className="profile-edit-section">
                 <div className="profile-edit-field-heading">
@@ -246,9 +291,11 @@ function ProfilePage() {
                   <span>Required</span>
                 </div>
                 <p className="profile-edit-help" id="editBio-help">
-                  Share what you are working toward and where mentorship could
-                  make a difference.
+                  {editorState.type === 'mentor'
+                    ? 'Share the experience you bring and how you hope to support other Vikings.'
+                    : 'Share what you are working toward and where mentorship could make a difference.'}
                 </p>
+
                 <textarea
                   id="editBio"
                   className="profile-edit-textarea"
@@ -286,7 +333,7 @@ function ProfilePage() {
               <div className="profile-edit-section">
                 <div className="profile-edit-field-heading">
                   <h3>
-                    {user.type === 'mentor'
+                    {editorState.type === 'mentor'
                       ? 'How you can help'
                       : 'What you would like help with'}
                   </h3>
@@ -305,7 +352,7 @@ function ProfilePage() {
                   onAddArea={addExpertise}
                   onRemoveArea={removeExpertise}
                   label={
-                    user.type === 'mentor'
+                    editorState.type === 'mentor'
                       ? 'Add an expertise area'
                       : 'Add an interest'
                   }
@@ -334,7 +381,7 @@ function ProfilePage() {
                   <span>
                     <strong>{user.name}</strong>
                     <small>
-                      {user.type === 'mentor' ? 'Mentor' : 'Mentee'} ·{' '}
+                      {editorState.type === 'mentor' ? 'Mentor' : 'Mentee'} ·{' '}
                       {user.gradYear
                         ? `Class of ${user.gradYear}`
                         : 'Community member'}
@@ -348,7 +395,9 @@ function ProfilePage() {
                   </div>
                   <div>
                     <dt>
-                      {user.type === 'mentor' ? 'Expertise areas' : 'Interests'}
+                      {editorState.type === 'mentor'
+                        ? 'Expertise areas'
+                        : 'Interests'}
                     </dt>
                     <dd>{editorState.areasOfExpertise.length}</dd>
                   </div>
@@ -430,7 +479,9 @@ function ProfilePage() {
           cancelEditing()
         }}
       >
-        <p>Your unsaved bio, college, and mentorship changes will be lost.</p>
+        <p>
+          Your unsaved role, bio, college, and mentorship changes will be lost.
+        </p>
       </ConfirmationDialog>
     </main>
   )

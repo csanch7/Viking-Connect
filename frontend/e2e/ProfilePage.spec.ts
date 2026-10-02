@@ -22,7 +22,7 @@ const mentee = {
 }
 
 test.beforeEach(async ({ page }) => {
-  await mockAuthenticatedSession(page)
+  await mockAuthenticatedSession(page, false, true)
   await mockTopics(page)
   await mockColleges(page)
   await page.route('**/api/auth/me', async (route) => {
@@ -54,12 +54,14 @@ test('edits and saves the complete profile from one action', async ({
 }) => {
   await page.route('**/api/profile/7', async (route) => {
     expect(route.request().postDataJSON()).toEqual({
+      type: 'mentor',
       bio: 'I am looking for resume review and interview preparation.',
       college: 'University of Illinois Chicago',
       areasOfExpertise: ['Career Planning'],
     })
     await fulfillJson(route, {
       message: 'Profile has been successfully updated',
+      type: 'mentor',
       bio: 'I am looking for resume review and interview preparation.',
       college: 'University of Illinois Chicago',
       areasOfExpertise: ['Career Planning'],
@@ -72,11 +74,15 @@ test('edits and saves the complete profile from one action', async ({
     page.getByRole('heading', { name: 'Edit your profile' }),
   ).toBeVisible()
   await expect(page.getByText('No changes yet')).toBeVisible()
+  await page.getByRole('radio', { name: /Mentor/ }).check()
+  await expect(
+    page.getByRole('heading', { name: 'How you can help' }),
+  ).toBeVisible()
   await page
     .getByLabel('About you')
     .fill('I am looking for resume review and interview preparation.')
   await chooseCollege(page, 'University of Illinois Chicago', 'Illinois')
-  await page.getByLabel('Add an interest').selectOption('Career Planning')
+  await page.getByLabel('Add an expertise area').selectOption('Career Planning')
   await page.getByRole('button', { name: 'Add' }).click()
   await expect(page.getByText('Unsaved changes')).toBeVisible()
   await page.getByRole('button', { name: 'Save changes' }).click()
@@ -92,7 +98,9 @@ test('edits and saves the complete profile from one action', async ({
     page.getByRole('listitem').filter({ hasText: /^Career Planning$/ }),
   ).toBeVisible()
   await expect(
-    page.getByText('Your profile is updated and visible to the community.'),
+    page.getByText(
+      'Your profile is updated. You are now participating as a mentor.',
+    ),
   ).toBeVisible()
 })
 

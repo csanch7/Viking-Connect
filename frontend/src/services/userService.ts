@@ -8,6 +8,7 @@ import {
   parseSessionResponse,
   parseUserEnvelope,
 } from '../../../shared/contracts'
+import type { UserType } from '../../../shared/contracts'
 
 function readStringField(value: unknown, field: string) {
   if (typeof value !== 'object' || value === null || !(field in value)) {
@@ -49,6 +50,16 @@ function readStringArrayField(value: unknown, field: string) {
   }
 
   return fieldValue
+}
+
+function readUserTypeField(value: unknown, field: string): UserType {
+  const userType = readStringField(value, field)
+
+  if (userType !== 'mentor' && userType !== 'mentee') {
+    throw new Error(`Invalid API response: ${field}`)
+  }
+
+  return userType
 }
 
 const backend = '/api'
@@ -130,6 +141,7 @@ const userService = {
   },
   async updateProfile(
     profile: {
+      type: UserType
       bio: string
       college: string | null
       areasOfExpertise: string[]
@@ -141,6 +153,7 @@ const userService = {
 
     return {
       message: readStringField(response.data, 'message'),
+      type: readUserTypeField(response.data, 'type'),
       bio: readStringField(response.data, 'bio'),
       college: readNullableStringField(response.data, 'college'),
       areasOfExpertise: readStringArrayField(response.data, 'areasOfExpertise'),

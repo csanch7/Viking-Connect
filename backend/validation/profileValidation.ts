@@ -1,6 +1,12 @@
+import type { UserType } from "../../shared/contracts";
+
 const maxBioLength = 1000;
 const maxExpertiseLength = 80;
 const maxExpertiseCount = 15;
+
+export function normalizeUserType(value: unknown): UserType | null {
+  return value === "mentor" || value === "mentee" ? value : null;
+}
 
 export function normalizeBio(value: unknown) {
   return typeof value === "string" ? value.trim() : "";

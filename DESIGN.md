@@ -179,6 +179,10 @@ Two-column layouts pair a flexible primary region with a narrower contextual or 
 
 The recurring breakpoints are 980px for major structural collapse, 760px for mobile layout and type changes, and 520px for compact dialogs. Controls preserve a 44px interaction floor even when their visual styling is dense.
 
+The home hero is a focused two-part composition on desktop. Its left column carries the entire message hierarchy: a decisive two-line `Viking Connect` wordmark with white `Viking` and an indented gold `Connect`, followed by the statement, factual program copy, and the primary and secondary actions. The right column contains only an oversized rendering of the real St. Laurence crest at `0.25` opacity; it is atmospheric identity, not an explanatory panel. The three-step warm-paper strip overlaps the bottom edge of the dark hero and stays visible within the first desktop viewport. At 760px and below, hide the decorative crest, collapse to one column, stack the actions, and let the existing content lead without compressing its touch targets.
+
+**The Home Hero Composition Rule.** On desktop, keep the two-line white-and-gold Viking Connect wordmark, statement, factual copy, and actions together on the left; reserve the right side for only the real oversized crest at 25% opacity, overlap the warm-paper three-step strip into the hero, and hide the crest when the mobile layout collapses.
+
 **The One Working Column Rule.** Once horizontal space becomes constrained, collapse supporting columns before compressing content or touch targets.
 
 **The Wide Canvas, Short Measure Rule.** Containers may span 1140px, but explanatory copy remains materially narrower for readability.
@@ -240,6 +244,10 @@ The form language is gently rectangular rather than pill-heavy. Interactive cont
 ### Navigation
 
 The sticky navigation uses a translucent warm-cream surface, a fine bottom border, and subtle backdrop blur. Brand text is compact and weight-forward beside the crest. Navigation actions use text labels; the primary or active destination becomes an ink-filled control. On mobile, actions wrap or stack while retaining the 44px interaction floor.
+
+### Home Hero
+
+The home hero is the public surface's clearest brand-scale moment: a near-black field with message and actions on the left and a single oversized crest on the right. Keep the wordmark to two lines, set `Viking` in cream-white, indent `Connect` in Viking Gold, and preserve the crest at 25% opacity so it supports rather than competes with the copy. Do not add a card, caption, label, statistic, or explanatory panel around the crest. The warm-paper three-step strip should overlap the hero boundary and remain part of the initial desktop composition; on mobile, remove the crest from layout and stack the existing content and actions.
 
 ### Directory Rows
 

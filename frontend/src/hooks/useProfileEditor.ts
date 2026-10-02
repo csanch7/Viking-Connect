@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import type { Dispatch, SetStateAction } from 'react'
 import axios from 'axios'
-import type { PublicUser } from '../../../shared/contracts'
+import type { PublicUser, UserType } from '../../../shared/contracts'
 import userService from '../services/userService'
 
 type ProfileEditorState =
   | { mode: null }
   | {
       mode: 'profile'
+      type: UserType
       bio: string
       college: string
       areasOfExpertise: string[]
@@ -19,6 +20,7 @@ const closedEditor: ProfileEditorState = { mode: null }
 export function useProfileEditor(
   user: PublicUser | null,
   setUser: Dispatch<SetStateAction<PublicUser | null>>,
+  onTypeSaved: (type: UserType) => void,
 ) {
   const [editor, setEditor] = useState<ProfileEditorState>(closedEditor)
   const [saveError, setSaveError] = useState('')
@@ -35,7 +37,8 @@ export function useProfileEditor(
   const isDirty =
     editor.mode === 'profile' &&
     user !== null &&
-    (editor.bio !== user.bio ||
+    (editor.type !== user.type ||
+      editor.bio !== user.bio ||
       (editor.college || null) !== user.college ||
       !expertiseUnchanged)
   const bioError =
@@ -44,7 +47,7 @@ export function useProfileEditor(
       : ''
   const expertiseError =
     editor.mode === 'profile' && editor.areasOfExpertise.length === 0
-      ? user?.type === 'mentor'
+      ? editor.type === 'mentor'
         ? 'Choose at least one area where you can help.'
         : 'Choose at least one area where you would like support.'
       : ''
@@ -64,6 +67,7 @@ export function useProfileEditor(
     setSaveSuccess('')
     setEditor({
       mode: 'profile',
+      type: user.type,
       bio: user.bio,
       college: user.college ?? '',
       areasOfExpertise: user.areasOfExpertise,
@@ -79,6 +83,12 @@ export function useProfileEditor(
   function updateBio(bio: string) {
     setEditor((current) =>
       current.mode === 'profile' ? { ...current, bio } : current,
+    )
+  }
+
+  function updateType(type: UserType) {
+    setEditor((current) =>
+      current.mode === 'profile' ? { ...current, type } : current,
     )
   }
 
@@ -128,6 +138,7 @@ export function useProfileEditor(
   async function saveProfile() {
     if (!user || editor.mode !== 'profile') return
 
+    const type = editor.type
     const bio = editor.bio.trim()
     const college = editor.college || null
     const areasOfExpertise = editor.areasOfExpertise
@@ -139,7 +150,7 @@ export function useProfileEditor(
 
     if (areasOfExpertise.length === 0) {
       setSaveError(
-        user.type === 'mentor'
+        type === 'mentor'
           ? 'Choose at least one area of expertise.'
           : 'Choose at least one area of interest.',
       )
@@ -147,6 +158,7 @@ export function useProfileEditor(
     }
 
     if (
+      type === user.type &&
       bio === user.bio.trim() &&
       college === user.college &&
       expertiseUnchanged
@@ -159,18 +171,22 @@ export function useProfileEditor(
     setSaveError('')
     try {
       const response = await userService.updateProfile(
-        { bio, college, areasOfExpertise },
+        { type, bio, college, areasOfExpertise },
         user.id,
       )
       setUser({
         ...user,
+        type: response.type,
         bio: response.bio,
         college: response.college,
         areasOfExpertise: response.areasOfExpertise,
       })
+      onTypeSaved(response.type)
       setEditor(closedEditor)
       setSaveError('')
-      setSaveSuccess('Your profile is updated and visible to the community.')
+      setSaveSuccess(
+        `Your profile is updated. You are now participating as a ${response.type}.`,
+      )
     } catch (error) {
       setSaveError(getSaveError(error))
     } finally {
@@ -189,6 +205,7 @@ export function useProfileEditor(
     canSave,
     startEditing,
     cancelEditing,
+    updateType,
     updateBio,
     updateCollege,
     updateSelectedExpertise,

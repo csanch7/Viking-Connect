@@ -17,6 +17,17 @@ export async function getColleges(searchText?: string): Promise<string[]> {
   return rows.map((row) => String(row.name));
 }
 
+export async function findCollegeByName(college: string) {
+  const rows = await sql`
+    SELECT id::text, name
+    FROM colleges
+    WHERE name = ${college}
+    LIMIT 1
+  `;
+
+  return rows[0] as { id: string; name: string } | undefined;
+}
+
 export async function updateCollege(college: string | null, userId: string) {
   const rows = await sql`
     WITH updated_user AS (

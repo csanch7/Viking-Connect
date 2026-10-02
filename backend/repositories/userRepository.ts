@@ -198,26 +198,23 @@ export async function updateAreasOfExpertise(
 
 export async function updateProfile(
   input: {
+    type: UserType;
     bio: string;
-    college: string | null;
+    collegeId: string | null;
     areasOfExpertise: string[];
   },
   userId: string,
 ) {
   const rows = await sql`
-    WITH selected_college AS (
-      SELECT id
-      FROM colleges
-      WHERE name = ${input.college}
-    ),
-    updated_user AS (
+    WITH updated_user AS (
       UPDATE users
       SET
+        type = ${input.type},
         bio = ${input.bio},
-        college_id = (SELECT id FROM selected_college)
+        college_id = ${input.collegeId}
       WHERE id = ${userId}
         AND deleted_on IS NULL
-      RETURNING id, bio, college_id
+      RETURNING id, type, bio, college_id
     ),
     selected_topics AS (
       SELECT id, name
@@ -239,6 +236,7 @@ export async function updateProfile(
       RETURNING topic_id
     )
     SELECT
+      updated_user.type,
       updated_user.bio,
       colleges.name AS college,
       COALESCE(
@@ -252,6 +250,7 @@ export async function updateProfile(
 
   return rows[0] as
     | {
+        type: UserType;
         bio: string;
         college: string | null;
         areasOfExpertise: string[];

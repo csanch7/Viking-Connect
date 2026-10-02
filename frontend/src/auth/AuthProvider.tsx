@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import userService from '../services/userService'
 import { AuthContext } from './AuthContext'
 import type { SessionResponse } from '../../../shared/contracts'
+import type { UserType } from '../../../shared/contracts'
 
 const signedOutSession: SessionResponse = {
   authenticated: false,
@@ -34,6 +35,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsCheckingSession(false)
   }, [])
 
+  const setMentorshipType = useCallback((type: UserType) => {
+    setSession((current) => ({ ...current, mentee: type === 'mentee' }))
+  }, [])
+
   useEffect(() => {
     let isCurrent = true
 
@@ -59,9 +64,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       ...session,
       isCheckingSession,
       refreshSession,
+      setMentorshipType,
       markSignedOut,
     }),
-    [isCheckingSession, markSignedOut, refreshSession, session],
+    [
+      isCheckingSession,
+      markSignedOut,
+      refreshSession,
+      session,
+      setMentorshipType,
+    ],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
