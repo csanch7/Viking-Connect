@@ -16,6 +16,18 @@ function optionalEnv(name: string) {
   return process.env[name]?.trim() || undefined;
 }
 
+function optionalEmailList(name: string) {
+  const value = optionalEnv(name);
+  if (!value) return undefined;
+
+  const addresses = value
+    .split(",")
+    .map((address) => address.trim())
+    .filter(Boolean);
+
+  return addresses.length ? addresses : undefined;
+}
+
 const sessionSecret = isProduction
   ? requireEnv("SESSION_SECRET")
   : (optionalEnv("SESSION_SECRET") ?? "development-only-change-me");
@@ -31,8 +43,8 @@ export const env = {
   isProduction,
   port: optionalEnv("PORT") ?? "3000",
   sesFromEmail: optionalEnv("SES_FROM_EMAIL"),
-  adminNotificationEmail: optionalEnv("ADMIN_NOTIFICATION_EMAIL"),
-  contactEmail: optionalEnv("CONTACT_EMAIL"),
+  adminNotificationEmail: optionalEmailList("ADMIN_NOTIFICATION_EMAIL"),
+  contactEmail: optionalEmailList("CONTACT_EMAIL"),
   sessionSecret,
 };
 

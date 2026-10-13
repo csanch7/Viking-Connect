@@ -47,8 +47,8 @@ The frontend development server proxies `/api` requests to
 - `APP_URL` — public application URL used in notification links
 - `AWS_REGION` — AWS Region containing the verified Amazon SES identity
 - `SES_FROM_EMAIL` — optional SES-verified sender
-- `ADMIN_NOTIFICATION_EMAIL` — optional admin notification recipient
-- `CONTACT_EMAIL` — optional contact form recipient
+- `ADMIN_NOTIFICATION_EMAIL` — optional comma-separated admin notification recipients
+- `CONTACT_EMAIL` — optional comma-separated contact form recipients
 - `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` — optional when the runtime
   does not already have an IAM role; loaded through the standard AWS credential
   chain

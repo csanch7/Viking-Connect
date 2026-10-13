@@ -38,4 +38,27 @@ describe("Amazon SES email service", () => {
     });
     assert.equal(messageId, "ses-message-123");
   });
+
+  it("sends one message to multiple recipients", async () => {
+    let capturedCommand: SendEmailCommand | undefined;
+    const sendEmail = createEmailSender({
+      async send(command) {
+        capturedCommand = command;
+        return { MessageId: "ses-message-456" };
+      },
+    });
+
+    await sendEmail({
+      from: "Viking Connect <hello@example.com>",
+      to: ["owner@example.com", "alotus@stlaurence.com"],
+      subject: "New registration",
+      html: "<p>New registration</p>",
+      text: "New registration",
+    });
+
+    assert.deepEqual(capturedCommand?.input.Destination?.ToAddresses, [
+      "owner@example.com",
+      "alotus@stlaurence.com",
+    ]);
+  });
 });
