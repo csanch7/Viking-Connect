@@ -8,7 +8,6 @@ export type DirectoryFilterState = {
   draftExpertise: string[]
   appliedCollege: string
   draftCollege: string
-  filterPanelOpen: boolean
 }
 
 type DirectoryFilterAction =
@@ -16,7 +15,6 @@ type DirectoryFilterAction =
   | { type: 'expertiseSearchChanged'; value: string }
   | { type: 'expertiseToggled'; area: string; checked: boolean }
   | { type: 'collegeChanged'; value: string }
-  | { type: 'filterPanelToggled' }
   | { type: 'filtersApplied' }
   | { type: 'filtersCleared' }
   | { type: 'pageChanged'; page: number }
@@ -29,7 +27,6 @@ const initialDirectoryFilterState: DirectoryFilterState = {
   draftExpertise: [],
   appliedCollege: '',
   draftCollege: '',
-  filterPanelOpen: false,
 }
 
 function directoryFilterReducer(
@@ -50,21 +47,15 @@ function directoryFilterReducer(
       }
     case 'collegeChanged':
       return { ...state, draftCollege: action.value }
-    case 'filterPanelToggled':
-      return { ...state, filterPanelOpen: !state.filterPanelOpen }
     case 'filtersApplied':
       return {
         ...state,
         appliedExpertise: state.draftExpertise,
         appliedCollege: state.draftCollege,
         page: 0,
-        filterPanelOpen: false,
       }
     case 'filtersCleared':
-      return {
-        ...initialDirectoryFilterState,
-        filterPanelOpen: state.filterPanelOpen,
-      }
+      return initialDirectoryFilterState
     case 'pageChanged':
       return { ...state, page: action.page }
   }
@@ -83,8 +74,6 @@ export function useDirectoryFilters() {
 
   return {
     ...state,
-    activeFilterCount:
-      state.appliedExpertise.length + (state.appliedCollege ? 1 : 0),
     hasActiveFilters:
       state.searchText.trim().length > 0 ||
       state.appliedExpertise.length > 0 ||
@@ -104,7 +93,6 @@ export function useDirectoryFilters() {
       state.expertiseSearchText.length > 0,
     applyFilters: () => dispatch({ type: 'filtersApplied' }),
     clearFilters: () => dispatch({ type: 'filtersCleared' }),
-    toggleFilterPanel: () => dispatch({ type: 'filterPanelToggled' }),
     changeSearch: (value: string) => dispatch({ type: 'searchChanged', value }),
     changeExpertiseSearch: (value: string) =>
       dispatch({ type: 'expertiseSearchChanged', value }),

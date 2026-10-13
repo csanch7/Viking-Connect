@@ -75,7 +75,7 @@ function AdminPage() {
           <div className="admin-stat-card">
             <dt>Mentees</dt>
             <dd className="admin-stat-value">{menteeCount ?? '...'}</dd>
-            <dd className="admin-stat-note">Students seeking support</dd>
+            <dd className="admin-stat-note">Mentees seeking support</dd>
             <dd className="admin-stat-action">
               <Link className="admin-stat-link" to="/admin/mentees">
                 <span>Manage mentees</span>

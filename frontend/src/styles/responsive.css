@@ -224,10 +224,6 @@
     width: 100%;
   }
 
-  .directory-filter-toggle {
-    width: 100%;
-  }
-
   .directory-filters-header {
     flex-direction: column;
     gap: 10px;

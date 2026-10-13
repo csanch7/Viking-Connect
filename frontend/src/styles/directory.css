@@ -97,7 +97,7 @@
 
 .directory-search-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
   align-items: end;
   gap: 16px;
 }
@@ -133,54 +133,6 @@
   border-color: #191919;
   outline: none;
   box-shadow: 0 0 0 3px rgba(255, 199, 44, 0.35);
-}
-
-.directory-filter-toggle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 46px;
-  padding: 0 16px;
-  border: 1px solid #191919;
-  border-radius: 6px;
-  color: #fffefa;
-  font: inherit;
-  font-size: 13px;
-  font-weight: 760;
-  background: #191919;
-  cursor: pointer;
-  white-space: nowrap;
-  transition:
-    background 160ms ease,
-    box-shadow 160ms ease;
-}
-
-.directory-filter-toggle span {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 22px;
-  min-height: 22px;
-  padding: 0 6px;
-  border-radius: 999px;
-  color: #191919;
-  font-size: 12px;
-  background: var(--directory-gold);
-}
-
-.directory-filter-toggle:hover {
-  background: #2b2a27;
-}
-
-.directory-filter-toggle[aria-expanded='true'] {
-  border-color: #d4ad25;
-  background: #29261d;
-}
-
-.directory-filter-toggle:focus-visible {
-  outline: 3px solid rgba(255, 199, 44, 0.5);
-  outline-offset: 3px;
 }
 
 .directory-controls {

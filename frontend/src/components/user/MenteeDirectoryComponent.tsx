@@ -13,14 +13,12 @@ function MenteeDirectoryComponent() {
     expertiseSearchText,
     draftExpertise,
     appliedExpertise,
-    filterPanelOpen,
     mentees,
     hasNextPage,
     error,
     topicsLoading,
     topicsError,
     visibleExpertiseOptions,
-    activeFilterCount,
     canClearFilters,
     draftCollege,
     appliedCollege,
@@ -58,105 +56,92 @@ function MenteeDirectoryComponent() {
               placeholder="Search by name"
             />
           </label>
-
-          <button
-            className="directory-filter-toggle"
-            type="button"
-            aria-expanded={filterPanelOpen}
-            aria-controls="directory-filter-panel"
-            onClick={directory.toggleFilterPanel}
-          >
-            Filters
-            {activeFilterCount > 0 && <span>{activeFilterCount}</span>}
-          </button>
         </div>
 
-        {filterPanelOpen && (
-          <div className="directory-filter-panel" id="directory-filter-panel">
-            <div className="directory-filter-fields">
-              <label
-                className="directory-filter-search"
-                htmlFor="interest-search"
-              >
-                <span>Search interests</span>
-                <input
-                  id="interest-search"
-                  type="search"
-                  value={expertiseSearchText}
-                  onChange={(event) =>
-                    directory.changeExpertiseSearch(event.target.value)
-                  }
-                  placeholder="Find a filter"
-                />
-              </label>
-
-              <CollegeSelector
-                className="directory-college-filter"
-                selectId="college-filter"
-                value={draftCollege}
-                onChange={directory.changeCollege}
-                emptyLabel="Any college"
-                supportingText=""
+        <div className="directory-filter-panel" id="directory-filter-panel">
+          <div className="directory-filter-fields">
+            <label
+              className="directory-filter-search"
+              htmlFor="interest-search"
+            >
+              <span>Search interests</span>
+              <input
+                id="interest-search"
+                type="search"
+                value={expertiseSearchText}
+                onChange={(event) =>
+                  directory.changeExpertiseSearch(event.target.value)
+                }
+                placeholder="Find a filter"
               />
-            </div>
+            </label>
 
-            <fieldset className="directory-filter-options">
-              <legend className="sr-only">Areas of interest</legend>
-              {topicsLoading ? (
-                <p className="directory-filter-empty" aria-live="polite">
-                  Loading expertise filters...
-                </p>
-              ) : topicsError ? (
-                <div className="directory-filter-recovery">
-                  <p className="directory-filter-empty" role="alert">
-                    {topicsError}
-                  </p>
-                  <button type="button" onClick={() => directory.retryTopics()}>
-                    Try again
-                  </button>
-                </div>
-              ) : visibleExpertiseOptions.length > 0 ? (
-                visibleExpertiseOptions.map((area) => (
-                  <label className="directory-filter-chip" key={area}>
-                    <input
-                      type="checkbox"
-                      name="expertise"
-                      value={area}
-                      checked={draftExpertise.includes(area)}
-                      onChange={(event) =>
-                        directory.toggleExpertise(area, event.target.checked)
-                      }
-                    />
-                    <span>{area}</span>
-                  </label>
-                ))
-              ) : (
-                <p className="directory-filter-empty">
-                  No interest filters match.
-                </p>
-              )}
-            </fieldset>
-
-            <div className="directory-filter-actions">
-              {hasPendingFilterChanges && (
-                <p className="directory-filter-pending" role="status">
-                  Your filter changes are ready to apply.
-                </p>
-              )}
-              <button className="directory-filter-submit" type="submit">
-                Apply filters
-              </button>
-              <button
-                className="directory-filter-clear"
-                type="reset"
-                onClick={directory.clearFilters}
-                disabled={!canClearFilters}
-              >
-                Clear
-              </button>
-            </div>
+            <CollegeSelector
+              className="directory-college-filter"
+              selectId="college-filter"
+              value={draftCollege}
+              onChange={directory.changeCollege}
+              emptyLabel="Any college"
+              supportingText=""
+            />
           </div>
-        )}
+
+          <fieldset className="directory-filter-options">
+            <legend className="sr-only">Areas of interest</legend>
+            {topicsLoading ? (
+              <p className="directory-filter-empty" aria-live="polite">
+                Loading expertise filters...
+              </p>
+            ) : topicsError ? (
+              <div className="directory-filter-recovery">
+                <p className="directory-filter-empty" role="alert">
+                  {topicsError}
+                </p>
+                <button type="button" onClick={() => directory.retryTopics()}>
+                  Try again
+                </button>
+              </div>
+            ) : visibleExpertiseOptions.length > 0 ? (
+              visibleExpertiseOptions.map((area) => (
+                <label className="directory-filter-chip" key={area}>
+                  <input
+                    type="checkbox"
+                    name="expertise"
+                    value={area}
+                    checked={draftExpertise.includes(area)}
+                    onChange={(event) =>
+                      directory.toggleExpertise(area, event.target.checked)
+                    }
+                  />
+                  <span>{area}</span>
+                </label>
+              ))
+            ) : (
+              <p className="directory-filter-empty">
+                No interest filters match.
+              </p>
+            )}
+          </fieldset>
+
+          <div className="directory-filter-actions">
+            {hasPendingFilterChanges && (
+              <p className="directory-filter-pending" role="status">
+                Your filter changes are ready to apply.
+              </p>
+            )}
+            <button className="directory-filter-submit" type="submit">
+              Apply filters
+            </button>
+            <button
+              className="directory-filter-clear"
+              type="reset"
+              onClick={directory.clearFilters}
+              disabled={!canClearFilters}
+            >
+              Clear
+            </button>
+          </div>
+        </div>
       </form>
 
       <DirectoryAppliedFilters

@@ -43,7 +43,9 @@ test('shows the mentor directory and mentor contact details', async ({
     'href',
     '/mentor/42',
   )
-  await expect(page.getByText('Finance')).toBeVisible()
+  await expect(
+    page.getByRole('region', { name: 'Mentor list' }).getByText('Finance'),
+  ).toBeVisible()
 })
 
 test('previews the directory structure while mentor profiles load', async ({
@@ -214,7 +216,6 @@ test('applies an expertise filter to the mentor request', async ({ page }) => {
     page.getByRole('heading', { name: 'Member directory' }),
   ).toBeVisible()
 
-  await page.getByRole('button', { name: /Filters/ }).click()
   await page.getByRole('checkbox', { name: 'Data Ethics', exact: true }).check()
 
   const filteredRequest = page.waitForRequest((request) => {
@@ -252,7 +253,6 @@ test('keeps the directory visible while filters are applied', async ({
   })
 
   await page.goto('/directory')
-  await page.getByRole('button', { name: /Filters/ }).click()
   await page.getByRole('checkbox', { name: 'Data Ethics', exact: true }).check()
 
   const filteredRequest = page.waitForRequest((request) =>
@@ -272,8 +272,6 @@ test('keeps the directory visible while filters are applied', async ({
 
 test('applies and clears a separate college filter', async ({ page }) => {
   await page.goto('/directory')
-  await page.getByRole('button', { name: /Filters/ }).click()
-
   const expertiseBox = await page.getByLabel('Search expertise').boundingBox()
   const collegeBox = await page
     .getByRole('combobox', { name: 'College', exact: true })
@@ -317,7 +315,6 @@ test('applies and clears a separate college filter', async ({ page }) => {
 
   await page.getByRole('button', { name: 'Clear all filters' }).click()
   await clearedRequest
-  await page.getByRole('button', { name: /Filters/ }).click()
   await expect(page.getByLabel('College', { exact: true })).toHaveValue('')
 })
 
@@ -420,7 +417,6 @@ test('keeps filtered no-results recovery concise', async ({ page }) => {
   })
 
   await page.goto('/directory')
-  await page.getByRole('button', { name: /Filters/ }).click()
   await chooseCollege(page, 'University of Illinois Chicago', 'Illinois')
   await page.getByRole('button', { name: 'Apply filters' }).click()
 
@@ -441,7 +437,6 @@ test('resets filters when switching views and keeps a clean URL', async ({
   })
   await page.goto('/directory')
 
-  await page.getByRole('button', { name: /Filters/ }).click()
   await page.getByRole('checkbox', { name: 'Data Ethics', exact: true }).check()
   await page.getByRole('button', { name: 'Apply filters' }).click()
 
