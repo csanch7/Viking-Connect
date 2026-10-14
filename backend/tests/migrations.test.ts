@@ -32,6 +32,7 @@ describe("database migrations", () => {
       "011_allow_community_members.sql",
       "012_add_deleted_user_column.sql",
       "013_import_college_scorecard_institutions.sql",
+      "014_add_member_match_actions.sql",
     ]);
   });
 
@@ -79,10 +80,7 @@ describe("database migrations", () => {
     assert.equal(sql.match(/^  \('/gm)?.length, 3_863);
     assert.match(sql, /\('Canada College'\)/);
     assert.match(sql, /\('Columbia College \(Sonora, CA\)'\)/);
-    assert.match(
-      sql,
-      /\('Western Technical College \(El Paso, TX 79924\)'\)/,
-    );
+    assert.match(sql, /\('Western Technical College \(El Paso, TX 79924\)'\)/);
     assert.match(sql, /ON CONFLICT \(name\) DO NOTHING/);
   });
 
@@ -177,5 +175,21 @@ describe("database migrations", () => {
     );
 
     assert.match(sql, /ADD deleted_on TIMESTAMPTZ/);
+  });
+
+  it("tracks private member recommendation actions", async () => {
+    const migrationSql = await fs.readFile(
+      path.join(migrationsDirectory, "014_add_member_match_actions.sql"),
+      "utf8",
+    );
+
+    assert.match(migrationSql, /CREATE TABLE member_match_actions/);
+    assert.match(
+      migrationSql,
+      /PRIMARY KEY \(actor_user_id, subject_user_id\)/,
+    );
+    assert.match(migrationSql, /action IN \('contacted', 'dismissed'\)/);
+    assert.match(migrationSql, /actor_user_id <> subject_user_id/);
+    assert.match(migrationSql, /member_match_actions_history_idx/);
   });
 });

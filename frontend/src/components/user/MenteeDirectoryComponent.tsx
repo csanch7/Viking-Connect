@@ -1,12 +1,23 @@
+import { Link } from 'react-router-dom'
 import type { Mentee } from '../../types/user'
 import UserDirectoryCard from './UserDirectoryCard'
 import { useMenteeDirectory } from '../../hooks/useMenteeDirectory'
 import DirectoryAppliedFilters from './DirectoryAppliedFilters'
 import DirectoryLoadingState from './DirectoryLoadingState'
 import CollegeSelector from '../CollegeSelector'
+import RecommendedMenteeCard from './RecommendedMenteeCard'
+import RecommendationLoadingState from './RecommendationLoadingState'
+import { useAuth } from '../../auth/useAuth'
+import RecommendationFeedback from './RecommendationFeedback'
+import { useRecommendationActions } from '../../hooks/useRecommendationActions'
 
 function MenteeDirectoryComponent() {
-  const directory = useMenteeDirectory()
+  const { mentee: isMentee, admin } = useAuth()
+  const isMentor = !isMentee && !admin
+  const directory = useMenteeDirectory(isMentor)
+  const recommendationActions = useRecommendationActions(
+    'menteeRecommendations',
+  )
   const {
     page,
     searchText,
@@ -16,6 +27,9 @@ function MenteeDirectoryComponent() {
     mentees,
     hasNextPage,
     error,
+    recommendations,
+    recommendationsLoading,
+    recommendationsError,
     topicsLoading,
     topicsError,
     visibleExpertiseOptions,
@@ -25,6 +39,7 @@ function MenteeDirectoryComponent() {
     hasActiveFilters,
     hasPendingFilterChanges,
   } = directory
+  const visibleRecommendations = recommendations.slice(0, 3)
 
   function handleFilter(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -37,6 +52,81 @@ function MenteeDirectoryComponent() {
 
   return (
     <>
+      {isMentor && (
+        <section
+          className="recommendations"
+          aria-labelledby="mentee-recommendations-title"
+        >
+          <div className="recommendations-header">
+            <div>
+              <h2 id="mentee-recommendations-title">Recommended for you</h2>
+              <p>
+                Mentees whose interests align with your experience and, when
+                available, your college connection.
+              </p>
+            </div>
+          </div>
+
+          <RecommendationFeedback
+            notice={recommendationActions.notice}
+            error={recommendationActions.error}
+            undoing={Boolean(recommendationActions.pendingMemberId)}
+            onUndo={() => void recommendationActions.undo()}
+          />
+
+          {recommendationsLoading ? (
+            <RecommendationLoadingState memberType="mentee" />
+          ) : recommendationsError ? (
+            <div className="recommendations-state" role="alert">
+              <div>
+                <strong>Recommendations are temporarily unavailable</strong>
+                <p>
+                  {recommendationsError} You can still browse every approved
+                  mentee below.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => void directory.retryRecommendations()}
+              >
+                Try recommendations again
+              </button>
+            </div>
+          ) : visibleRecommendations.length > 0 ? (
+            <div className="recommendations-grid">
+              {visibleRecommendations.map((recommendation) => (
+                <RecommendedMenteeCard
+                  key={recommendation.mentee.id}
+                  recommendation={recommendation}
+                  pending={
+                    recommendationActions.pendingMemberId ===
+                    recommendation.mentee.id
+                  }
+                  onAction={(memberId, memberName, action) =>
+                    void recommendationActions.setAction(
+                      memberId,
+                      memberName,
+                      action,
+                    )
+                  }
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="recommendations-state">
+              <div>
+                <strong>No new matches right now</strong>
+                <p>
+                  Check back as new members join or profiles change. You can
+                  review people you contacted or hid on your profile.
+                </p>
+              </div>
+              <Link to="/profile#contact-history">View match history</Link>
+            </div>
+          )}
+        </section>
+      )}
+
       <form className="directory-controls" onSubmit={handleFilter}>
         <div className="directory-filters-header">
           <div>

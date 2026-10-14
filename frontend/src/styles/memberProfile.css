@@ -64,6 +64,201 @@
   box-shadow: none;
 }
 
+.match-action-control {
+  display: grid;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--member-profile-border);
+}
+
+.match-action-control > div,
+.match-action-control-state.is-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.match-action-control p,
+.match-action-control-state {
+  margin: 0;
+  color: var(--member-profile-muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.match-action-control strong {
+  color: var(--member-profile-ink);
+}
+
+.match-action-control-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.match-action-control button,
+.match-action-control-state button,
+.match-history button {
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--member-profile-border-strong);
+  border-radius: 6px;
+  color: var(--member-profile-ink);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 720;
+  background: var(--member-profile-card);
+  cursor: pointer;
+}
+
+.match-action-control button:hover:not(:disabled),
+.match-action-control-state button:hover:not(:disabled),
+.match-history button:hover:not(:disabled) {
+  border-color: var(--member-profile-ink);
+  background: var(--member-profile-accent);
+}
+
+.match-action-control button:focus-visible,
+.match-action-control-state button:focus-visible,
+.match-history button:focus-visible,
+.match-history a:focus-visible {
+  outline: 3px solid rgba(255, 199, 44, 0.5);
+  outline-offset: 3px;
+}
+
+.match-action-control button:disabled,
+.match-history button:disabled {
+  cursor: wait;
+  opacity: 0.62;
+}
+
+.match-action-control-error,
+.match-action-control-state.is-error,
+.match-history-message.is-error,
+.match-history-state.is-error {
+  color: #8d3216;
+}
+
+.match-history {
+  scroll-margin-top: 88px;
+}
+
+.match-history-heading {
+  margin-bottom: 22px;
+}
+
+.match-history-heading h2,
+.match-history-group h3 {
+  margin: 0;
+  color: var(--member-profile-ink);
+  line-height: 1.25;
+}
+
+.match-history-heading h2 {
+  font-size: 20px;
+  font-weight: 780;
+}
+
+.match-history-heading p,
+.match-history-group-heading p {
+  margin: 6px 0 0;
+  color: var(--member-profile-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.match-history-group {
+  padding: 20px 0;
+  border-top: 1px solid var(--member-profile-border);
+}
+
+.match-history-group:last-child {
+  padding-bottom: 0;
+}
+
+.match-history-group h3 {
+  font-size: 15px;
+  font-weight: 760;
+}
+
+.match-history-message,
+.match-history-state {
+  margin: 14px 0 0;
+  padding: 11px 12px;
+  border-radius: 6px;
+  color: #3f350f;
+  font-size: 12px;
+  line-height: 1.45;
+  background: #fff7d9;
+}
+
+.match-history-state {
+  color: var(--member-profile-muted);
+  background: var(--member-profile-accent);
+}
+
+.match-history-state.is-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #fff2ec;
+}
+
+.match-history-list {
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.match-history-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-top: 1px solid #ece7de;
+}
+
+.match-history-list li:first-child {
+  border-top: 0;
+}
+
+.match-history-list a {
+  color: var(--member-profile-ink);
+  font-size: 14px;
+  font-weight: 760;
+  text-decoration-color: #dba800;
+  text-underline-offset: 3px;
+}
+
+.match-history-list p {
+  margin: 3px 0 0;
+  color: var(--member-profile-muted);
+  font-size: 11px;
+}
+
+.match-history-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--member-profile-border);
+  color: var(--member-profile-muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.match-history-pagination > div {
+  display: flex;
+  gap: 8px;
+}
+
 .member-profile-hero {
   position: relative;
   display: block;

@@ -8,10 +8,15 @@ import DirectoryAppliedFilters from './DirectoryAppliedFilters'
 import DirectoryLoadingState from './DirectoryLoadingState'
 import RecommendationLoadingState from './RecommendationLoadingState'
 import CollegeSelector from '../CollegeSelector'
+import RecommendationFeedback from './RecommendationFeedback'
+import { useRecommendationActions } from '../../hooks/useRecommendationActions'
 
 function MentorDirectoryComponent() {
   const { mentee: isMentee } = useAuth()
   const directory = useMentorDirectory(isMentee)
+  const recommendationActions = useRecommendationActions(
+    'mentorRecommendations',
+  )
   const {
     page,
     searchText,
@@ -60,8 +65,15 @@ function MentorDirectoryComponent() {
             </div>
           </div>
 
+          <RecommendationFeedback
+            notice={recommendationActions.notice}
+            error={recommendationActions.error}
+            undoing={Boolean(recommendationActions.pendingMemberId)}
+            onUndo={() => void recommendationActions.undo()}
+          />
+
           {recommendationsLoading ? (
-            <RecommendationLoadingState />
+            <RecommendationLoadingState memberType="mentor" />
           ) : recommendationsError ? (
             <div className="recommendations-state" role="alert">
               <div>
@@ -84,19 +96,30 @@ function MentorDirectoryComponent() {
                 <RecommendedMentorCard
                   key={recommendation.mentor.id}
                   recommendation={recommendation}
+                  pending={
+                    recommendationActions.pendingMemberId ===
+                    recommendation.mentor.id
+                  }
+                  onAction={(memberId, memberName, action) =>
+                    void recommendationActions.setAction(
+                      memberId,
+                      memberName,
+                      action,
+                    )
+                  }
                 />
               ))}
             </div>
           ) : (
             <div className="recommendations-state">
               <div>
-                <strong>No close matches yet</strong>
+                <strong>No new matches right now</strong>
                 <p>
-                  Add current interests or college information to your profile,
-                  or browse every approved mentor below.
+                  Check back as new members join or profiles change. You can
+                  review people you contacted or hid on your profile.
                 </p>
               </div>
-              <Link to="/profile">Review your profile</Link>
+              <Link to="/profile#contact-history">View match history</Link>
             </div>
           )}
         </section>

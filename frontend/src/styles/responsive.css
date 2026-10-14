@@ -20,6 +20,30 @@
 }
 
 @media (max-width: 760px) {
+  .recommendation-action-feedback,
+  .match-action-control > div,
+  .match-action-control-state.is-error,
+  .match-history-list li {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .recommendation-action-feedback button,
+  .match-action-control button,
+  .match-action-control-state button,
+  .match-history-list button {
+    width: 100%;
+  }
+
+  .match-history-list li > div {
+    width: 100%;
+    text-align: left;
+  }
+
+  .match-action-control-actions {
+    display: grid;
+    width: 100%;
+  }
   .home-hero {
     min-height: auto;
     padding: 0;
@@ -203,6 +227,10 @@
 
   .recommendations-grid {
     grid-template-columns: 1fr;
+  }
+
+  .recommendation-reason {
+    min-block-size: 0;
   }
 
   .recommendations-header,
@@ -486,5 +514,11 @@
   .register-actions {
     align-items: stretch;
     flex-direction: column-reverse;
+  }
+}
+
+@media (max-width: 520px) {
+  .recommendation-card-actions > div {
+    grid-template-columns: 1fr;
   }
 }

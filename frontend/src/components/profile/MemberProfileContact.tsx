@@ -1,11 +1,13 @@
 import type { PublicUser } from '../../../../shared/contracts'
 import MemberProfileCardHeading from './MemberProfileCardHeading'
+import MatchActionControl from './MatchActionControl'
 
 interface MemberProfileContactProps {
   user: Pick<PublicUser, 'email' | 'linkedin'>
+  tracking?: { memberId: string; memberName: string }
 }
 
-function MemberProfileContact({ user }: MemberProfileContactProps) {
+function MemberProfileContact({ user, tracking }: MemberProfileContactProps) {
   return (
     <section
       className="member-profile-card"
@@ -36,6 +38,12 @@ function MemberProfileContact({ user }: MemberProfileContactProps) {
           </dd>
         </div>
       </dl>
+      {tracking && (
+        <MatchActionControl
+          memberId={tracking.memberId}
+          memberName={tracking.memberName}
+        />
+      )}
     </section>
   )
 }

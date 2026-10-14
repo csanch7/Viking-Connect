@@ -8,8 +8,10 @@ import MemberProfileCardHeading from '../components/profile/MemberProfileCardHea
 import MemberProfileContact from '../components/profile/MemberProfileContact'
 import MemberProfileHero from '../components/profile/MemberProfileHero'
 import MemberProfileSummary from '../components/profile/MemberProfileSummary'
+import { useAuth } from '../auth/useAuth'
 
 function MenteePage() {
+  const { mentee: isMentee, admin } = useAuth()
   const [mentee, setMentee] = useState<PublicUser>()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -105,7 +107,14 @@ function MenteePage() {
             )}
           </section>
 
-          <MemberProfileContact user={mentee} />
+          <MemberProfileContact
+            user={mentee}
+            tracking={
+              !isMentee && !admin
+                ? { memberId: mentee.id, memberName: mentee.name }
+                : undefined
+            }
+          />
         </div>
 
         <MemberProfileSummary user={mentee} />

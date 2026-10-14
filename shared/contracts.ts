@@ -42,6 +42,40 @@ export interface MentorRecommendationsResponse {
   recommendations: MentorRecommendation[];
 }
 
+export interface MenteeRecommendation {
+  mentee: MenteeDirectoryUser;
+  recommendationScore: number;
+  coveragePercentage: number;
+  sharedTopicCount: number;
+  matchedTopics: string[];
+  sameCollege: boolean;
+}
+
+export interface MenteeRecommendationsResponse {
+  recommendations: MenteeRecommendation[];
+}
+
+export type MatchActionType = "contacted" | "dismissed";
+
+export interface MatchAction {
+  action: MatchActionType;
+  actedAt: string;
+}
+
+export interface MatchActionStatus {
+  action: MatchActionType | null;
+  actedAt: string | null;
+}
+
+export interface MatchActionEntry extends MatchAction {
+  member: MentorDirectoryUser | MenteeDirectoryUser;
+}
+
+export interface MatchActionListResponse {
+  entries: MatchActionEntry[];
+  hasNextPage: boolean;
+}
+
 export type PendingUser = Omit<PublicUser, "status">;
 
 export interface RegistrationRequest {
@@ -141,6 +175,12 @@ function readGradYear(record: Record<string, unknown>, key: string) {
   return (typeof value === "number" && Number.isFinite(value)) || value === null
     ? value
     : contractError(key);
+}
+
+function parseMatchActionType(value: unknown): MatchActionType {
+  return value === "contacted" || value === "dismissed"
+    ? value
+    : contractError("action");
 }
 
 function parseUserType(value: unknown): UserType {
@@ -326,12 +366,82 @@ export function parseMentorRecommendationsResponse(
   };
 }
 
+export function parseMenteeRecommendationsResponse(
+  value: unknown,
+): MenteeRecommendationsResponse {
+  if (!isRecord(value) || !Array.isArray(value.recommendations)) {
+    return contractError("mentee recommendations");
+  }
+
+  return {
+    recommendations: value.recommendations.map((recommendation) => {
+      if (
+        !isRecord(recommendation) ||
+        typeof recommendation.sameCollege !== "boolean"
+      ) {
+        return contractError("mentee recommendation");
+      }
+
+      return {
+        mentee: parseMentee(recommendation.mentee),
+        recommendationScore: readNumber(recommendation, "recommendationScore"),
+        coveragePercentage: readNumber(recommendation, "coveragePercentage"),
+        sharedTopicCount: readNumber(recommendation, "sharedTopicCount"),
+        matchedTopics: readStringArray(recommendation, "matchedTopics"),
+        sameCollege: recommendation.sameCollege,
+      };
+    }),
+  };
+}
+
 export function parseMenteeList(value: unknown) {
   if (!Array.isArray(value)) {
     return contractError("mentee list");
   }
 
   return value.map(parseMentee);
+}
+
+export function parseMatchActionStatus(value: unknown): MatchActionStatus {
+  if (!isRecord(value)) {
+    return contractError("match action");
+  }
+
+  if (value.action === null && value.actedAt === null) {
+    return { action: null, actedAt: null };
+  }
+
+  return {
+    action: parseMatchActionType(value.action),
+    actedAt: readString(value, "actedAt"),
+  };
+}
+
+export function parseMatchActionListResponse(
+  value: unknown,
+): MatchActionListResponse {
+  if (
+    !isRecord(value) ||
+    !Array.isArray(value.entries) ||
+    typeof value.hasNextPage !== "boolean"
+  ) {
+    return contractError("match action list");
+  }
+
+  return {
+    entries: value.entries.map((entry) => {
+      if (!isRecord(entry)) {
+        return contractError("match action entry");
+      }
+
+      return {
+        member: parseMentor(entry.member),
+        action: parseMatchActionType(entry.action),
+        actedAt: readString(entry, "actedAt"),
+      };
+    }),
+    hasNextPage: value.hasNextPage,
+  };
 }
 
 export function parsePendingUsersEnvelope(value: unknown) {

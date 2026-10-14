@@ -28,6 +28,9 @@ test.beforeEach(async ({ page }) => {
   await page.route('**/api/auth/me', async (route) => {
     await fulfillJson(route, { user: mentee })
   })
+  await page.route('**/api/match-actions?*', async (route) => {
+    await fulfillJson(route, { entries: [], hasNextPage: false })
+  })
 })
 
 test('shows the signed-in member profile', async ({ page }) => {
@@ -47,6 +50,48 @@ test('shows the signed-in member profile', async ({ page }) => {
   await expect(page.getByText('2027')).toBeVisible()
   await expect(page.getByRole('button', { name: 'Edit profile' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Edit bio' })).toBeHidden()
+  await expect(
+    page.getByRole('heading', { name: 'Your match history' }),
+  ).toBeVisible()
+  await expect(
+    page.getByText('People you contact will appear here.'),
+  ).toBeVisible()
+})
+
+test('shows and restores private match history', async ({ page }) => {
+  await page.route('**/api/match-actions?*', async (route) => {
+    const action = new URL(route.request().url()).searchParams.get('action')
+    await fulfillJson(route, {
+      entries: [
+        {
+          member: {
+            id: '42',
+            name: 'Alex Mentor',
+            email: 'alex@example.com',
+            linkedin: 'https://www.linkedin.com/in/alex-mentor',
+            type: 'mentor',
+            areasOfExpertise: ['Finance'],
+            gradYear: 2012,
+          },
+          action,
+          actedAt: '2026-10-13T12:00:00.000Z',
+        },
+      ],
+      hasNextPage: false,
+    })
+  })
+  await page.route('**/api/match-actions/42', async (route) => {
+    await route.fulfill({ status: 204 })
+  })
+
+  await page.goto('/profile#contact-history')
+
+  await expect(page.getByText('Contacted Oct 13, 2026')).toBeVisible()
+  await expect(page.getByText('Hidden Oct 13, 2026')).toBeVisible()
+  await page.getByRole('button', { name: 'Restore' }).click()
+  await expect(
+    page.getByText('Alex Mentor can appear in your recommendations again.'),
+  ).toBeVisible()
 })
 
 test('edits and saves the complete profile from one action', async ({

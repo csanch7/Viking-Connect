@@ -253,6 +253,16 @@ The home hero is the public surface's clearest brand-scale moment: a near-black 
 
 Directory entries prioritize horizontal scanning: identity first, mentorship details second, and contact actions last. Hover uses a quiet paper wash plus a thin gold inset accent rather than a dramatic lift. On mobile, the row becomes a vertical card without hiding member context.
 
+### Reversible Match Actions
+
+Recommendation cards lead with a concise, directional explanation of relevance: mentor expertise matches a mentee's interests, while mentee interests match a mentor's experience. Shared-college context may strengthen that explanation, but college-only matches must not imply shared topics. Supporting chips name the matching expertise or interests without exposing an abstract recommendation score.
+
+The ink-filled `View profile and contact` control is the primary path because members review contact details before beginning a conversation outside the product. Private tracking stays subordinate: `Mark as contacted` and `Not a fit` use bordered secondary controls. All actions retain the 44px interaction floor; the tracking pair stacks into one column on compact cards while the heading and college badge wrap without clipping. Removing a recommendation must produce immediate inline status or alert feedback, move keyboard focus to that feedback, and offer `Undo` when the action can be safely reversed.
+
+The member profile carries the same private state and recovery language. Personal match history uses divided, text-forward lists with dates and explicit `Remove from history` or `Restore` controls; rows collapse vertically on mobile without hiding identity or state. Privacy is stated in plain language rather than implied by color or iconography.
+
+**The Reversible Triage Rule.** Lightweight preference and tracking actions stay private, explain their result immediately, and provide an obvious route back through Undo, restore, or removal.
+
 ### Profile Hero
 
 Profile heroes combine a gold-tinted patterned cover, an overlapping squared avatar, a strong member name, and compact actions. The cover provides institutional identity while the content remains operational and readable.

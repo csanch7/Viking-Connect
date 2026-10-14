@@ -1,14 +1,19 @@
 import { Router } from "express";
 import { asyncHandler } from "../middleware/asyncHandler";
 import { requireAuth } from "../middleware/auth";
-import { getMentorRecommendations } from "../repositories/recommendationRepository";
+import {
+  getMenteeRecommendations,
+  getMentorRecommendations,
+} from "../repositories/recommendationRepository";
 
 export interface RecommendationRouterDependencies {
   getMentorRecommendations: typeof getMentorRecommendations;
+  getMenteeRecommendations: typeof getMenteeRecommendations;
 }
 
 const defaultDependencies: RecommendationRouterDependencies = {
   getMentorRecommendations,
+  getMenteeRecommendations,
 };
 
 export function createRecommendationRouter(
@@ -28,6 +33,25 @@ export function createRecommendationRouter(
       }
 
       const recommendations = await dependencies.getMentorRecommendations(
+        req.session.userId!,
+      );
+
+      res.json({ recommendations });
+    }),
+  );
+
+  router.get(
+    "/recommendations/mentees",
+    requireAuth,
+    asyncHandler(async (req, res) => {
+      if (req.session.type !== "mentor") {
+        res.status(403).json({
+          message: "Mentee recommendations are available to mentors",
+        });
+        return;
+      }
+
+      const recommendations = await dependencies.getMenteeRecommendations(
         req.session.userId!,
       );
 

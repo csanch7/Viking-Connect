@@ -1,12 +1,24 @@
 import { Link } from 'react-router-dom'
 import type { MentorRecommendation } from '../../../../shared/contracts'
 import ExpertiseChips from '../expertise/ExpertiseChips'
+import type { MatchActionType } from '../../../../shared/contracts'
+import { getMentorRecommendationReason } from '../../utils/recommendationCopy'
 
 interface RecommendedMentorCardProps {
   recommendation: MentorRecommendation
+  pending: boolean
+  onAction: (
+    memberId: string,
+    memberName: string,
+    action: MatchActionType,
+  ) => void
 }
 
-function RecommendedMentorCard({ recommendation }: RecommendedMentorCardProps) {
+function RecommendedMentorCard({
+  recommendation,
+  pending,
+  onAction,
+}: RecommendedMentorCardProps) {
   const { mentor, sharedTopicCount, matchedTopics, sameCollege } =
     recommendation
   const hasSharedTopics = sharedTopicCount > 0 && matchedTopics.length > 0
@@ -14,17 +26,12 @@ function RecommendedMentorCard({ recommendation }: RecommendedMentorCardProps) {
     ? matchedTopics
     : mentor.areasOfExpertise
   const evidenceLabel = hasSharedTopics
-    ? 'Interests you share'
+    ? 'Expertise matching your interests'
     : 'Mentor expertise / industries'
-  const primaryTopic = matchedTopics[0]
-  const connectionReason =
-    sameCollege && hasSharedTopics
-      ? `A fellow St. Laurence alum who also knows ${primaryTopic}.`
-      : sameCollege
-        ? 'A shared college connection gives you a natural place to start.'
-        : hasSharedTopics
-          ? `You both share an interest in ${primaryTopic}.`
-          : 'Their experience may complement your mentorship goals.'
+  const connectionReason = getMentorRecommendationReason(
+    matchedTopics,
+    sameCollege,
+  )
 
   return (
     <article className="recommendation-card">
@@ -67,9 +74,30 @@ function RecommendedMentorCard({ recommendation }: RecommendedMentorCardProps) {
         )}
       </div>
 
-      <Link className="recommendation-profile-link" to={`/mentor/${mentor.id}`}>
-        View profile and contact
-      </Link>
+      <div className="recommendation-card-actions">
+        <Link
+          className="recommendation-profile-link"
+          to={`/mentor/${mentor.id}`}
+        >
+          View profile and contact
+        </Link>
+        <div>
+          <button
+            type="button"
+            disabled={pending}
+            onClick={() => onAction(mentor.id, mentor.name, 'contacted')}
+          >
+            {pending ? 'Saving...' : 'Mark as contacted'}
+          </button>
+          <button
+            type="button"
+            disabled={pending}
+            onClick={() => onAction(mentor.id, mentor.name, 'dismissed')}
+          >
+            Not a fit
+          </button>
+        </div>
+      </div>
     </article>
   )
 }

@@ -17,6 +17,27 @@ const mentors = [
     areasOfExpertise: ['Finance', 'Career Planning'],
     gradYear: 2012,
   },
+  {
+    id: '43',
+    name: 'Blake Mentor',
+    email: 'blake@example.com',
+    linkedin: 'https://www.linkedin.com/in/blake-mentor',
+    type: 'mentor',
+    areasOfExpertise: ['Career Planning'],
+    gradYear: 2015,
+  },
+]
+
+const mentees = [
+  {
+    id: '77',
+    name: 'Jordan Mentee',
+    email: 'jordan@example.com',
+    linkedin: 'https://www.linkedin.com/in/jordan-mentee',
+    type: 'mentee',
+    areasOfExpertise: ['Career Planning'],
+    gradYear: 2027,
+  },
 ]
 
 test.beforeEach(async ({ page }) => {
@@ -25,6 +46,9 @@ test.beforeEach(async ({ page }) => {
   await mockColleges(page)
   await page.route('**/api/mentors/**', async (route) => {
     await fulfillJson(route, mentors)
+  })
+  await page.route('**/api/recommendations/mentees', async (route) => {
+    await fulfillJson(route, { recommendations: [] })
   })
 })
 
@@ -100,8 +124,11 @@ test('shows personalized recommendations to mentees', async ({ page }) => {
   ).toBeVisible()
   await expect(
     page.getByText(
-      'A fellow St. Laurence alum who also knows Career Planning.',
+      'You share a college connection, and their experience in Career Planning and Finance aligns with your interests.',
     ),
+  ).toBeVisible()
+  await expect(
+    page.getByText('Expertise matching your interests'),
   ).toBeVisible()
   await expect(
     page.getByLabel('Why this match').getByText('Career Planning'),
@@ -143,9 +170,7 @@ test('describes a same-college-only recommendation accurately', async ({
   await page.goto('/directory')
 
   await expect(
-    page.getByText(
-      'A shared college connection gives you a natural place to start.',
-    ),
+    page.getByText('You share a college connection—a natural place to start.'),
   ).toBeVisible()
   await expect(page.getByText('Mentor expertise / industries')).toBeVisible()
   await expect(page.getByText('Technology')).toBeVisible()
@@ -178,7 +203,7 @@ test('shows a recommendation skeleton while personalized matches load', async ({
   ).toHaveCount(3)
 
   releaseRecommendations?.()
-  await expect(page.getByText('No close matches yet')).toBeVisible()
+  await expect(page.getByText('No new matches right now')).toBeVisible()
 })
 
 test('recovers when personalized recommendations fail to load', async ({
@@ -204,10 +229,151 @@ test('recovers when personalized recommendations fail to load', async ({
   ).toBeVisible()
   await page.getByRole('button', { name: 'Try recommendations again' }).click()
 
-  await expect(page.getByText('No close matches yet')).toBeVisible()
+  await expect(page.getByText('No new matches right now')).toBeVisible()
   await expect(
-    page.getByRole('link', { name: 'Review your profile' }),
-  ).toHaveAttribute('href', '/profile')
+    page.getByRole('link', { name: 'View match history' }),
+  ).toHaveAttribute('href', '/profile#contact-history')
+})
+
+test('rotates recommendations after contact and supports undo', async ({
+  page,
+}) => {
+  await page.unroute('**/api/auth/session')
+  await mockAuthenticatedSession(page, false, true)
+  let recommendationRequest = 0
+  let deleted = false
+
+  await page.route('**/api/recommendations/mentors', async (route) => {
+    recommendationRequest += 1
+    const mentor =
+      recommendationRequest === 1 || deleted ? mentors[0] : mentors[1]
+    await fulfillJson(route, {
+      recommendations: [
+        {
+          mentor,
+          recommendationScore: 70,
+          coveragePercentage: 100,
+          sharedTopicCount: 1,
+          matchedTopics: ['Career Planning'],
+          sameCollege: false,
+        },
+      ],
+    })
+  })
+  await page.route('**/api/match-actions/42', async (route) => {
+    if (route.request().method() === 'DELETE') {
+      deleted = true
+      await route.fulfill({ status: 204 })
+      return
+    }
+    await fulfillJson(route, {
+      action: 'contacted',
+      actedAt: '2026-10-13T12:00:00.000Z',
+    })
+  })
+
+  await page.goto('/directory')
+  await page.getByRole('button', { name: 'Mark as contacted' }).click()
+
+  await expect(
+    page
+      .getByLabel('Recommended for you')
+      .getByRole('heading', { name: 'Blake Mentor' }),
+  ).toBeVisible()
+  await expect(
+    page.getByText('Alex Mentor was added to your contact history.'),
+  ).toBeVisible()
+  await expect(page.getByRole('status')).toBeFocused()
+  await page.getByRole('button', { name: 'Undo' }).click()
+  await expect(
+    page
+      .getByLabel('Recommended for you')
+      .getByRole('heading', { name: 'Alex Mentor' }),
+  ).toBeVisible()
+  await expect(
+    page.getByText('Alex Mentor returned to your recommendations.'),
+  ).toBeVisible()
+  await expect(page.getByRole('status')).toBeFocused()
+  await expect(page.getByRole('button', { name: 'Undo' })).toHaveCount(0)
+})
+
+test('hides a recommendation marked as not a fit', async ({ page }) => {
+  await page.unroute('**/api/auth/session')
+  await mockAuthenticatedSession(page, false, true)
+  let recommendationRequest = 0
+
+  await page.route('**/api/recommendations/mentors', async (route) => {
+    recommendationRequest += 1
+    await fulfillJson(route, {
+      recommendations:
+        recommendationRequest === 1
+          ? [
+              {
+                mentor: mentors[0],
+                recommendationScore: 70,
+                coveragePercentage: 100,
+                sharedTopicCount: 1,
+                matchedTopics: ['Career Planning'],
+                sameCollege: false,
+              },
+            ]
+          : [],
+    })
+  })
+  await page.route('**/api/match-actions/42', async (route) => {
+    await fulfillJson(route, {
+      action: 'dismissed',
+      actedAt: '2026-10-13T12:00:00.000Z',
+    })
+  })
+
+  await page.goto('/directory')
+  await page.getByRole('button', { name: 'Not a fit' }).click()
+
+  await expect(
+    page.getByText('Alex Mentor was hidden from your recommendations.'),
+  ).toBeVisible()
+  await expect(page.getByText('No new matches right now')).toBeVisible()
+})
+
+test('shows personalized mentee recommendations to mentors', async ({
+  page,
+}) => {
+  await page.route('**/api/mentees/**', async (route) => {
+    await fulfillJson(route, mentees)
+  })
+  await page.route('**/api/recommendations/mentees', async (route) => {
+    await fulfillJson(route, {
+      recommendations: [
+        {
+          mentee: mentees[0],
+          recommendationScore: 80,
+          coveragePercentage: 100,
+          sharedTopicCount: 1,
+          matchedTopics: ['Career Planning'],
+          sameCollege: true,
+        },
+      ],
+    })
+  })
+
+  await page.goto('/directory', { waitUntil: 'networkidle' })
+  await page.getByRole('button', { name: 'Mentees', exact: true }).click()
+
+  await expect(
+    page.getByRole('heading', { name: 'Recommended for you' }),
+  ).toBeVisible()
+  await expect(
+    page.getByText(
+      'You share a college connection, and their interest in Career Planning matches your experience.',
+    ),
+  ).toBeVisible()
+  await expect(
+    page.getByText('Interests matching your experience'),
+  ).toBeVisible()
+  await expect(
+    page.getByRole('link', { name: 'View profile and contact' }),
+  ).toHaveAttribute('href', '/mentee/77')
 })
 
 test('applies an expertise filter to the mentor request', async ({ page }) => {

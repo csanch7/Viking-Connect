@@ -22,6 +22,8 @@ import { createCollegeRouter } from "./collegeRoutes";
 import type { CollegeRouterDependencies } from "./collegeRoutes";
 import { createRecommendationRouter } from "./recommendationRoutes";
 import type { RecommendationRouterDependencies } from "./recommendationRoutes";
+import { createMatchActionRouter } from "./matchActionRoutes";
+import type { MatchActionRouterDependencies } from "./matchActionRoutes";
 
 export interface ApiRouterOptions {
   adminDependencies?: AdminRouterDependencies;
@@ -33,6 +35,7 @@ export interface ApiRouterOptions {
   topicDependencies?: TopicRouterDependencies;
   collegeDependencies?: CollegeRouterDependencies;
   recommendationDependencies?: RecommendationRouterDependencies;
+  matchActionDependencies?: MatchActionRouterDependencies;
   contactDependencies?: ContactRouterDependencies;
   readinessCheck?: () => Promise<void>;
   passwordResetDependencies?: PasswordResetRouterDependencies;
@@ -78,6 +81,7 @@ export function createApiRouter(
   router.use("/admin", createAdminRouter(options.adminDependencies));
   router.use(createMentorRouter(options.mentorDependencies));
   router.use(createRecommendationRouter(options.recommendationDependencies));
+  router.use(createMatchActionRouter(options.matchActionDependencies));
   router.use(createProfileRouter(options.profileDependencies));
   router.use(createMenteeRouter(options.menteeDependencies));
   router.use(createCollegeRouter(options.collegeDependencies));

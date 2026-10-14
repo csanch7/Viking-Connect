@@ -3,12 +3,16 @@ import {
   parseMenteeList,
   parseMentorList,
   parseMentorRecommendationsResponse,
+  parseMenteeRecommendationsResponse,
+  parseMatchActionListResponse,
+  parseMatchActionStatus,
   parseMessageResponse,
   parsePublicUser,
   parseSessionResponse,
   parseUserEnvelope,
 } from '../../../shared/contracts'
 import type { UserType } from '../../../shared/contracts'
+import type { MatchActionType } from '../../../shared/contracts'
 
 function readStringField(value: unknown, field: string) {
   if (typeof value !== 'object' || value === null || !(field in value)) {
@@ -106,6 +110,30 @@ const userService = {
     const endpoint = `${backend}/recommendations/mentors`
     const response = await axios.get(endpoint)
     return parseMentorRecommendationsResponse(response.data).recommendations
+  },
+  async getMenteeRecommendations() {
+    const endpoint = `${backend}/recommendations/mentees`
+    const response = await axios.get(endpoint)
+    return parseMenteeRecommendationsResponse(response.data).recommendations
+  },
+  async getMatchActions(action: MatchActionType, page = 0) {
+    const endpoint = `${backend}/match-actions`
+    const response = await axios.get(endpoint, { params: { action, page } })
+    return parseMatchActionListResponse(response.data)
+  },
+  async getMatchAction(memberId: string) {
+    const endpoint = `${backend}/match-actions/${memberId}`
+    const response = await axios.get(endpoint)
+    return parseMatchActionStatus(response.data)
+  },
+  async setMatchAction(memberId: string, action: MatchActionType) {
+    const endpoint = `${backend}/match-actions/${memberId}`
+    const response = await axios.put(endpoint, { action })
+    return parseMatchActionStatus(response.data)
+  },
+  async deleteMatchAction(memberId: string) {
+    const endpoint = `${backend}/match-actions/${memberId}`
+    await axios.delete(endpoint)
   },
   async getMentees(
     paginator: number,

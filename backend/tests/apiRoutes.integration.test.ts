@@ -57,6 +57,21 @@ const mentee = {
   areasOfExpertise: ["Career Planning"],
 };
 
+const menteeRecommendation = {
+  mentee,
+  recommendationScore: 80,
+  coveragePercentage: 100,
+  sharedTopicCount: 1,
+  matchedTopics: ["Career Planning"],
+  sameCollege: true,
+};
+
+const matchActionEntry = {
+  member: mentor,
+  action: "contacted" as const,
+  actedAt: "2026-10-13T12:00:00.000Z",
+};
+
 let receivedMentorQuery:
   | {
       page: number;
@@ -212,6 +227,19 @@ function buildApiApp(
       },
       recommendationDependencies: {
         getMentorRecommendations: async () => [mentorRecommendation],
+        getMenteeRecommendations: async () => [menteeRecommendation],
+      },
+      matchActionDependencies: {
+        getMatchActions: async () => [matchActionEntry],
+        getMatchAction: async () => ({
+          action: "contacted",
+          actedAt: matchActionEntry.actedAt,
+        }),
+        setMatchAction: async (_actorId, _actorType, _memberId, action) => ({
+          action,
+          actedAt: matchActionEntry.actedAt,
+        }),
+        deleteMatchAction: async () => undefined,
       },
       menteeDependencies: {
         getMenteesByPagination: async (
@@ -593,6 +621,68 @@ describe("API routes", () => {
     assert.deepEqual(response.body, {
       message: "Mentor recommendations are available to mentees",
     });
+  });
+
+  it("returns personalized mentee recommendations to mentors", async () => {
+    const app = buildApiApp("user", async () => undefined, "mentor");
+    const agent = await login(app);
+
+    const response = await agent.get("/api/recommendations/mentees");
+
+    assert.equal(response.status, 200);
+    assert.deepEqual(response.body, {
+      recommendations: [menteeRecommendation],
+    });
+  });
+
+  it("does not expose mentor-facing recommendations to mentees", async () => {
+    const agent = await login(buildApiApp());
+
+    const response = await agent.get("/api/recommendations/mentees");
+
+    assert.equal(response.status, 403);
+    assert.deepEqual(response.body, {
+      message: "Mentee recommendations are available to mentors",
+    });
+  });
+
+  it("stores and returns private match actions", async () => {
+    const agent = await login(buildApiApp());
+
+    const list = await agent.get("/api/match-actions?action=contacted&page=0");
+    assert.equal(list.status, 200);
+    assert.deepEqual(list.body, {
+      entries: [matchActionEntry],
+      hasNextPage: false,
+    });
+
+    const status = await agent.get("/api/match-actions/42");
+    assert.equal(status.status, 200);
+    assert.equal(status.body.action, "contacted");
+
+    const saved = await agent
+      .put("/api/match-actions/42")
+      .send({ action: "dismissed" });
+    assert.equal(saved.status, 200);
+    assert.equal(saved.body.action, "dismissed");
+
+    const removed = await agent.delete("/api/match-actions/42");
+    assert.equal(removed.status, 204);
+  });
+
+  it("validates match action requests", async () => {
+    const agent = await login(buildApiApp());
+
+    assert.equal(
+      (await agent.get("/api/match-actions?action=unknown")).status,
+      400,
+    );
+    assert.equal(
+      (await agent.put("/api/match-actions/42").send({ action: "connected" }))
+        .status,
+      400,
+    );
+    assert.equal((await agent.get("/api/match-actions/not-an-id")).status, 400);
   });
 
   it("returns mentee search results and profiles to mentees", async () => {

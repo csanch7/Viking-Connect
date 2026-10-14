@@ -13,6 +13,7 @@ import MemberProfileHero from '../components/profile/MemberProfileHero'
 import MemberProfileSummary from '../components/profile/MemberProfileSummary'
 import CollegeSelector from '../components/CollegeSelector'
 import ConfirmationDialog from '../components/ConfirmationDialog'
+import MatchActionHistory from '../components/profile/MatchActionHistory'
 
 function ProfilePage() {
   const [user, setUser] = useState<PublicUser | null>(null)
@@ -455,6 +456,7 @@ function ProfilePage() {
             </section>
 
             <MemberProfileContact user={user} />
+            <MatchActionHistory />
           </div>
 
           <MemberProfileSummary user={user} />

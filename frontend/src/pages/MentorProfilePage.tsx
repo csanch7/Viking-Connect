@@ -8,8 +8,10 @@ import MemberProfileCardHeading from '../components/profile/MemberProfileCardHea
 import MemberProfileContact from '../components/profile/MemberProfileContact'
 import MemberProfileHero from '../components/profile/MemberProfileHero'
 import MemberProfileSummary from '../components/profile/MemberProfileSummary'
+import { useAuth } from '../auth/useAuth'
 
 function MentorPage() {
+  const { mentee: isMentee, admin } = useAuth()
   const [mentor, setMentor] = useState<PublicUser>()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -97,7 +99,14 @@ function MentorPage() {
             )}
           </section>
 
-          <MemberProfileContact user={mentor} />
+          <MemberProfileContact
+            user={mentor}
+            tracking={
+              isMentee && !admin
+                ? { memberId: mentor.id, memberName: mentor.name }
+                : undefined
+            }
+          />
         </div>
 
         <MemberProfileSummary user={mentor} />

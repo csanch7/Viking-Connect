@@ -1,15 +1,19 @@
 const recommendationSkeletons = [0, 1, 2]
 
-function RecommendationLoadingState() {
+function RecommendationLoadingState({
+  memberType,
+}: {
+  memberType: 'mentor' | 'mentee'
+}) {
   return (
     <div
       className="recommendations-loading"
       role="status"
       aria-live="polite"
       aria-busy="true"
-      aria-label="Loading mentor recommendations"
+      aria-label={`Loading ${memberType} recommendations`}
     >
-      <p className="sr-only">Finding your top mentor matches.</p>
+      <p className="sr-only">Finding your top {memberType} matches.</p>
       <div className="recommendations-grid" aria-hidden="true">
         {recommendationSkeletons.map((skeleton) => (
           <div

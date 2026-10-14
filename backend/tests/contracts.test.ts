@@ -3,6 +3,9 @@ import { describe, it } from "node:test";
 import {
   parseMentorList,
   parseMentorRecommendationsResponse,
+  parseMenteeRecommendationsResponse,
+  parseMatchActionListResponse,
+  parseMatchActionStatus,
   parsePublicUser,
   parseSessionResponse,
   parseActiveTopicsEnvelope,
@@ -97,6 +100,64 @@ describe("shared API contracts", () => {
         sameCollege: true,
       },
     );
+    assert.deepEqual(
+      parseMenteeRecommendationsResponse({
+        recommendations: [
+          {
+            mentee: {
+              id: "77",
+              name: "Jordan Mentee",
+              email: "jordan@example.com",
+              linkedin: "https://www.linkedin.com/in/jordan-mentee",
+              type: "mentee",
+              areasOfExpertise: ["Career Planning"],
+              gradYear: 2027,
+            },
+            recommendationScore: 80,
+            coveragePercentage: 100,
+            sharedTopicCount: 1,
+            matchedTopics: ["Career Planning"],
+            sameCollege: true,
+          },
+        ],
+      }).recommendations[0].mentee.name,
+      "Jordan Mentee",
+    );
+    assert.deepEqual(
+      parseMatchActionStatus({
+        action: "contacted",
+        actedAt: "2026-10-13T12:00:00.000Z",
+      }),
+      {
+        action: "contacted",
+        actedAt: "2026-10-13T12:00:00.000Z",
+      },
+    );
+    assert.deepEqual(parseMatchActionStatus({ action: null, actedAt: null }), {
+      action: null,
+      actedAt: null,
+    });
+    assert.equal(
+      parseMatchActionListResponse({
+        entries: [
+          {
+            member: {
+              id: "77",
+              name: "Jordan Mentee",
+              email: "jordan@example.com",
+              linkedin: "https://www.linkedin.com/in/jordan-mentee",
+              type: "mentee",
+              areasOfExpertise: ["Career Planning"],
+              gradYear: 2027,
+            },
+            action: "dismissed",
+            actedAt: "2026-10-13T12:00:00.000Z",
+          },
+        ],
+        hasNextPage: false,
+      }).entries[0].action,
+      "dismissed",
+    );
   });
 
   it("rejects contract drift at runtime", () => {
@@ -121,6 +182,13 @@ describe("shared API contracts", () => {
     assert.throws(
       () =>
         parseMentorRecommendationsResponse({
+          recommendations: [{ recommendationScore: "high" }],
+        }),
+      /Invalid API response/,
+    );
+    assert.throws(
+      () =>
+        parseMenteeRecommendationsResponse({
           recommendations: [{ recommendationScore: "high" }],
         }),
       /Invalid API response/,
