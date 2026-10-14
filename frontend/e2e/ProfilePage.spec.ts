@@ -144,9 +144,37 @@ test('edits and saves the complete profile from one action', async ({
   ).toBeVisible()
   await expect(
     page.getByText(
-      'Your profile is updated. You are now participating as a mentor.',
+      'Your profile has been updated. You are now participating as a mentor.',
     ),
   ).toBeVisible()
+})
+
+test('does not announce a role change when the role stays the same', async ({
+  page,
+}) => {
+  await page.route('**/api/profile/7', async (route) => {
+    await fulfillJson(route, {
+      message: 'Profile has been successfully updated',
+      type: 'mentee',
+      bio: 'I am looking for guidance as I prepare for technology roles.',
+      college: null,
+      areasOfExpertise: ['Career Planning'],
+    })
+  })
+  await page.goto('/profile')
+
+  await page.getByRole('button', { name: 'Edit profile' }).click()
+  await page
+    .getByLabel('About you')
+    .fill('I am looking for guidance as I prepare for technology roles.')
+  await page.getByLabel('Add an interest').selectOption('Career Planning')
+  await page.getByRole('button', { name: 'Add' }).click()
+  await page.getByRole('button', { name: 'Save changes' }).click()
+
+  await expect(
+    page.getByText('Your profile has been updated.', { exact: true }),
+  ).toBeVisible()
+  await expect(page.getByText(/now participating as/i)).toHaveCount(0)
 })
 
 test('warns before discarding unsaved profile changes', async ({ page }) => {

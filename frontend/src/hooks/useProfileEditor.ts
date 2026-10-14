@@ -174,6 +174,7 @@ export function useProfileEditor(
         { type, bio, college, areasOfExpertise },
         user.id,
       )
+      const typeChanged = response.type !== user.type
       setUser({
         ...user,
         type: response.type,
@@ -185,7 +186,9 @@ export function useProfileEditor(
       setEditor(closedEditor)
       setSaveError('')
       setSaveSuccess(
-        `Your profile is updated. You are now participating as a ${response.type}.`,
+        typeChanged
+          ? `Your profile has been updated. You are now participating as a ${response.type}.`
+          : 'Your profile has been updated.',
       )
     } catch (error) {
       setSaveError(getSaveError(error))
