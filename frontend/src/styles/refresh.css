@@ -619,10 +619,6 @@
   line-height: 1.55;
 }
 
-.profile-help-summary {
-  max-width: 58ch;
-}
-
 .profile-edit-help-button {
   flex: 0 0 auto;
   margin-top: 2px;

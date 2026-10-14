@@ -103,11 +103,9 @@ function ProfilePage() {
     }
 
     return (
-      <div className="profile-help-summary">
-        <p className="member-profile-body">
-          {user.bio || 'You have not added a bio yet.'}
-        </p>
-      </div>
+      <p className="member-profile-body">
+        {user.bio || 'You have not added a bio yet.'}
+      </p>
     )
   }
 
