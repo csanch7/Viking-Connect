@@ -7,6 +7,9 @@ interface UserDirectoryCardProps {
 }
 
 function UserDirectoryCard({ user }: UserDirectoryCardProps) {
+  const profilePath =
+    user.type === 'mentor' ? `/mentor/${user.id}` : `/mentee/${user.id}`
+
   return (
     <article className="directory-card">
       <div className="directory-card-header">
@@ -15,11 +18,9 @@ function UserDirectoryCard({ user }: UserDirectoryCardProps) {
         </div>
         <div className="directory-card-heading">
           <h3>
-            {user.type === 'mentor' ? (
-              <Link to={`/mentor/${user.id}`}>{user.name}</Link>
-            ) : (
-              <Link to={`/mentee/${user.id}`}>{user.name}</Link>
-            )}
+            <Link className="directory-profile-link" to={profilePath}>
+              {user.name}
+            </Link>
           </h3>
           {user.gradYear ? (
             <p>St. Laurence class of {user.gradYear}</p>
@@ -60,7 +61,12 @@ function UserDirectoryCard({ user }: UserDirectoryCardProps) {
           <dt>Connect</dt>
           <dd>
             <span className="directory-contact-links">
-              <a href={user.linkedin} target="_blank" rel="noreferrer">
+              <a
+                className="directory-external-link"
+                href={user.linkedin}
+                target="_blank"
+                rel="noreferrer"
+              >
                 LinkedIn <span aria-hidden="true">↗</span>
               </a>
             </span>

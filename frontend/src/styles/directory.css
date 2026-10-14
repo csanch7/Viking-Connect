@@ -838,6 +838,8 @@
 }
 
 .directory-card {
+  position: relative;
+  isolation: isolate;
   display: grid;
   grid-template-columns: minmax(260px, 1.2fr) minmax(360px, 1fr);
   align-items: center;
@@ -857,6 +859,11 @@
 }
 
 .directory-card:hover {
+  background: #fbf7ef;
+  box-shadow: inset 3px 0 0 var(--directory-gold);
+}
+
+.directory-card:focus-within {
   background: #fbf7ef;
   box-shadow: inset 3px 0 0 var(--directory-gold);
 }
@@ -896,14 +903,30 @@
   overflow-wrap: anywhere;
 }
 
-.directory-card h3 a {
+.directory-profile-link {
   color: inherit;
   text-decoration-color: transparent;
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
 }
 
-.directory-card h3 a:hover {
+.directory-profile-link::after {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  content: '';
+  cursor: pointer;
+}
+
+.directory-card .directory-profile-link:focus-visible {
+  outline: none;
+}
+
+.directory-card .directory-profile-link:focus-visible::after {
+  box-shadow: inset 0 0 0 3px rgba(255, 199, 44, 0.55);
+}
+
+.directory-profile-link:hover {
   color: #765900;
   text-decoration-color: #dba800;
 }
@@ -953,6 +976,11 @@
   text-decoration-color: transparent;
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
+}
+
+.directory-external-link {
+  position: relative;
+  z-index: 2;
 }
 
 .directory-details a:hover {

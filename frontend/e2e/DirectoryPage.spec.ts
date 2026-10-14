@@ -72,6 +72,20 @@ test('shows the mentor directory and mentor contact details', async ({
   ).toBeVisible()
 })
 
+test('opens a member profile from anywhere on the directory row', async ({
+  page,
+}) => {
+  await page.goto('/directory')
+
+  const alexRow = page.locator('.directory-card').filter({
+    has: page.getByRole('heading', { name: 'Alex Mentor' }),
+  })
+
+  await alexRow.click({ position: { x: 360, y: 36 } })
+
+  await expect(page).toHaveURL('/mentor/42')
+})
+
 test('previews the directory structure while mentor profiles load', async ({
   page,
 }) => {
