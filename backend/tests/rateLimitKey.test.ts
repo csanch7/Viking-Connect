@@ -3,7 +3,9 @@ import { describe, it } from "node:test";
 import type { Request } from "express";
 import {
   getApiRateLimitKey,
+  getApiRateLimitLimit,
   getAuthRateLimitKey,
+  getContactRateLimitKey,
 } from "../middleware/rateLimitKey";
 
 function requestWith(options: {
@@ -38,6 +40,55 @@ describe("API rate-limit keys", () => {
     assert.equal(
       getApiRateLimitKey(requestWith({ ip: "192.0.2.10" })),
       "ip:192.0.2.10",
+    );
+  });
+
+  it("gives anonymous school traffic more room than signed-in members", () => {
+    assert.equal(
+      getApiRateLimitLimit(requestWith({ ip: "192.0.2.10" })),
+      500,
+    );
+    assert.equal(
+      getApiRateLimitLimit(
+        requestWith({ ip: "192.0.2.10", userId: "student-1" }),
+      ),
+      100,
+    );
+  });
+});
+
+describe("contact rate-limit keys", () => {
+  it("gives different senders on the same IP independent limits", () => {
+    const firstSender = getContactRateLimitKey({
+      ...requestWith({ ip: "192.0.2.10" }),
+      body: { sender: "first@example.com" },
+    } as Request);
+    const secondSender = getContactRateLimitKey({
+      ...requestWith({ ip: "192.0.2.10" }),
+      body: { sender: "second@example.com" },
+    } as Request);
+
+    assert.equal(
+      firstSender,
+      "ip-sender:192.0.2.10:first@example.com",
+    );
+    assert.equal(
+      secondSender,
+      "ip-sender:192.0.2.10:second@example.com",
+    );
+    assert.notEqual(firstSender, secondSender);
+  });
+
+  it("normalizes equivalent sender addresses", () => {
+    assert.equal(
+      getContactRateLimitKey({
+        ...requestWith({ ip: "192.0.2.10" }),
+        body: { sender: " Visitor@Example.com " },
+      } as Request),
+      getContactRateLimitKey({
+        ...requestWith({ ip: "192.0.2.10" }),
+        body: { sender: "visitor@example.com" },
+      } as Request),
     );
   });
 });

@@ -10,7 +10,9 @@ import { createApiRouter, type ApiRouterOptions } from "./routes/apiRoutes";
 import { requestContext } from "./middleware/requestContext";
 import {
   getApiRateLimitKey,
+  getApiRateLimitLimit,
   getAuthRateLimitKey,
+  getContactRateLimitKey,
 } from "./middleware/rateLimitKey";
 
 const PgSession = pgSession(session);
@@ -76,7 +78,7 @@ export function createApp(options: AppOptions = {}) {
 
   const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    limit: 100,
+    limit: getApiRateLimitLimit,
     keyGenerator: getApiRateLimitKey,
     standardHeaders: "draft-8",
     legacyHeaders: false,
@@ -93,13 +95,24 @@ export function createApp(options: AppOptions = {}) {
     message: { message: "Too many attempts; please try again later" },
   });
 
-  const contactLimiter = rateLimit({
+  const contactIpLimiter = rateLimit({
     windowMs: 60 * 60 * 1000,
-    limit: 5,
+    limit: 50,
     standardHeaders: "draft-8",
     legacyHeaders: false,
     message: {
-      message: "Too many messages; please try again later",
+      message: "Too many messages from this network; please try again later",
+    },
+  });
+
+  const contactSenderLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000,
+    limit: 5,
+    keyGenerator: getContactRateLimitKey,
+    standardHeaders: "draft-8",
+    legacyHeaders: false,
+    message: {
+      message: "Too many messages from this email; please try again later",
     },
   });
 
@@ -108,7 +121,7 @@ export function createApp(options: AppOptions = {}) {
     createApiRouter(
       authLimiter,
       apiLimiter,
-      contactLimiter,
+      [contactIpLimiter, contactSenderLimiter],
       options.apiDependencies,
     ),
   );

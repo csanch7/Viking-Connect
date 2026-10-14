@@ -454,7 +454,41 @@ describe("API routes", () => {
 
     assert.equal(limitedResponse.status, 429);
     assert.deepEqual(limitedResponse.body, {
-      message: "Too many messages; please try again later",
+      message: "Too many messages from this email; please try again later",
+    });
+  });
+
+  it("does not share contact limits between senders on one school IP", async () => {
+    const app = buildApiApp();
+
+    for (let senderNumber = 0; senderNumber < 6; senderNumber += 1) {
+      const response = await request(app).post("/api/contact-us").send({
+        sender: `visitor-${senderNumber}@example.com`,
+        body: "I would like to learn more about the program.",
+      });
+      assert.equal(response.status, 200);
+    }
+  });
+
+  it("retains a broader contact spam ceiling for one network", async () => {
+    const app = buildApiApp();
+
+    for (let senderNumber = 0; senderNumber < 50; senderNumber += 1) {
+      const response = await request(app).post("/api/contact-us").send({
+        sender: `bulk-${senderNumber}@example.com`,
+        body: "I would like to learn more about the program.",
+      });
+      assert.equal(response.status, 200);
+    }
+
+    const limitedResponse = await request(app).post("/api/contact-us").send({
+      sender: "bulk-final@example.com",
+      body: "I would like to learn more about the program.",
+    });
+
+    assert.equal(limitedResponse.status, 429);
+    assert.deepEqual(limitedResponse.body, {
+      message: "Too many messages from this network; please try again later",
     });
   });
 

@@ -6,6 +6,9 @@
   "scripts": {
     "build": "tsx scripts/build.ts",
     "dev": "tsx --env-file=../.env server.ts",
+    "migrate": "node build/migrate.js",
+    "migrate:dev": "tsx --env-file=../.env scripts/migrate.ts",
+    "smoke:production": "node build/smoke-production.js",
     "start": "node build/server.js",
     "test": "tsx --test tests/*.test.ts",
     "typecheck": "tsc --noEmit"

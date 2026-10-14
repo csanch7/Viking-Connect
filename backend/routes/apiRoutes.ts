@@ -44,7 +44,7 @@ export interface ApiRouterOptions {
 export function createApiRouter(
   authLimiter: RequestHandler,
   apiLimiter: RequestHandler,
-  contactLimiter: RequestHandler,
+  contactLimiters: RequestHandler[],
   options: ApiRouterOptions = {},
 ) {
   const router = Router();
@@ -75,7 +75,7 @@ export function createApiRouter(
   );
   router.use(
     "/contact-us",
-    createContactRouter(contactLimiter, options.contactDependencies),
+    createContactRouter(contactLimiters, options.contactDependencies),
   );
   router.use(createTopicRouter(options.topicDependencies));
   router.use("/admin", createAdminRouter(options.adminDependencies));

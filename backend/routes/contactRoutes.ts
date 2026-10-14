@@ -15,14 +15,14 @@ const defaultDependencies: ContactRouterDependencies = {
 };
 
 export function createContactRouter(
-  contactLimiter: RequestHandler,
+  contactLimiters: RequestHandler[],
   dependencies: ContactRouterDependencies = defaultDependencies,
 ) {
   const router = Router();
 
   router.post(
     "/",
-    contactLimiter,
+    ...contactLimiters,
     asyncHandler(async (req, res) => {
       const emailRequest = normalizeContactRequest(req.body);
       const validationError = getContactValidationError(emailRequest);

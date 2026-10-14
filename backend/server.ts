@@ -12,7 +12,9 @@ const staticDirectory =
     : path.resolve(serverDirectory, "dist");
 
 async function startServer() {
-  await runMigrations();
+  if (!env.isProduction) {
+    await runMigrations();
+  }
 
   const app = createApp({ staticDirectory });
   const server = app.listen(env.port, () => {

@@ -13,13 +13,20 @@ const migrationsOutputDirectory = path.join(outputDirectory, "migrations");
 await fs.rm(outputDirectory, { recursive: true, force: true });
 
 await build({
-  entryPoints: [path.join(backendDirectory, "server.ts")],
+  entryPoints: {
+    server: path.join(backendDirectory, "server.ts"),
+    migrate: path.join(backendDirectory, "scripts/migrate.ts"),
+    "smoke-production": path.join(
+      backendDirectory,
+      "scripts/smokeProduction.ts",
+    ),
+  },
   bundle: true,
   platform: "node",
   format: "esm",
   target: "node24",
   packages: "external",
-  outfile: path.join(outputDirectory, "server.js"),
+  outdir: outputDirectory,
 });
 
 await fs.mkdir(migrationsOutputDirectory, { recursive: true });
