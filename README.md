@@ -179,5 +179,12 @@ after launch.
 ## Pull requests
 
 GitHub Actions must pass backend tests/typecheck/build and frontend
-lint/build/Playwright checks. See [CONTRIBUTING.md](CONTRIBUTING.md) for the
-expected workflow.
+lint/build/Playwright checks. Pull requests should describe the change, list
+the verification performed, and call out database migrations, environment
+variable changes, API contract changes, and deployment considerations.
+
+## License
+
+Copyright (c) 2026 Christopher Sanchez. All rights reserved. The source is
+publicly viewable for evaluation, but reuse, modification, and redistribution
+require prior written permission. See [LICENSE](LICENSE) for the complete terms.

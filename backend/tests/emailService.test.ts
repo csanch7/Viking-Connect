@@ -50,7 +50,7 @@ describe("Amazon SES email service", () => {
 
     await sendEmail({
       from: "Viking Connect <hello@example.com>",
-      to: ["owner@example.com", "alotus@stlaurence.com"],
+      to: ["owner@example.com", "admin@example.com"],
       subject: "New registration",
       html: "<p>New registration</p>",
       text: "New registration",
@@ -58,7 +58,7 @@ describe("Amazon SES email service", () => {
 
     assert.deepEqual(capturedCommand?.input.Destination?.ToAddresses, [
       "owner@example.com",
-      "alotus@stlaurence.com",
+      "admin@example.com",
     ]);
   });
 });
