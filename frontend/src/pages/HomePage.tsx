@@ -22,16 +22,22 @@ const outcomes = [
 const testimonials = [
   {
     name: 'Aoibhe Landers ’25',
+    image: '/testimonials/aoibhe-landers.jpg',
+    imagePosition: '50% 46%',
     quote:
       'I’m interested in a career in wealth management and have already made three solid industry connections.',
   },
   {
     name: 'Anthony Rios ’16',
+    image: '/testimonials/anthony-rios.jpg',
+    imagePosition: '50% 18%',
     quote:
       'The STL network has provided me with endless amounts of advice and opportunities, helping me land a position in a growing technology segment.',
   },
   {
     name: 'Mike Stankus ’76',
+    image: '/testimonials/mike-stankus-colorized.png',
+    imagePosition: '50% 18%',
     quote:
       'Viking Connect has enabled me to connect and network with distinguished alumni whom I had known of, but never had the opportunity to meet personally.',
   },
@@ -111,8 +117,8 @@ function HomePage({ isAuthenticated = false }: HomePageProps) {
         </div>
       </section>
 
-      <section className="home-section home-section--split">
-        <div className="home-section-copy">
+      <section className="home-section home-testimonials-section">
+        <div className="home-testimonial-intro">
           <h2>Your network is one of your greatest assets.</h2>
           <p>
             Viking Connect helps Saint Laurence alumni unlock the collective
@@ -129,6 +135,15 @@ function HomePage({ isAuthenticated = false }: HomePageProps) {
         >
           {testimonials.map((testimonial) => (
             <figure key={testimonial.name}>
+              <img
+                src={testimonial.image}
+                alt={`Portrait of ${testimonial.name}`}
+                width="640"
+                height="400"
+                loading="lazy"
+                decoding="async"
+                style={{ objectPosition: testimonial.imagePosition }}
+              />
               <blockquote>
                 <p>“{testimonial.quote}”</p>
               </blockquote>

@@ -28,6 +28,9 @@ test('shows the public home page and opens registration', async ({
     'Mike Stankus ’76',
   ]) {
     await expect(page.getByText(alumnus)).toBeVisible()
+    await expect(
+      page.getByRole('img', { name: `Portrait of ${alumnus}` }),
+    ).toBeVisible()
   }
 
   for (const quote of [

@@ -343,14 +343,14 @@
   padding: 80px 0 0;
 }
 
-.home-section--split {
+.home-testimonial-intro {
   display: grid;
-  grid-template-columns: minmax(0, 0.95fr) minmax(320px, 0.8fr);
-  align-items: start;
-  gap: 32px;
+  grid-template-columns: minmax(0, 0.95fr) minmax(360px, 0.8fr);
+  align-items: end;
+  gap: 48px;
 }
 
-.home-section-copy h2,
+.home-testimonial-intro h2,
 .home-section-heading h2,
 .home-final-cta h2,
 .home-contact h2 {
@@ -363,46 +363,81 @@
   line-height: 1.02;
 }
 
-.home-section-copy p:not(.home-kicker),
+.home-testimonial-intro p,
 .home-section-heading p:not(.home-kicker) {
   max-width: 620px;
-  margin: 20px 0 0;
+  margin: 0;
+  color: var(--home-muted);
+  font-size: var(--fs-400);
+  line-height: 1.58;
 }
 
 .home-testimonial-panel {
   display: grid;
-  gap: 1px;
-  overflow: hidden;
-  border: 1px solid var(--home-border);
-  border-radius: 8px;
-  background: var(--home-border);
-  box-shadow: 0 14px 36px rgba(25, 25, 25, 0.055);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 32px;
+  padding: 24px 0 28px;
+  border-top: 1px solid var(--home-border);
+  border-bottom: 1px solid var(--home-border);
 }
 
 .home-testimonial-panel figure {
+  display: grid;
+  grid-template-rows: 280px 1fr auto;
+  min-width: 0;
   margin: 0;
-  padding: 22px;
-  background: var(--home-card);
+  padding: 0 24px;
+  border-right: 1px solid var(--home-border);
+}
+
+.home-testimonial-panel figure:first-child {
+  padding-left: 0;
+}
+
+.home-testimonial-panel figure:last-child {
+  padding-right: 0;
+  border-right: 0;
+}
+
+.home-testimonial-panel figure > img {
+  display: block;
+  width: 100%;
+  height: 280px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: var(--home-gold-soft);
 }
 
 .home-testimonial-panel blockquote {
   margin: 0;
+  padding: 22px 0 0;
 }
 
 .home-testimonial-panel blockquote p {
   margin: 0;
   color: var(--home-ink);
   font-size: var(--fs-500);
-  font-weight: 620;
+  font-weight: 580;
   line-height: 1.48;
 }
 
 .home-testimonial-panel figcaption {
-  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 0 0;
   color: var(--home-muted);
   font-size: var(--fs-300);
   font-weight: 760;
   line-height: 1.4;
+}
+
+.home-testimonial-panel figcaption::before {
+  width: 24px;
+  height: 2px;
+  flex: 0 0 24px;
+  content: '';
+  background: var(--home-gold);
 }
 
 .home-section-heading {
