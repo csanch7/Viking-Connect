@@ -17,21 +17,28 @@ test.beforeEach(async ({ page }) => {
 test('shows the fields that match the selected program role', async ({
   page,
 }) => {
-  await expect(page.getByLabel('Name', { exact: true })).toBeVisible()
-  await page.getByRole('radio', { name: /Mentor/ }).check()
-  await expect(page.getByLabel('Graduation year')).toHaveAttribute(
-    'type',
-    'number',
+  const mentorRegistrationEnabled =
+    process.env.VITE_MENTOR_REGISTRATION_FEATURE_FLAG === 'true'
+  await expect(page.getByRole('radio', { name: /Mentor/ })).toHaveCount(
+    mentorRegistrationEnabled ? 1 : 0,
   )
-  await expect(page.getByRole('heading', { name: 'About you' })).toBeVisible()
-  await expect(page.getByLabel('Bio')).toBeVisible()
-  await expect(
-    page.getByRole('heading', { name: 'Areas of Expertise / Industries' }),
-  ).toBeVisible()
-  await expect(page.getByLabel('Select an area')).toBeVisible()
-  await expect(page.locator('#linkedin-help')).toContainText(
-    'shown only to approved Viking Connect members',
-  )
+  if (mentorRegistrationEnabled) {
+    await expect(page.getByLabel('Name', { exact: true })).toBeVisible()
+    await page.getByRole('radio', { name: /Mentor/ }).check()
+    await expect(page.getByLabel('Graduation year')).toHaveAttribute(
+      'type',
+      'number',
+    )
+    await expect(page.getByRole('heading', { name: 'About you' })).toBeVisible()
+    await expect(page.getByLabel('Bio')).toBeVisible()
+    await expect(
+      page.getByRole('heading', { name: 'Areas of Expertise / Industries' }),
+    ).toBeVisible()
+    await expect(page.getByLabel('Select an area')).toBeVisible()
+    await expect(page.locator('#linkedin-help')).toContainText(
+      'shown only to approved Viking Connect members',
+    )
+  }
 
   await page.getByRole('radio', { name: /Mentee/ }).check()
   await expect(page.getByRole('heading', { name: 'About you' })).toBeVisible()
@@ -60,7 +67,7 @@ test('shows a loading state before database topics arrive', async ({
   })
 
   await page.reload()
-  await page.getByRole('radio', { name: /Mentor/ }).check()
+  await page.getByRole('radio', { name: /Mentee/ }).check()
 
   const selector = page.getByLabel('Select an area')
   await expect(selector).toBeDisabled()
@@ -171,7 +178,7 @@ test('submits a community member without a graduation year', async ({
   await page.getByLabel('Email').fill('casey@example.com')
   await page.getByLabel('Password', { exact: true }).fill('StrongPass123!')
   await page.getByLabel('Confirm password').fill('StrongPass123!')
-  await page.getByRole('radio', { name: /Mentor/ }).check()
+  await page.getByRole('radio', { name: /Mentee/ }).check()
   await page
     .getByLabel('St. Laurence affiliation')
     .selectOption('Community Member')

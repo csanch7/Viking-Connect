@@ -30,9 +30,9 @@ export async function sendPasswordResetEmail(
     const messageId = await sendEmail({
       from: config.from,
       to: email,
-      subject: "Reset your STL Mentorship Program password",
+      subject: "Reset your Viking Connect password",
       html: `<p>Use the link below to reset your password. It expires in one hour.</p><p><a href="${resetUrl}">Reset password</a></p><p>If you did not request this, you can ignore this email.</p>`,
-      text: `Reset your STL Mentorship Program password within one hour: ${resetUrl}\n\nIf you did not request this, you can ignore this email.`,
+      text: `Reset your Viking Connect password within one hour: ${resetUrl}\n\nIf you did not request this, you can ignore this email.`,
     });
     log("info", "registration_email.sent", { messageId });
   } catch (error) {

@@ -27,6 +27,13 @@ export type MentorDirectoryUser = Pick<
   | "gradYear"
 >;
 
+export type MenteeListUser = Pick<
+  PublicUser,
+  | "name"
+  | "email"
+>;
+
+
 export type MenteeDirectoryUser = MentorDirectoryUser;
 
 export interface MentorRecommendation {
@@ -470,6 +477,26 @@ export function parsePendingUsersEnvelope(value: unknown) {
 
   return { users };
 }
+
+export function parseMenteeListEnvelope(value: unknown) {
+  if (!isRecord(value) || !Array.isArray(value.users)) {
+    return contractError("mentee list");
+  }
+
+  const users = value.users.map((user): MenteeListUser => {
+    if (!isRecord(user)) {
+      return contractError("mentee list");
+    }
+
+    return {
+      name: readString(user, "name"),
+      email: readString(user, "email"),
+    };
+  });
+
+  return { users };
+}
+
 
 export function parseCountResponse(value: unknown) {
   if (!isRecord(value)) {

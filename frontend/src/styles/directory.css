@@ -55,6 +55,59 @@
   line-height: 1.55;
 }
 
+.directory-export-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.directory-export-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 6px;
+  color: var(--directory-card);
+  background: var(--directory-ink);
+  box-shadow: 0 1px 2px rgba(9, 9, 9, 0.08);
+  font: inherit;
+  font-size: var(--fs-200);
+  font-weight: 720;
+  cursor: pointer;
+}
+
+.directory-export-button:hover:not(:disabled) {
+  background: #2a2926;
+}
+
+.directory-export-button:active:not(:disabled) {
+  background: #090909;
+}
+
+.directory-export-button:focus-visible {
+  outline: 3px solid var(--directory-gold);
+  outline-offset: 3px;
+}
+
+.directory-export-button:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.directory-export-button svg {
+  flex-shrink: 0;
+}
+
+.directory-export-hint {
+  color: var(--directory-muted);
+  font-size: var(--fs-200);
+}
+
 .directory-view-picker {
   display: inline-grid;
   grid-template-columns: repeat(2, minmax(120px, 1fr));

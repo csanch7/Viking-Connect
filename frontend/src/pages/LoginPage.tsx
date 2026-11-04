@@ -84,7 +84,7 @@ function LoginPage() {
       <section className="login-panel" aria-labelledby="login-title">
         <div className="login-brand">
           <img className="login-brand-mark" src="/favicon.svg" alt="" />
-          <span>Mentorship Program</span>
+          <span>Viking Connect</span>
         </div>
 
         {error && (

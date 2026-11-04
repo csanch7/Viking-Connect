@@ -259,6 +259,7 @@ function buildApiApp(
         findMenteeById: async (id) => (id === mentee.id ? mentee : undefined),
       },
       adminDependencies: {
+        getMenteeList: async () => [{ name: mentee.name, email: mentee.email }],
         getPendingUsers: async () => [
           {
             id: "19",
@@ -771,6 +772,19 @@ describe("API routes", () => {
     const approval = await agent.post("/api/admin/approve-user/19");
     assert.equal(approval.status, 200);
     assert.deepEqual(approval.body, { message: "19 has been approved" });
+  });
+
+  it("exports mentee contact details only to admins", async () => {
+    const admin = await login(buildApiApp("admin"));
+    const exported = await admin.get("/api/admin/mentee-list");
+    assert.equal(exported.status, 200);
+    assert.deepEqual(exported.body, {
+      users: [{ name: mentee.name, email: mentee.email }],
+    });
+
+    const member = await login(buildApiApp());
+    assert.equal((await member.get("/api/admin/mentee-list")).status, 403);
+    assert.equal((await request(buildApiApp()).get("/api/admin/mentee-list")).status, 403);
   });
 
   it("allows admins to delete a user", async () => {

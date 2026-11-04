@@ -19,7 +19,7 @@ export function renderContactUsEmail(emailData: EmailRequest) {
 
   const bodyHtml = `
     <p style="margin: 0 0 24px; color: #4f4b45; font-size: 15px; line-height: 1.6;">
-      Someone reached out through the mentorship program website. Replying to this email will respond directly to the sender.
+      Someone reached out through Viking Connect. Replying to this email will respond directly to the sender.
     </p>
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse: collapse;">
       ${fields}
@@ -30,9 +30,9 @@ export function renderContactUsEmail(emailData: EmailRequest) {
 
   return renderEmailLayout({
     title: "New Contact Form Message",
-    preheader: "A new message was submitted through the STL Mentor Program website.",
+    preheader: "A new message was submitted through the Viking Connect.",
     heading: "New contact form message",
     bodyHtml,
-    footerHtml: "Sent from the contact form on the STL Mentor Program website.",
+    footerHtml: "Sent from the contact form on Viking Connect.",
   });
 }

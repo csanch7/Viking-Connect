@@ -3,6 +3,13 @@ import type { BaseUser } from "./userRepository";
 
 export type PendingUser = Omit<BaseUser, "status">;
 
+export type MenteeListUser = Pick<
+  BaseUser,
+  | "name"
+  | "email"
+>;
+
+
 type CountRow = { count: string };
 
 export async function getPendingUsers(): Promise<PendingUser[]> {
@@ -107,4 +114,17 @@ export async function getMenteeCount(): Promise<CountRow> {
   `;
 
   return rows[0] as CountRow;
+}
+
+
+export async function getMenteeList(): Promise<MenteeListUser[]> {
+  const rows = await sql`
+    SELECT name, email 
+    FROM users 
+    WHERE type = 'mentee'
+    AND status = 'approved'
+    AND deleted_on IS NULL
+  `;
+
+  return rows as MenteeListUser[];
 }

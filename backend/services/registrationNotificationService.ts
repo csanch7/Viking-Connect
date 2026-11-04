@@ -23,7 +23,7 @@ function renderAdminRegistrationText(user: RegistrationEmailUser) {
       : "Not provided"
   }`;
 
-  return `A new STL Mentor Program registration is waiting for review.
+  return `A new Viking Connect registration is waiting for review.
 
     Name: ${user.name}
     Email: ${user.email}
@@ -49,7 +49,7 @@ export async function sendAdminRegistrationNotification(
     const messageId = await sendEmail({
       from: config.from,
       to: config.to,
-      subject: "STL Mentorship Program: New Registered ",
+      subject: "Viking Connect: New Registered ",
       html: renderAdminRegistrationEmail(
         user,
         adminPendingUsersUrl,

@@ -5,6 +5,9 @@ import { useNavigate } from 'react-router-dom'
 import MenteeListCard from '../components/user/MenteeListCard'
 import ConfirmationDialog from '../components/ConfirmationDialog'
 import { useAdminUserList } from '../hooks/useAdminUserList'
+import adminService from '../services/adminService'
+import { jsonToCsv, downloadCSV } from '../utils/jsonToCsv'
+import { useState } from 'react'
 
 function loadMentees(page: number, searchText: string) {
   return userService.getMentees(page, [], searchText)
@@ -12,6 +15,8 @@ function loadMentees(page: number, searchText: string) {
 
 function MenteeListPage() {
   const navigate = useNavigate()
+  const [isExporting, setIsExporting] = useState(false)
+  const [exportError, setExportError] = useState<string | null>(null)
   const list = useAdminUserList<Mentee>({
     queryName: 'mentees',
     loadUsers: loadMentees,
@@ -31,6 +36,21 @@ function MenteeListPage() {
 
   function handleFilter(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
+  }
+
+  async function downloadMentees() {
+    if (isExporting) return
+    setIsExporting(true)
+    setExportError(null)
+    try {
+      const mentees = await adminService.getMenteeList()
+      const csvContent = jsonToCsv(mentees)
+      downloadCSV(csvContent)
+    } catch {
+      setExportError('We could not download the mentee list. Please try again.')
+    } finally {
+      setIsExporting(false)
+    }
   }
 
   if (list.loading) {
@@ -55,7 +75,36 @@ function MenteeListPage() {
             Search approved mentees, review their profiles, and remove accounts
             that should no longer have access to the program.
           </p>
+          <div className="directory-export-actions">
+            <button
+              className="directory-export-button"
+              type="button"
+              onClick={downloadMentees}
+              disabled={isExporting}
+              aria-busy={isExporting}
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M12 3v12m-5-5 5 5 5-5M4 15v5h16v-5" />
+              </svg>
+              {isExporting ? 'Preparing download…' : 'Export mentees (CSV)'}
+            </button>
+          </div>
         </section>
+        {exportError && (
+          <div className="admin-message directory-error-message" role="alert">
+            {exportError}
+          </div>
+        )}
         {message && (
           <div className="admin-message" role="status">
             {message}

@@ -23,7 +23,7 @@ function MemberProfileHero({ action, titleId, user }: MemberProfileHeroProps) {
         <div className="member-profile-heading">
           <p className="member-profile-eyebrow">{memberType} profile</p>
           <h1 id={titleId}>{user.name}</h1>
-          <p>{memberType} in the STL Mentorship Program</p>
+          <p>{memberType} in Viking Connect</p>
         </div>
         {action && <div className="member-profile-actions">{action}</div>}
       </div>

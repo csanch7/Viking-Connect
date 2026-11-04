@@ -40,7 +40,7 @@ function ResetPasswordPage() {
       <section className="login-panel" aria-labelledby="reset-password-title">
         <div className="login-brand">
           <img className="login-brand-mark" src="/favicon.svg" alt="" />
-          <span>Mentorship Program</span>
+          <span>Viking Connect</span>
         </div>
         <div className="login-heading">
           <p className="login-kicker">Account recovery</p>

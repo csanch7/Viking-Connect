@@ -120,8 +120,7 @@ function PendingUsersPage() {
         </button>
 
         <p>
-          Review registration details before adding new members to the
-          mentorship program.
+          Review registration details before adding new members to Viking Connect.
         </p>
       </section>
 

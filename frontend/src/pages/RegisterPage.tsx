@@ -8,6 +8,8 @@ import { communityMemberTypes, type CommunityMemberType } from '../types/user'
 
 function RegisterPage() {
   const latestGraduationYear = new Date().getFullYear() + 5
+  const mentorRegistrationFeatureFlag =
+    import.meta.env.VITE_MENTOR_REGISTRATION_FEATURE_FLAG === 'true'
   const {
     name,
     setName,
@@ -175,19 +177,25 @@ function RegisterPage() {
                 <small>I want guidance from alumni mentors.</small>
               </span>
             </label>
-            <label className="register-role-option" htmlFor="mentor">
-              <input
-                type="radio"
-                id="mentor"
-                name="typeSelect"
-                value="mentor"
-                onChange={(e) => setType(e.target.value)}
-              />
-              <span>
-                <strong>Mentor</strong>
-                <small>I want to support students or alumni.</small>
-              </span>
-            </label>
+            {mentorRegistrationFeatureFlag ? (
+              <>
+                <label className="register-role-option" htmlFor="mentor">
+                  <input
+                    type="radio"
+                    id="mentor"
+                    name="typeSelect"
+                    value="mentor"
+                    onChange={(e) => setType(e.target.value)}
+                  />
+                  <span>
+                    <strong>Mentor</strong>
+                    <small>I want to support students or alumni.</small>
+                  </span>
+                </label>
+              </>
+            ) : (
+              <></>
+            )}
           </fieldset>
 
           <div className="register-grid">

@@ -3,6 +3,7 @@ import {
   parseCountResponse,
   parseMessageResponse,
   parsePendingUsersEnvelope,
+  parseMenteeListEnvelope
 } from '../../../shared/contracts'
 
 const backend = '/api'
@@ -12,6 +13,11 @@ const adminService = {
     const endpoint: string = `${backend}/admin/pending-users`
     const response = await axios.get(endpoint)
     return parsePendingUsersEnvelope(response.data).users
+  },
+  async getMenteeList() {
+    const endpoint: string = `${backend}/admin/mentee-list`
+    const response = await axios.get(endpoint)
+    return parseMenteeListEnvelope(response.data).users
   },
   async denyUser(userId: string) {
     const endpoint: string = `${backend}/admin/deny-user/${userId}`

@@ -61,7 +61,7 @@ export function renderAdminRegistrationEmail(
 
   return renderEmailLayout({
     title: "New Registration Pending Review",
-    preheader: "A new STL Mentor Program registration is waiting for admin approval.",
+    preheader: "A new Viking Connect registration is waiting for admin approval.",
     heading: "New registration pending review",
     bodyHtml,
   });

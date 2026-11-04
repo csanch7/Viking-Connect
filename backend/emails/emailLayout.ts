@@ -94,7 +94,7 @@ export function renderEmailLayout(options: {
                 </tr>
                 <tr>
                   <td style="padding: 18px 32px; border-top: 1px solid ${colors.border}; color: ${colors.textMuted}; font-size: 13px; line-height: 1.5; background: ${colors.surfaceMuted};">
-                    ${options.footerHtml ?? "STL Mentor Program &middot; This is an automated notification."}
+                    ${options.footerHtml ?? "Viking Connect &middot; This is an automated notification."}
                   </td>
                 </tr>
               </table>

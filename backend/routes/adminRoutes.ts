@@ -6,6 +6,7 @@ import {
   getMenteeCount,
   getMentorCount,
   getPendingUsers,
+  getMenteeList
 } from "../repositories/adminRepository";
 import { asyncHandler } from "../middleware/asyncHandler";
 import { requireAdmin } from "../middleware/auth";
@@ -23,6 +24,7 @@ export interface AdminRouterDependencies {
   getMentorCount: typeof getMentorCount;
   getPendingUsers: typeof getPendingUsers;
   sendRegistrationAcceptanceEmail: typeof sendRegistrationAcceptanceEmail;
+  getMenteeList: typeof getMenteeList;
 }
 
 const defaultDependencies: AdminRouterDependencies = {
@@ -32,7 +34,8 @@ const defaultDependencies: AdminRouterDependencies = {
   getMenteeCount,
   getMentorCount,
   getPendingUsers,
-  sendRegistrationAcceptanceEmail
+  sendRegistrationAcceptanceEmail,
+  getMenteeList
 };
 
 export function createAdminRouter(
@@ -46,6 +49,7 @@ export function createAdminRouter(
     getMenteeCount,
     getMentorCount,
     getPendingUsers,
+    getMenteeList,
   } = dependencies;
 
   router.get(
@@ -53,6 +57,16 @@ export function createAdminRouter(
     requireAdmin,
     asyncHandler(async (_req, res) => {
       const users = await getPendingUsers();
+
+      res.json({ users });
+    }),
+  );
+
+  router.get(
+    "/mentee-list",
+    requireAdmin,
+    asyncHandler(async (_req, res) => {
+      const users = await getMenteeList();
 
       res.json({ users });
     }),
