@@ -54,7 +54,7 @@ test('downloads mentee contacts as a safe CSV with loading feedback', async ({
     })
   })
   await page.goto('/admin/mentees')
-  await page.getByRole('button', { name: 'Download mentee list' }).click()
+  await page.getByRole('button', { name: 'Export mentees (CSV)' }).click()
   await expect(
     page.getByRole('button', { name: 'Preparing download…' }),
   ).toBeDisabled()
@@ -69,7 +69,7 @@ test('downloads mentee contacts as a safe CSV with loading feedback', async ({
     "name,email\nJordan Mentee,jordan@example.com\n'=1+1,test@example.com",
   )
   await expect(
-    page.getByRole('button', { name: 'Download mentee list' }),
+    page.getByRole('button', { name: 'Export mentees (CSV)' }),
   ).toBeEnabled()
 })
 
@@ -80,11 +80,11 @@ test('shows a recoverable error when exporting fails', async ({ page }) => {
     fulfillJson(route, {}, 500),
   )
   await page.goto('/admin/mentees')
-  await page.getByRole('button', { name: 'Download mentee list' }).click()
+  await page.getByRole('button', { name: 'Export mentees (CSV)' }).click()
   await expect(page.getByRole('alert')).toHaveText(
     'We could not download the mentee list. Please try again.',
   )
   await expect(
-    page.getByRole('button', { name: 'Download mentee list' }),
+    page.getByRole('button', { name: 'Export mentees (CSV)' }),
   ).toBeEnabled()
 })
