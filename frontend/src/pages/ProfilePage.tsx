@@ -30,12 +30,14 @@ function ProfilePage() {
     isSaving,
     isDirty,
     bioError,
+    linkedInError,
     expertiseError,
     canSave,
     startEditing,
     cancelEditing,
     updateType,
     updateBio,
+    updateLinkedin,
     updateCollege,
     updateSelectedExpertise,
     removeExpertise,
@@ -283,6 +285,35 @@ function ProfilePage() {
                   </label>
                 </div>
               </fieldset>
+
+              <div className="profile-edit-section">
+                <div className="profile-edit-field-heading">
+                  <label htmlFor="editLinkedIn">LinkedIn URL</label>
+                  <span>Required</span>
+                </div>
+                <p className="profile-edit-help" id="editLinkedIn-help">
+                  Use your personal LinkedIn profile link, such as
+                  https://www.linkedin.com/in/your-name.
+                </p>
+
+                <input
+                  id="editLinkedIn"
+                  className="profile-edit-input"
+                  type="url"
+                  value={editorState.linkedin}
+                  onChange={(event) => updateLinkedin(event.target.value)}
+                  required
+                  aria-invalid={Boolean(linkedInError)}
+                  aria-describedby={`editLinkedIn-help${linkedInError ? ' editLinkedIn-error' : ''}`}
+                />
+                {linkedInError && (
+                  <div className="profile-edit-field-footer">
+                    <p id="editLinkedIn-error" className="profile-edit-field-error">
+                      {linkedInError}
+                    </p>
+                  </div>
+                )}
+              </div>
 
               <div className="profile-edit-section">
                 <div className="profile-edit-field-heading">

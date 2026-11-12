@@ -21,7 +21,7 @@ function MenteeListCard({
         </div>
         <div className="directory-card-heading">
           <h3>
-            <Link to={`/mentee/${mentee.id}`}>{mentee.name}</Link>
+            <Link className ="directory-profile-link" to={`/mentee/${mentee.id}`}>{mentee.name}</Link>
           </h3>
           <p>{mentee.email}</p>
         </div>

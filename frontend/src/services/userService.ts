@@ -171,6 +171,7 @@ const userService = {
     profile: {
       type: UserType
       bio: string
+      linkedin: string
       college: string | null
       areasOfExpertise: string[]
     },
@@ -183,6 +184,7 @@ const userService = {
       message: readStringField(response.data, 'message'),
       type: readUserTypeField(response.data, 'type'),
       bio: readStringField(response.data, 'bio'),
+      linkedin: readStringField(response.data, 'linkedin'),
       college: readNullableStringField(response.data, 'college'),
       areasOfExpertise: readStringArrayField(response.data, 'areasOfExpertise'),
     }

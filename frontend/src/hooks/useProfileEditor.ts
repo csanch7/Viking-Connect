@@ -10,12 +10,15 @@ type ProfileEditorState =
       mode: 'profile'
       type: UserType
       bio: string
+      linkedin: string
       college: string
       areasOfExpertise: string[]
       selectedArea: string
     }
 
 const closedEditor: ProfileEditorState = { mode: null }
+const linkedinProfileUrlRegex =
+  /^https:\/\/(www\.)?linkedin\.com\/in\/[A-Za-z0-9-]{3,100}\/?$/
 
 export function useProfileEditor(
   user: PublicUser | null,
@@ -39,19 +42,28 @@ export function useProfileEditor(
     user !== null &&
     (editor.type !== user.type ||
       editor.bio !== user.bio ||
+      editor.linkedin !== user.linkedin ||
       (editor.college || null) !== user.college ||
       !expertiseUnchanged)
   const bioError =
     editor.mode === 'profile' && !editor.bio.trim()
       ? 'Add a short introduction before saving.'
       : ''
+  const linkedInError =
+    editor.mode !== 'profile'
+      ? ''
+      : !editor.linkedin.trim()
+        ? 'Add your LinkedIn profile URL before saving.'
+        : !linkedinProfileUrlRegex.test(editor.linkedin.trim())
+          ? 'Enter a valid LinkedIn profile URL.'
+          : ''
   const expertiseError =
     editor.mode === 'profile' && editor.areasOfExpertise.length === 0
       ? editor.type === 'mentor'
         ? 'Choose at least one area where you can help.'
         : 'Choose at least one area where you would like support.'
       : ''
-  const canSave = isDirty && !bioError && !expertiseError && !isSaving
+  const canSave = isDirty && !bioError && !linkedInError && !expertiseError && !isSaving
 
   function getSaveError(error: unknown) {
     if (axios.isAxiosError<{ message?: string }>(error)) {
@@ -69,6 +81,7 @@ export function useProfileEditor(
       mode: 'profile',
       type: user.type,
       bio: user.bio,
+      linkedin: user.linkedin,
       college: user.college ?? '',
       areasOfExpertise: user.areasOfExpertise,
       selectedArea: '',
@@ -83,6 +96,12 @@ export function useProfileEditor(
   function updateBio(bio: string) {
     setEditor((current) =>
       current.mode === 'profile' ? { ...current, bio } : current,
+    )
+  }
+
+  function updateLinkedin(linkedin: string) {
+    setEditor((current) =>
+      current.mode === 'profile' ? { ...current, linkedin } : current,
     )
   }
 
@@ -140,11 +159,17 @@ export function useProfileEditor(
 
     const type = editor.type
     const bio = editor.bio.trim()
+    const linkedin = editor.linkedin.trim()
     const college = editor.college || null
     const areasOfExpertise = editor.areasOfExpertise
 
     if (!bio) {
       setSaveError('Bio cannot be empty.')
+      return
+    }
+
+    if (linkedInError) {
+      setSaveError(linkedInError)
       return
     }
 
@@ -160,6 +185,7 @@ export function useProfileEditor(
     if (
       type === user.type &&
       bio === user.bio.trim() &&
+      linkedin === user.linkedin.trim() &&
       college === user.college &&
       expertiseUnchanged
     ) {
@@ -171,7 +197,7 @@ export function useProfileEditor(
     setSaveError('')
     try {
       const response = await userService.updateProfile(
-        { type, bio, college, areasOfExpertise },
+        { type, bio, linkedin, college, areasOfExpertise },
         user.id,
       )
       const typeChanged = response.type !== user.type
@@ -179,6 +205,7 @@ export function useProfileEditor(
         ...user,
         type: response.type,
         bio: response.bio,
+        linkedin: response.linkedin,
         college: response.college,
         areasOfExpertise: response.areasOfExpertise,
       })
@@ -204,6 +231,7 @@ export function useProfileEditor(
     isSaving,
     isDirty,
     bioError,
+    linkedInError,
     expertiseError,
     canSave,
     startEditing,
@@ -212,6 +240,7 @@ export function useProfileEditor(
     updateBio,
     updateCollege,
     updateSelectedExpertise,
+    updateLinkedin,
     removeExpertise,
     addExpertise,
     saveProfile,

@@ -1,4 +1,5 @@
 import type { UserType } from "../../shared/contracts";
+import { isLinkedinProfileUrl } from "./registrationValidation";
 
 const maxBioLength = 1000;
 const maxExpertiseLength = 80;
@@ -9,6 +10,10 @@ export function normalizeUserType(value: unknown): UserType | null {
 }
 
 export function normalizeBio(value: unknown) {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+export function normalizeLinkedin(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
 }
 
@@ -30,6 +35,15 @@ export function getBioValidationError(bio: string) {
   }
 
   return null;
+}
+
+export function getLinkedinValidationError(linkedin: string){
+  if (!linkedin){
+    return "Linkedin URL is required"
+  }
+  if (!isLinkedinProfileUrl(linkedin)) {
+      return "Enter a valid LinkedIn profile URL";
+    }
 }
 
 export function normalizeExpertiseList(value: unknown) {

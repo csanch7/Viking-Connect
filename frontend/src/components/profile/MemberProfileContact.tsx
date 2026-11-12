@@ -30,7 +30,7 @@ function MemberProfileContact({ user, tracking }: MemberProfileContactProps) {
           <dd>
             {user.linkedin ? (
               <a href={user.linkedin} target="_blank" rel="noreferrer">
-                View profile <span aria-hidden="true">↗</span>
+                {user.linkedin}
               </a>
             ) : (
               <span className="member-profile-muted">Not added</span>

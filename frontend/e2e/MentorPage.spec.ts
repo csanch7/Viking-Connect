@@ -29,7 +29,7 @@ test('shows a mentor profile returned by the API', async ({ page }) => {
     page.getByText('I help students prepare for careers in finance.'),
   ).toBeVisible()
   await expect(
-    page.getByRole('link', { name: /View profile/ }),
+    page.getByRole('link', { name: 'https://www.linkedin.com/in/alex-mentor' }),
   ).toHaveAttribute('href', 'https://www.linkedin.com/in/alex-mentor')
   await expect(
     page.getByRole('link', { name: 'Back to mentor directory' }),

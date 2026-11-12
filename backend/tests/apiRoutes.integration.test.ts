@@ -182,6 +182,7 @@ function buildApiApp(
         updateProfile: async (profile) => ({
           type: profile.type,
           bio: profile.bio,
+          linkedin: profile.linkedin,
           college:
             profile.collegeId === "1"
               ? "DePaul University"
@@ -573,6 +574,7 @@ describe("API routes", () => {
     const profileUpdate = await agent.patch("/api/profile/7").send({
       type: "mentor",
       bio: "I am looking for career planning and interview preparation.",
+      linkedin: "https://www.linkedin.com/in/jane-student",
       college: "University of Illinois Chicago",
       areasOfExpertise: ["Career Planning", "Finance"],
     });
@@ -581,6 +583,7 @@ describe("API routes", () => {
       message: "Profile has been successfully updated",
       type: "mentor",
       bio: "I am looking for career planning and interview preparation.",
+      linkedin: "https://www.linkedin.com/in/jane-student",
       college: "University of Illinois Chicago",
       areasOfExpertise: ["Career Planning", "Finance"],
     });
@@ -592,11 +595,24 @@ describe("API routes", () => {
     const invalidType = await agent.patch("/api/profile/7").send({
       type: "admin",
       bio: "I am looking for career planning and interview preparation.",
+      linkedin: "https://www.linkedin.com/in/jane-student",
       college: "University of Illinois Chicago",
       areasOfExpertise: ["Career Planning"],
     });
     assert.equal(invalidType.status, 400);
     assert.deepEqual(invalidType.body, { message: "Choose mentor or mentee" });
+
+    const invalidLinkedin = await agent.patch("/api/profile/7").send({
+      type: "mentor",
+      bio: "I am looking for career planning and interview preparation.",
+      linkedin: "https://example.com/jane",
+      college: "University of Illinois Chicago",
+      areasOfExpertise: ["Career Planning"],
+    });
+    assert.equal(invalidLinkedin.status, 400);
+    assert.deepEqual(invalidLinkedin.body, {
+      message: "Enter a valid LinkedIn profile URL",
+    });
 
     const forbiddenProfileUpdate = await agent.patch("/api/profile/8").send({
       bio: "Attempted change",

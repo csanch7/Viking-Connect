@@ -587,9 +587,9 @@
   line-height: 1.5;
 }
 
+.profile-edit-input,
 .profile-edit-textarea {
   width: 100%;
-  min-height: 116px;
   box-sizing: border-box;
   padding: 12px 14px;
   border: 1px solid var(--member-profile-border-strong);
@@ -598,20 +598,27 @@
   font: inherit;
   font-size: 15px;
   line-height: 1.55;
-  resize: vertical;
   background: var(--member-profile-card);
 }
 
+.profile-edit-textarea {
+  min-height: 116px;
+  resize: vertical;
+}
+
+.profile-edit-input:hover,
 .profile-edit-textarea:hover {
   border-color: #b6aa92;
 }
 
+.profile-edit-input:focus,
 .profile-edit-textarea:focus {
   border-color: #a47e00;
   outline: 0;
   box-shadow: 0 0 0 3px rgba(255, 199, 44, 0.32);
 }
 
+.profile-edit-input[aria-invalid='true'],
 .profile-edit-textarea[aria-invalid='true'] {
   border-color: #9c3b20;
 }

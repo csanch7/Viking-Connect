@@ -13,6 +13,8 @@ import {
   normalizeBio,
   normalizeCollege,
   normalizeUserType,
+  normalizeLinkedin,
+  getLinkedinValidationError
 } from "../validation/profileValidation";
 import {
   getIdParamValidationError,
@@ -76,12 +78,14 @@ export function createProfileRouter(
 
       const type = normalizeUserType(req.body.type);
       const bio = normalizeBio(req.body.bio);
+      const linkedin = normalizeLinkedin(req.body.linkedin)
       const collegeInput = req.body.college;
       const college = normalizeCollege(collegeInput);
       const areasOfExpertise = normalizeExpertiseList(
         req.body.areasOfExpertise,
       );
       const bioValidationError = getBioValidationError(bio);
+      const linkedinValidationError = getLinkedinValidationError(linkedin);
       const expertiseValidationError =
         getExpertiseListValidationError(areasOfExpertise);
 
@@ -92,6 +96,11 @@ export function createProfileRouter(
 
       if (bioValidationError) {
         res.status(400).json({ message: bioValidationError });
+        return;
+      }
+
+      if (linkedinValidationError) {
+        res.status(400).json({ message: linkedinValidationError });
         return;
       }
 
@@ -124,6 +133,7 @@ export function createProfileRouter(
         {
           type,
           bio,
+          linkedin,
           collegeId: selectedCollege?.id ?? null,
           areasOfExpertise,
         },

@@ -200,6 +200,7 @@ export async function updateProfile(
   input: {
     type: UserType;
     bio: string;
+    linkedin: string;
     collegeId: string | null;
     areasOfExpertise: string[];
   },
@@ -211,10 +212,11 @@ export async function updateProfile(
       SET
         type = ${input.type},
         bio = ${input.bio},
+        linkedin = ${input.linkedin},
         college_id = ${input.collegeId}
       WHERE id = ${userId}
         AND deleted_on IS NULL
-      RETURNING id, type, bio, college_id
+      RETURNING id, type, bio, linkedin, college_id
     ),
     selected_topics AS (
       SELECT id, name
@@ -238,6 +240,7 @@ export async function updateProfile(
     SELECT
       updated_user.type,
       updated_user.bio,
+      updated_user.linkedin,
       colleges.name AS college,
       COALESCE(
         (SELECT ARRAY_AGG(selected_topics.name ORDER BY selected_topics.name)
@@ -252,6 +255,7 @@ export async function updateProfile(
     | {
         type: UserType;
         bio: string;
+        linkedin: string;
         college: string | null;
         areasOfExpertise: string[];
       }

@@ -101,6 +101,7 @@ test('edits and saves the complete profile from one action', async ({
     expect(route.request().postDataJSON()).toEqual({
       type: 'mentor',
       bio: 'I am looking for resume review and interview preparation.',
+      linkedin: 'https://www.linkedin.com/in/jane-student',
       college: 'University of Illinois Chicago',
       areasOfExpertise: ['Career Planning'],
     })
@@ -108,6 +109,7 @@ test('edits and saves the complete profile from one action', async ({
       message: 'Profile has been successfully updated',
       type: 'mentor',
       bio: 'I am looking for resume review and interview preparation.',
+      linkedin: 'https://www.linkedin.com/in/jane-student',
       college: 'University of Illinois Chicago',
       areasOfExpertise: ['Career Planning'],
     })
@@ -157,6 +159,7 @@ test('does not announce a role change when the role stays the same', async ({
       message: 'Profile has been successfully updated',
       type: 'mentee',
       bio: 'I am looking for guidance as I prepare for technology roles.',
+      linkedin: 'https://www.linkedin.com/in/jane-student',
       college: null,
       areasOfExpertise: ['Career Planning'],
     })
@@ -175,6 +178,38 @@ test('does not announce a role change when the role stays the same', async ({
     page.getByText('Your profile has been updated.', { exact: true }),
   ).toBeVisible()
   await expect(page.getByText(/now participating as/i)).toHaveCount(0)
+})
+
+test('updates and displays the LinkedIn profile URL', async ({ page }) => {
+  const updatedLinkedin = 'https://www.linkedin.com/in/jane-sanchez'
+  const areasOfExpertise = ['Career Planning']
+  await page.route('**/api/auth/me', async (route) => {
+    await fulfillJson(route, { user: { ...mentee, areasOfExpertise } })
+  })
+  await page.route('**/api/profile/7', async (route) => {
+    expect(route.request().postDataJSON()).toMatchObject({
+      linkedin: updatedLinkedin,
+    })
+    await fulfillJson(route, {
+      message: 'Profile has been successfully updated',
+      type: 'mentee',
+      bio: mentee.bio,
+      linkedin: updatedLinkedin,
+      college: null,
+      areasOfExpertise,
+    })
+  })
+  await page.goto('/profile')
+
+  await page.getByRole('button', { name: 'Edit profile' }).click()
+  const linkedin = page.getByLabel('LinkedIn URL')
+  await expect(linkedin).toHaveValue(mentee.linkedin)
+  await linkedin.fill(updatedLinkedin)
+  await page.getByRole('button', { name: 'Save changes' }).click()
+
+  await expect(
+    page.getByRole('link', { name: updatedLinkedin }),
+  ).toHaveAttribute('href', updatedLinkedin)
 })
 
 test('warns before discarding unsaved profile changes', async ({ page }) => {
