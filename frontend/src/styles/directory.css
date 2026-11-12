@@ -1052,6 +1052,8 @@
 }
 
 .directory-delete-button {
+  position: relative;
+  z-index: 2;
   min-height: 36px;
   padding: 0 12px;
   border: 1px solid #8d3216;
