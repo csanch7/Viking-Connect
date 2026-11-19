@@ -5,7 +5,7 @@ export const errorHandler: ErrorRequestHandler = (error, req, res, _next) => {
   logError("request.unhandled_error", error, {
     requestId: res.locals.requestId,
     method: req.method,
-    path: req.originalUrl,
+    path: `${req.baseUrl}${req.path}`,
   });
 
   if (res.headersSent) {

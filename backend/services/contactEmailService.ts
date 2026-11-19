@@ -25,7 +25,7 @@ export async function sendContactUsEmail(emailData: EmailRequest) {
   }
 
   try {
-    await sendEmail({
+    const messageId = await sendEmail({
       from: config.from,
       to: config.to,
       replyTo: emailData.sender,
@@ -33,6 +33,7 @@ export async function sendContactUsEmail(emailData: EmailRequest) {
       text: renderContactUsText(emailData),
       html: renderContactUsEmail(emailData),
     });
+    log("info", "contact_email.sent", { messageId });
   } catch (error) {
     logError("contact_email.send_failed", error);
     throw error;

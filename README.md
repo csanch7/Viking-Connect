@@ -159,6 +159,24 @@ considered ready.
 The server emits structured JSON logs with request IDs and supports graceful
 shutdown on `SIGTERM` and `SIGINT`.
 
+### Production monitoring
+
+- Set Render's Health Check Path to `/api/ready`. A failed database check
+  returns 503 and emits `database.readiness_failed` in the service logs.
+- Monitor Render service availability and configure an external uptime check
+  for `https://www.vikingconnect.org/api/ready` that alerts on failed checks.
+- In Render logs, search for `level":"error"` and the events
+  `registration_email.send_failed`, `registration_acceptance_email.send_failed`,
+  `password_reset_email.send_failed`, and `contact_email.send_failed`.
+  Email failures are logged, but several email flows deliberately do not fail
+  the user request, so an uptime check alone will not catch them.
+- Use the `x-request-id` response header to find a request's completion and
+  error logs. Request logs include the path without query strings, so password
+  reset tokens and search terms are not recorded there.
+
+These checks require alerts to be configured in the hosting or monitoring
+service; deploying the code alone does not send an alert.
+
 ### Performance follow-ups
 
 The current architecture is appropriate for the initial school launch and a

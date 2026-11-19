@@ -16,7 +16,7 @@ export function requestContext(
     log("info", "request.completed", {
       requestId,
       method: req.method,
-      path: req.originalUrl,
+      path: req.path,
       status: res.statusCode,
       durationMs: Math.round((performance.now() - startedAt) * 100) / 100,
     });

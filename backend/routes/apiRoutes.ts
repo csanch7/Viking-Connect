@@ -16,6 +16,7 @@ import type { TopicRouterDependencies } from "./topicRoutes";
 import { createContactRouter } from "./contactRoutes";
 import type { ContactRouterDependencies } from "./contactRoutes";
 import { checkDatabase } from "../database";
+import { logError } from "../services/logger";
 import { createMenteeRouter } from "./menteeRoutes";
 import type { MenteeRouterDependencies } from "./menteeRoutes";
 import { createCollegeRouter } from "./collegeRoutes";
@@ -57,7 +58,10 @@ export function createApiRouter(
     try {
       await (options.readinessCheck ?? checkDatabase)();
       res.json({ status: "ready" });
-    } catch {
+    } catch (error) {
+      logError("database.readiness_failed", error, {
+        requestId: res.locals.requestId,
+      });
       res.status(503).json({ status: "unavailable" });
     }
   });
